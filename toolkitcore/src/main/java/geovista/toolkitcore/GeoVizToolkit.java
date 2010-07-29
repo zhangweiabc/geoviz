@@ -48,6 +48,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -194,6 +195,8 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 	JMenuItem menuItemSaveWholeImageToFile;
 	JMenuItem menuItemSaveSelectedWindowToFile;
 	JMenuItem menuItemSaveImageToGEX;
+	
+	JCheckBoxMenuItem menuItemUseProj;
 
 	VizState vizState;
 	// how about svg and postscript?
@@ -293,6 +296,8 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuItemSaveWholeImageToFile = new JMenuItem();
 		menuItemSaveSelectedWindowToFile = new JMenuItem();
 		menuItemSaveImageToGEX = new JMenuItem();
+		
+		menuItemUseProj = new JCheckBoxMenuItem();
 
 	}
 
@@ -687,6 +692,8 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		} else if (e.getSource() == menuItemLoadShp) {
 			openShapefilePicker();
+		} else if (e.getSource() == menuItemUseProj){
+			useProj = menuItemUseProj.getState();
 		} else if (e.getSource() == menuItemLoadStates) {
 			loadData("48States");
 		} else if (e.getSource() == menuItemLoadWorld) {
@@ -705,7 +712,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		} else if (e.getSource() == menuItemExportSelection) {
 
-		}
+		} 
 
 		else if (e.getSource() == menuItemOpenProject) {
 			VizState state = ToolkitIO.getVizState(this);
@@ -1139,6 +1146,8 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuItemSaveImageToGEX.addActionListener(this);
 		menuItemCopyApplicationToClipboard.addActionListener(this);
 		menuItemCopySelectedWindowToClipboard.addActionListener(this);
+		
+		menuItemUseProj.addActionListener(this);
 
 		// components are organized by dimension of analysis
 		// then by commonality of usage
@@ -1247,6 +1256,9 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		menuItemSaveImageToGEX
 				.setText("Export image of main window to G-EX Portal");
+		
+		menuItemUseProj.setText("Use U.S. Projection");
+		menuItemUseProj.setState(true);
 
 		menuBar.add(menuFile);
 		menuBar.add(menuAddTool);
@@ -1255,6 +1267,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuBar.add(menuHelp);
 
 		menuFile.add(menuItemLoadShp);
+		menuFile.add(menuItemUseProj);
 		menuFile.addSeparator();
 
 		menuFile.add(menuItemLoadDataTable);
