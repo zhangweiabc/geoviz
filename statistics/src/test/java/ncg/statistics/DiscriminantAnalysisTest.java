@@ -1,131 +1,147 @@
 package ncg.statistics;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
 import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Logger;
+
+import org.junit.Test;
 
 public class DiscriminantAnalysisTest {
 	
-	double delta = 0.00000001;
-
+	double delta = 0.0001;
+	
+	protected final static Logger logger = Logger.getLogger(DiscriminantAnalysisTest.class.getPackage().getName());
+	
 	@Test public void testDiscriminantAnalysis() {
+				
+		// test file name
+		URL testFileName = this.getClass().getResource("resources/iris_poly.csv");
 		
-		System.out.println("Testing Discriminant Analysis Bean");
-
-		String inputFile = 
-			"/home/pfoley/credit_unions/data_processed/electoral_divisions_cu_cso_2006_numeric.csv";
-
-		// read the input data
-		ReadData data = new ReadData(inputFile);
-
+		// comparison file name
+		URL comparisonFileName = this.getClass().getResource("resources/iris_poly_da.csv");
+		
+		//parameter file name
+		URL parameterFileName = this.getClass().getResource("resources/iris_poly_da_parameters.csv");
+	
+		// read the input test data
+		ReadData testData = new ReadData(testFileName.getFile());
+		
+		// read the input comparison data
+		ReadData comparisonData = new ReadData(comparisonFileName.getFile());
+		ReadData parameterData = new ReadData(parameterFileName.getFile());
+		
 		try {
-			data.readFile();
+			
+			// read the test data
+			testData.readFile();
+			
+			// read the comparison data
+			comparisonData.readFile();
+			
+			// read the parameter data
+			parameterData.readFile();
+			
+			// now try to do discriminant analysis based on the 
+			// second & third columns - sepallength and sepalwidth
+			
+			// extract the predictor variables (independent variables)
+			int[] predCols = {1,2};
+			double[][] predictorVars = testData.getSubMatrix(predCols);
+			
+			// get the dependent variable (class)
+			int[] classification = testData.getColumnAsInt(11);
+			
+			// create new discriminant analysis object
+			DiscriminantAnalysis da = new DiscriminantAnalysis();
+			
+			// set the predictor variables
+			da.setPredictorVariables(predictorVars,true);
+
+			// set the classification variable
+			da.setClassification(classification);
+			
+			// classify
+			da.classify();
+			
+			// get num attributes
+			int numAttributes = da.getNumAttributes();
+			
+			// get number of observations
+			int numObservations = da.getNumObservations();
+			
+			// get the class frequencies
+			int[] classFreq = da.getClassFrequencies();
+			
+			// get unique classes
+			int[] uniqueClasses = da.getUniqueClasses();
+			
+			// get confusion matrix
+			int[][] confMatrix = da.confusionMatrix();
+			
+			// get the classification
+			int[] classified = da.getClassified();
+			
+			// get the classification function coefficients
+			double[][] params = da.getParameters();
+						
+			// get mahalanobis distance squared
+			double[][] mhDistance2 = da.getMahalanobisDistance2();
+			
+			// get posterior probabilities
+			double[][] postProb = da.getPosteriorProbabilities();
+			
+			//******************************************************
+			// do tests
+			//******************************************************
+			
+			int comparisonNumObs = 150;
+			int comparisonNumAttributes = 2;
+			int[] comparisonClassFreq = {50,50,50};
+			int[] comparisonUniqueClasses = {1,2,3};
+			int[][] comparisonConfMatrix = {{49,1,0},{0,36,14},{0,15,35}};
+			int[] comparisonClassified = comparisonData.getColumnAsInt(2);
+			double[][] comparisonParams = parameterData.getData();
+			int[] mhDistIndices = {6,7,8};
+			double[][] comparisonMhDistance2 = comparisonData.getSubMatrix(mhDistIndices);
+			int[] postProbIndices = {3,4,5};
+			double[][] comparisonPostProb = comparisonData.getSubMatrix(postProbIndices);
+			
+			assertTrue(numObservations == comparisonNumObs);
+			assertTrue(numAttributes == comparisonNumAttributes);
+			assertArrayEquals(classFreq,comparisonClassFreq);
+			assertArrayEquals(uniqueClasses,comparisonUniqueClasses);
+			assertArrayEquals(confMatrix,comparisonConfMatrix);
+			assertArrayEquals(classified,comparisonClassified);
+			assertArrayDoubleEquals(params,comparisonParams,delta);
+			assertArrayDoubleEquals(mhDistance2,comparisonMhDistance2,delta);
+			assertArrayDoubleEquals(postProb,comparisonPostProb,delta);
+						
 		} catch (IOException e) {
-			System.out.println("Unable to read input file");
-			System.out.println(e.getMessage());
-			System.exit(1);
-		}
-
-		//predictor variable column indices
-		int num_cu = 3;
-		int[] pred_cols = {4,5,6,7,8,9,10,11,12,13};
-
-		double[] priorProbabilities = {0.5,0.5};
-		
-		// extract the predictor variables (independent variables)
-		double[][] predictorVars = data.getSubMatrix(pred_cols);
-		
-		// get the dependent variable (number of credit unions)
-		double[] creditUnions = data.getColumn(num_cu);
-		
-		// two classes : [0,1] 0 means no credit unions
-		// and one means at least one
-		int[] creditUnionsInt = new int[creditUnions.length];
-		for (int i = 0; i < creditUnions.length; i++) {
-			if ( creditUnions[i] > 1 ) {
-				creditUnions[i] = 1;
-			}
-			creditUnionsInt[i] = (int)creditUnions[i];
-		}
-		
-		// create new discriminant analysis object
-		DiscriminantAnalysis da = new DiscriminantAnalysis();
-		
-		// set the predictor variables
-		da.setPredictorVariables(predictorVars);
-
-		// set the classification variables
-		da.setClassification(creditUnionsInt);
-
-		// set the prior probabilities
-		da.setPriorProbabilities(priorProbabilities);
-
-		// classify the predictor variables
-		da.classify();
-
-		// get confusion matrix
-		int[][] cMatrix = da.confusionMatrix();
-		
-		// compute total number of correct classifications
-		// from confusion matrix
-		int numCorrectClassifications = 0;
-		for (int i = 0; i < cMatrix.length; i++) {
-			numCorrectClassifications += cMatrix[i][i];
-		}
-		
-		// get the class frequencies
-		int[] classFrequencies = da.getClassFrequencies();
-		
-		// compute the sum of the class frequencies array
-		int allClassTotal = 0;
-		for(int i=0; i< classFrequencies.length; i++) {
-			allClassTotal += classFrequencies[i];
-		}
-
-		try {
-		
-			// test to see if the predictor variables arrays are equal
-			assertArrayEquals("Error comparing Predictor Arrays", 
-									predictorVars, 
-									da.getPredictorVariables());
-			for(int i=0; i< predictorVars.length; i++) {
-				//assertArrayEquals("Error comparing Predictor Arrays",
-				//					predictorVars[i],
-				//					da.getPredictorVariables()[i], delta);
-			}
-		
-			// test to see if classification arrays are equal
-			assertArrayEquals("Error comparing Class Arrays", 
-									creditUnionsInt, 
-									da.getClassification());
-			
-			// test to see if the class frequencies sum to the total
-			// number of objects
-			assertTrue("Error comparing Class Frequencies", 
-									allClassTotal == predictorVars.length);
-
-			// test to see if prior probability arrays are equal
-			//assertArrayEquals("Error comparaing prior probabilities",
-			//						priorProbabilities,
-			//						da.getPriorProbabilities(),delta);
-		
-			// test to see if the length of the classification array is
-			//equal to the length of the classified array
-			assertTrue("Error compariang Classified Arrays", 
-									da.getClassified().length == 
-									da.getClassification().length); 
-			
-			// test to see if the number of correct classifications
-			// is correct
-			assertTrue(
-				"Error comparing number of correct classifications", 
-				numCorrectClassifications == 2683);
+			logger.severe("Unable to read test data from [" + testFileName.getFile() + "]");
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		} catch (ArrayIndexOutOfBoundsException e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
 		} catch (AssertionError e) {
-			System.out.println(e.getMessage());
+			logger.severe(e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
+	private void assertArrayDoubleEquals(double[][] init,
+			double[][] comparison, double delta) {
+		// TODO Auto-generated method stub
+		assertTrue(init.length == comparison.length);
+		assertTrue(init[0].length == comparison[0].length);
+		
+		for ( int i = 0; i < init.length; i++) {
+			for(int j=0; j < init[0].length; j++) {
+				assertTrue((init[i][j] - comparison[i][j]) < delta);
+			}
+		}	
+	}
 
 }
