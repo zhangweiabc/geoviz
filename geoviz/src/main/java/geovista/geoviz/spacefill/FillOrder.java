@@ -108,7 +108,7 @@ public class FillOrder {
   //if not, new array
   private static int[][] getFillOrderScanLine(long nVals, int[][] fillOrder) {
     //start with a square array
-    double root = Math.sqrt( (double) nVals);
+    double root = Math.sqrt( nVals);
     int sizeX = (int) Math.ceil(root);
 
     //now trim
@@ -141,7 +141,7 @@ public class FillOrder {
   //if not, new array
   private static int[][] getFillOrderBostrophedon(long nVals, int[][] fillOrder) {
     //start with a square array
-    double root = Math.sqrt( (double) nVals);
+    double root = Math.sqrt( nVals);
     int sizeX = (int) Math.ceil(root);
 
     //now trim
@@ -194,7 +194,7 @@ public class FillOrder {
   //if not, new array
   private static int[][] getFillOrderSpiral(long nVals, int[][] fillOrder) {
     //start with a square array
-    double root = Math.sqrt( (double) nVals);
+    double root = Math.sqrt( nVals);
     int sizeY = (int) Math.ceil(root);
 
     //now trim
@@ -312,7 +312,7 @@ public class FillOrder {
     Double d = null;
     while (nSpaces < nVals) {
       pow++;
-      d = new Double(Math.pow(4, (double) pow));
+      d = new Double(Math.pow(4, pow));
       nSpaces = d.intValue();
     }
 
@@ -380,15 +380,15 @@ public class FillOrder {
       }
     }
     else if (div == 2) {
-      d = new Double(Math.pow(2, (double) pow));
+      d = new Double(Math.pow(2, pow));
       width = d.intValue();
     }
     else if (div == 3) {
-      d = new Double(Math.pow(2, (double) pow));
+      d = new Double(Math.pow(2, pow));
       width = d.intValue();
     }
     else if (div == 4) {
-      d = new Double(Math.pow(2, (double) pow));
+      d = new Double(Math.pow(2, pow));
       width = d.intValue();
     }
 
@@ -424,11 +424,11 @@ public class FillOrder {
       }
     }
     else if (div == 3) {
-      d = new Double(Math.pow(2, (double) pow));
+      d = new Double(Math.pow(2, pow));
       height = d.intValue();
     }
     else if (div == 4) {
-      d = new Double(Math.pow(2, (double) pow));
+      d = new Double(Math.pow(2, pow));
       height = d.intValue();
     }
 

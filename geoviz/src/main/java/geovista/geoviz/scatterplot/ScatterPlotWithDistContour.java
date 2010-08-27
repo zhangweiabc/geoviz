@@ -169,7 +169,7 @@ public class ScatterPlotWithDistContour extends ScatterPlot {
 		Graphics2D g2 = (Graphics2D) g;
 		if (exLabels != null && axisOn == true) {
 			setToolTipText("");
-			exLabels.paint(g2, getBounds());
+			exLabels.paint(g2);
 		}
 
 		// added by ywkim for regression line

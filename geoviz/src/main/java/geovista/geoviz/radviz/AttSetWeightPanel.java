@@ -142,7 +142,7 @@ public class AttSetWeightPanel extends JPanel implements ActionListener, ChangeL
             fireAction("AttSetWeightPanel.WeightIsChanging");
         }
         else { //done adjusting
-            double help = (double)source.getValue();
+            double help = source.getValue();
             help /= WT_MAX;
             if (! (Math.abs(help - weight) < .0000001 )) {
                 weight = help;

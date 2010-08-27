@@ -54,12 +54,12 @@ public class dataSet {
 
 		private double[] data;
 
-		Variable(boolean alpha, String name) {
+		Variable(String name) {
 			if (name.substring(0, 2).equals("/P")) {
 			}
 		}
 
-		Variable(int n, boolean alpha, String name) {
+		Variable(int n, String name) {
 			if (name.length() > 1) {
 				if (name.substring(0, 2).equals("/P")) {
 				}

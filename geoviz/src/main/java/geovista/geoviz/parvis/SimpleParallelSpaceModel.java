@@ -294,9 +294,8 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
 	public String getValueLabel(int dimension, float value) {
 		if (valueLabels[dimension] != null) {
 			return (String) (valueLabels[dimension].get(new Float(value)));
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	/**

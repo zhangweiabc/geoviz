@@ -20,6 +20,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -503,7 +504,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 	}
 
 	void drawRecord(Graphics2D g2, ParallelDisplay comp, int num,
-			int startAxis, int stopAxis) {
+			int startAxis, int stopAxis, float brushVal) {
 		if (numRecords <= 0) {
 			return;
 		}
@@ -522,12 +523,22 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		// } else {
 		rPath = assemblePath(num, startAxis, stopAxis, comp);
 		// }
+
+		if (selectionOutline && brushVal > 0) {
+			Stroke currStroke = g2.getStroke();
+			g2.setColor(selectionColor);
+			g2.setStroke(selectionStroke);
+			g2.draw(rPath);
+			g2.setStroke(currStroke);
+		}
+
 		if (colors != null) {
 			g2.setColor(colors[num]);
 		}
 		if (inBrush) {
 			g2.setColor(Color.blue);
 		}
+
 		g2.draw(rPath);
 	}
 
@@ -689,6 +700,14 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 	float clickAxisValue;
 
 	int clickModifiers;
+
+	public boolean selectionOutline = false;
+
+	public int selectionWidth = 5;
+
+	public Color selectionColor = Color.blue;
+
+	private BasicStroke selectionStroke = new BasicStroke(selectionWidth);
 
 	/**
 	 * Invoked when the mouse exits the component.
@@ -1172,6 +1191,12 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 
 	public RenderThread getBrushThread() {
 		return brushThread;
+	}
+
+	public void setSelectionWidth(int width2) {
+		selectionWidth = width2;
+		selectionStroke = new BasicStroke(width2);
+
 	}
 
 }

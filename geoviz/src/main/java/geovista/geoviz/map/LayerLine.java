@@ -29,7 +29,7 @@ public class LayerLine extends LayerShape {
 	 * @param g2
 	 */
 	@Override
-	public void render(Graphics2D g2) {
+	public void renderSelectedObservations(Graphics2D g2) {
 		if (objectColors == null) {
 			logger.finest("LayerLine, render called on null objectColors");
 			return;

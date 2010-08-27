@@ -66,7 +66,7 @@ public abstract class LayerShape {
 
 	// Colors
 	// protected Color colorSelection = new
-	//Color(Color.blue.getRed(),Color.blue.getGreen(),Color.blue.getBlue(),128);
+	// Color(Color.blue.getRed(),Color.blue.getGreen(),Color.blue.getBlue(),128);
 	protected transient Color colorSelection = Color.blue;
 	protected transient Color colorIndication = new Color(Color.red.getRed(),
 			Color.red.getGreen(), Color.red.getBlue(), 150);
@@ -414,6 +414,11 @@ public abstract class LayerShape {
 		makeTextures();
 	}
 
+	void setSelectionLineWidth(int lineWidth) {
+		selectionStroke = new BasicStroke(lineWidth, BasicStroke.CAP_ROUND,
+				BasicStroke.JOIN_ROUND);
+	}
+
 	public void setColorIndication(Color colorIndication) {
 		this.colorIndication = colorIndication;
 		makeTextures();
@@ -510,7 +515,39 @@ public abstract class LayerShape {
 
 	}
 
-	private void renderObservationFill(int obs, Graphics2D g2) {
+	private void renderSelectedObservationOutline(int obs, Graphics2D g2) {
+		if (obs < 0) {
+			return;
+		}
+		if (objectColors == null || objectColors.length <= obs) {
+			return;
+		}
+		Shape shp = spatialData[obs];
+
+		if (fisheyes != null) {
+			shp = fisheyes.transform(shp);
+
+		}
+		Color color = objectColors[obs];
+		if (obs == indication) {
+			renderIndication(g2, shp, color);
+
+		}
+		if (conditionArray[obs] > -1) {
+			g2.setStroke(selectionStroke);
+			if (selectedObservationsFullIndex[obs] == STATUS_SELECTED
+					|| !selectionExists) {
+
+				g2.setColor(colorSelection);
+
+				g2.draw(shp);
+
+			}
+
+		} // end if condition
+	}
+
+	private void renderSelectedObservationFill(int obs, Graphics2D g2) {
 		if (obs < 0) {
 			return;
 		}
@@ -549,7 +586,7 @@ public abstract class LayerShape {
 
 	}
 
-	public void renderObservationGlyph(int obs, Graphics2D g2) {
+	public void renderSelectedObservationGlyph(int obs, Graphics2D g2) {
 		if (obs < 0) {
 			return;
 		}
@@ -633,6 +670,9 @@ public abstract class LayerShape {
 		g2.setStroke(tempStroke);
 	}
 
+	private final boolean simpleHighlighting = false;
+	private boolean selOutline;
+
 	private void renderIndication(Graphics2D g2, Shape shp, Color color) {
 		Stroke tempStroke = g2.getStroke();
 
@@ -643,6 +683,14 @@ public abstract class LayerShape {
 
 		BasicStroke underStroke = new BasicStroke(50f, BasicStroke.CAP_ROUND,
 				BasicStroke.CAP_ROUND);
+
+		if (simpleHighlighting) {
+			g2.setStroke(secondStroke);
+			g2.setColor(colorSelection);
+			g2.draw(shp);
+			return;
+		}
+
 		g2.setColor(new Color(128, 128, 128, 128));
 		g2.setStroke(underStroke);
 		g2.draw(shp);
@@ -657,7 +705,7 @@ public abstract class LayerShape {
 
 	}
 
-	public void render(Graphics2D g2) {
+	public void renderSelectedObservations(Graphics2D g2) {
 
 		if (objectColors == null) {
 			logger.finest("LayerShape, render called on null objectColors");
@@ -684,13 +732,27 @@ public abstract class LayerShape {
 		// skip indication
 		int tempInd = indication;
 		indication = -1;
-		for (int path = 0; path < spatialData.length; path++) {
-			renderObservationFill(path, g2);
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		if (selOutline) {
+			logger.info("render outlines");
+			for (int path = 0; path < spatialData.length; path++) {
 
+				renderSelectedObservationOutline(path, g2);
+
+			}
+		} else {
+
+			for (int path = 0; path < spatialData.length; path++) {
+				renderSelectedObservationFill(path, g2);
+
+			}
 		}
-		for (int path = 0; path < spatialData.length; path++) {
-			renderObservationGlyph(path, g2);
+		if (glyphs != null) {
+			for (int path = 0; path < spatialData.length; path++) {
+				renderSelectedObservationGlyph(path, g2);
 
+			}
 		}
 		// this.renderGlyphs(g2);
 		indication = tempInd;
@@ -788,6 +850,11 @@ public abstract class LayerShape {
 
 	public void setFillAux(boolean fillAux) {
 		this.fillAux = fillAux;
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		this.selOutline = selOutline;
+
 	}
 
 }

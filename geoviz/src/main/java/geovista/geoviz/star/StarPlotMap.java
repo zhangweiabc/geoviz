@@ -13,11 +13,9 @@ import javax.swing.JPanel;
 
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.ColorArrayEvent;
-import geovista.common.event.ColumnAppendedEvent;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.IndicationEvent;
 import geovista.common.event.SubspaceEvent;
-import geovista.common.event.SubspaceListener;
 import geovista.geoviz.map.GeoMap;
 import geovista.geoviz.visclass.VisualClassifier;
 import geovista.readers.example.GeoDataGeneralizedStates;
@@ -32,8 +30,7 @@ import geovista.symbolization.glyph.GlyphListener;
  * @author Frank Hardisty
  * 
  */
-public class StarPlotMap extends GeoMap implements GlyphListener,
-		SubspaceListener {
+public class StarPlotMap extends GeoMap implements GlyphListener {
 
 	StarPlotLegend starLeg;
 
@@ -104,10 +101,6 @@ public class StarPlotMap extends GeoMap implements GlyphListener,
 		Color[] starColors = starColorer.findDataColors();
 		starLayer.setStarFillColors(starColors);
 		return starLayer.findGlyphs();
-	}
-
-	public void dataSetModified(ColumnAppendedEvent e) {
-
 	}
 
 	@Override

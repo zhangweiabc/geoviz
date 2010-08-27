@@ -14,7 +14,7 @@ import java.awt.Component;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
-import geovista.common.jts.NullShape;
+import geovista.common.jts.EmptyShape;
 import geovista.common.ui.ShapeReporter;
 
 /**
@@ -123,7 +123,11 @@ public class ScatterPlot extends ScatterPlotBasic implements ShapeReporter
 			return new Ellipse2D.Float(exsint[indiationId],
 					whyint[indiationId], pointSize, pointSize);
 		}
-		return NullShape.INSTANCE;
+		return EmptyShape.INSTANCE;
 	}
-
+	/*
+	 * public void setColorArrayForObs(Color[] colors) {
+	 * 
+	 * }
+	 */
 }

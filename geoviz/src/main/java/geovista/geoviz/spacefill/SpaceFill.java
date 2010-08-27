@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.Serializable;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -35,7 +34,7 @@ import geovista.common.ui.FoldupPanel;
 import geovista.geoviz.visclass.VisualClassifier;
 import geovista.symbolization.BivariateColorSymbolClassification;
 
-public class SpaceFill extends JPanel implements ActionListener, Serializable,
+public class SpaceFill extends JPanel implements ActionListener,
 		SelectionListener, IndicationListener, DataSetListener,
 		ConditioningListener {
 
@@ -377,10 +376,9 @@ public class SpaceFill extends JPanel implements ActionListener, Serializable,
 			if (fillOrder > FillOrder.FILL_ORDER_MAX || fillOrder < 0) {
 				throw new IllegalArgumentException(
 						"Fill order outside legal range defined in FillOrder");
-			} else {
-				this.fillOrder = fillOrder;
-				spatCan.setFillOrder(fillOrder);
 			}
+			this.fillOrder = fillOrder;
+			spatCan.setFillOrder(fillOrder);
 		}//
 	}// end method
 

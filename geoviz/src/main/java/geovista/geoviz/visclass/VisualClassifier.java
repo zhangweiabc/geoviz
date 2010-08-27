@@ -238,6 +238,10 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		}
 		int currVar = classPick.getCurrVariableIndex();
 		Classifier classer = classPick.getClasser();
+		// bail if we don't have enough variables
+		if (currVar > classPick.getDataSet().getNumberNumericAttributes()) {
+			return null;
+		}
 		double[] data = classPick.getDataSet().getNumericDataAsDouble(currVar);
 		int[] classedData = classer.classify(data, classPick.getNClasses());
 		if (dataColors == null || dataColors.length != classedData.length) {
@@ -708,10 +712,10 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	/**
 	 * @param data
 	 * 
-	 * This method is deprecated becuase it wants to create its very own pet
-	 * DataSetForApps. This is no longer allowed, to allow for a mutable, common
-	 * data set. Use of this method may lead to unexpected program behavoir.
-	 * Please use setDataSet instead.
+	 *            This method is deprecated becuase it wants to create its very
+	 *            own pet DataSetForApps. This is no longer allowed, to allow
+	 *            for a mutable, common data set. Use of this method may lead to
+	 *            unexpected program behavoir. Please use setDataSet instead.
 	 */
 	@Deprecated
 	public void setData(Object[] data) {

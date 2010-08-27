@@ -21,6 +21,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import geovista.common.data.DataSetForApps;
+import geovista.common.data.DataSetTableModel;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.DataSetListener;
 import geovista.common.event.SelectionEvent;
@@ -34,7 +35,7 @@ public class TableViewer extends JPanel implements SelectionListener,
 		DataSetListener {
 
 	private DescriptiveStats stats;
-	private transient DataSetForApps dataSet;
+	private transient DataSetTableModel dataSet;
 
 	private JTable table;
 	JScrollPane scrollPane;
@@ -57,6 +58,7 @@ public class TableViewer extends JPanel implements SelectionListener,
 		ListSelectionReporter reporter = new ListSelectionReporter();
 
 		table = new JTable(dataSet);
+		table.setAutoCreateRowSorter(true);
 		table.getSelectionModel().addListSelectionListener(reporter);
 		// table.setColumnSelectionAllowed(true);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -75,7 +77,7 @@ public class TableViewer extends JPanel implements SelectionListener,
 		setVisible(true);
 	}
 
-	DataSetForApps getDefaultData() {
+	DataSetTableModel getDefaultData() {
 		String[] columnNames = { "First Name", "Age", "Weight" };
 
 		String[] names = { "Frank", "HyangJa", "Hannah", "Lena", "Alex" };
@@ -84,8 +86,8 @@ public class TableViewer extends JPanel implements SelectionListener,
 
 		Object[] dataArrays = { columnNames, names, ages, weight };
 		DataSetForApps data = new DataSetForApps(dataArrays);
-
-		return data;
+		DataSetTableModel tableModel = new DataSetTableModel(data);
+		return tableModel;
 	}
 
 	/*
@@ -97,15 +99,21 @@ public class TableViewer extends JPanel implements SelectionListener,
 	 **************************************************************************/
 	public void dataSetChanged(DataSetEvent e) {
 
-		dataSet = e.getDataSetForApps();
-		setDataSet(e.getDataSetForApps());
-		e.getDataSetForApps().addTableModelListener(table);
+		dataSet = new DataSetTableModel(e.getDataSetForApps());
+		dataSet.addTableModelListener(table);
 		stats.dataSetChanged(e);
+
 	}
 
 	public void selectionChanged(SelectionEvent e) {
-		table.clearSelection();
+
 		int[] selVals = e.getSelection();
+		for (int i : selVals) {
+			if (i > table.getRowCount()) {
+				return;
+			}
+		}
+		table.clearSelection();
 		for (int i : selVals) {
 			table.addRowSelectionInterval(i, i);
 		}
@@ -168,7 +176,7 @@ public class TableViewer extends JPanel implements SelectionListener,
 	 * for use with coordinator
 	 */
 	public void setDataSet(DataSetForApps dataSet) {
-		this.dataSet = dataSet;
+		this.dataSet = new DataSetTableModel(dataSet);
 
 		init();
 
@@ -215,6 +223,24 @@ public class TableViewer extends JPanel implements SelectionListener,
 		TableViewer tView = new TableViewer();
 		mf.getContentPane().add(tView);
 
+		DataSetForApps dataSet = getStateData(tView);
+		tView.setDataSet(dataSet);
+		mf.pack();
+		mf.setVisible(true);
+
+		// DataSetTableModel data = new DataSetTableModel(dataSet);
+		// JTable table = new JTable(data);
+		// JFrame fram = new JFrame();
+		// JDesktopPane top = new JDesktopPane();
+		// ToolkitBean tBean = new ToolkitBean(table, "table");
+		// top.add(tBean.getInternalFrame());
+		// fram.getContentPane().add(table);
+		// fram.pack();
+		// fram.setVisible(true);
+
+	}
+
+	private static DataSetForApps getStateData(TableViewer tView) {
 		CoordinationManager coord = new CoordinationManager();
 		ShapeFileProjection shpProj = new ShapeFileProjection();
 		GeoDataGeneralizedStates stateData = new GeoDataGeneralizedStates();
@@ -223,26 +249,14 @@ public class TableViewer extends JPanel implements SelectionListener,
 		shpProj.setInputDataSet(stateData.getDataSet());
 
 		DataSetForApps dataSet = shpProj.getOutputDataSetForApps();
-		for (int row = 0; row < dataSet.getRowCount(); row++) {
-			for (int column = 0; column < dataSet.getColumnCount(); column++) {
-				Object obj = dataSet.getValueAt(row, column);
-				logger.info("row = " + row + ", col = " + column + ", obj = "
-						+ obj);
-			}
-		}
-
-		mf.pack();
-		mf.setVisible(true);
-
-		JTable table = new JTable(dataSet);
-		JFrame fram = new JFrame();
-		// JDesktopPane top = new JDesktopPane();
-		// ToolkitBean tBean = new ToolkitBean(table, "table");
-		// top.add(tBean.getInternalFrame());
-		fram.getContentPane().add(table);
-		fram.pack();
-		// fram.setVisible(true);
-
+		// for (int row = 0; row < dataSet.getRowCount(); row++) {
+		// for (int column = 0; column < dataSet.getColumnCount(); column++) {
+		// Object obj = dataSet.getValueAt(row, column);
+		// logger.info("row = " + row + ", col = " + column + ", obj = "
+		// + obj);
+		// }
+		// }
+		return dataSet;
 	}
 
 	class ListSelectionReporter implements ListSelectionListener {

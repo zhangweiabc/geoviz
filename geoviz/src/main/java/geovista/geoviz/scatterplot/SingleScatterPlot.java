@@ -30,8 +30,6 @@ import javax.swing.event.TableModelListener;
 
 import geovista.common.classification.ClassifierPicker;
 import geovista.common.data.DataSetForApps;
-import geovista.common.event.ColorArrayEvent;
-import geovista.common.event.ColorArrayListener;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.DataSetListener;
 import geovista.common.event.IndicationEvent;
@@ -55,9 +53,8 @@ import geovista.symbolization.event.ColorClassifierListener;
 
 public class SingleScatterPlot extends JPanel implements DataSetListener,
 		ActionListener, ColorClassifierListener, SelectionListener,
-		IndicationListener, ColorArrayListener, VariableSelectionListener,
-		TableModelListener, SubspaceListener, VisualSettingsPopupListener,
-		ShapeReporter {
+		IndicationListener, VariableSelectionListener, TableModelListener,
+		SubspaceListener, VisualSettingsPopupListener, ShapeReporter {
 
 	public static final int VARIABLE_CHOOSER_MODE_ACTIVE = 0;
 	public static final int VARIABLE_CHOOSER_MODE_FIXED = 1;
@@ -149,10 +146,21 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 
 		selections = new int[data.getNumObservations()];
 
-		displayIndices[0] = 0;
-		displayIndices[1] = 1;
-		setXVariable(displayIndices[0]);
-		setYVariable(displayIndices[1]);
+		if (data.getNumberNumericAttributes() == 1) {
+			displayIndices[0] = 0;
+			setXVariable(displayIndices[0]);
+
+			displayIndices[1] = 0;
+			setYVariable(displayIndices[0]);
+		}
+		if (data.getNumberNumericAttributes() >= 2) {
+			displayIndices[0] = 0;
+			setXVariable(displayIndices[0]);
+
+			displayIndices[1] = 1;
+			setYVariable(displayIndices[1]);
+		}
+
 		scatterPlot.setAxisOn(true);
 		scatterPlot.setDataIndices(displayIndices);
 	}
@@ -217,7 +225,6 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 	public void dataSetChanged(DataSetEvent e) {
 		dataSet = e.getDataSetForApps();
 		setDataSet(dataSet);
-		dataSet.addTableModelListener(this);
 
 	}
 
@@ -225,7 +232,7 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 		Object src = e.getSource();
 		String command = e.getActionCommand();
 		String varChangedCommand = ClassifierPicker.COMMAND_SELECTED_VARIABLE_CHANGED;
-		String colorChangedCommand = VisualClassifier.COMMAND_COLORS_CHANGED;
+		// String colorChangedCommand = VisualClassifier.COMMAND_COLORS_CHANGED;
 
 		if ((src == visClassX) && command.equals(varChangedCommand)) {
 			int index = visClassX.getCurrVariableIndex();
@@ -245,8 +252,8 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 				selObs = new int[0];
 			}
 			fireSelectionChanged(selObs);
-		} else if (command.equals(colorChangedCommand)) {
-			fireColorArrayChanged();
+		} else {
+			logger.info("unsupported command " + command);
 		}
 	}
 
@@ -268,21 +275,6 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 		scatterPlot.removeIndicationListener(l);
 	}
 
-	// /**
-	// * implements ColorArrayListener
-	// */
-	// public void addColorArrayListener(ColorArrayListener l) {
-	// listenerList.add(ColorArrayListener.class, l);
-	// this.fireColorArrayChanged(); // so that if any class registers
-	// }
-
-	// /**
-	// * removes an ColorArrayListener from the component
-	// */
-	// public void removeColorArrayListener(ColorArrayListener l) {
-	// listenerList.remove(ColorArrayListener.class, l);
-	// }
-
 	/**
 	 * Notify all listeners that have registered interest for notification on
 	 * this event type. The event instance is lazily created using the
@@ -290,39 +282,32 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 	 * 
 	 * @see EventListenerList
 	 */
-	private void fireColorArrayChanged() {
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		ColorArrayEvent e = null;
-
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == ColorArrayListener.class) {
-				// Lazily create the event:
-				if (e == null) {
-					e = new ColorArrayEvent(this, getColors());
-				}
-				((ColorArrayListener) listeners[i + 1]).colorArrayChanged(e);
-			}
-		} // next i
-	}
-
+	/*
+	 * private void fireColorArrayChanged() { // Guaranteed to return a non-null
+	 * array Object[] listeners = listenerList.getListenerList();
+	 * ColorArrayEvent e = null;
+	 * 
+	 * // Process the listeners last to first, notifying // those that are
+	 * interested in this event for (int i = listeners.length - 2; i >= 0; i -=
+	 * 2) { if (listeners[i] == ColorArrayListener.class) { // Lazily create the
+	 * event: if (e == null) { e = new ColorArrayEvent(this, getColors()); }
+	 * ((ColorArrayListener) listeners[i + 1]).colorArrayChanged(e); } } // next
+	 * i }
+	 */
 	public void setSelectedObvs(int[] selected) {
 
 		if (selected == null || selections == null) {
 			return;
-		} else {
+		}
+		for (int i = 0; i < selections.length; i++) {
+			selections[i] = 0;
+		}
+		for (int i = 0; i < selected.length; i++) {
+			selections[selected[i]] = 1;
+		}
+		if (selected.length == 0) {
 			for (int i = 0; i < selections.length; i++) {
-				selections[i] = 0;
-			}
-			for (int i = 0; i < selected.length; i++) {
-				selections[selected[i]] = 1;
-			}
-			if (selected.length == 0) {
-				for (int i = 0; i < selections.length; i++) {
-					selections[i] = 1;
-				}
+				selections[i] = 1;
 			}
 		}
 		multipleSelectionColors = null;
@@ -438,11 +423,10 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 		scatterPlot.indicationChanged(e);
 	}
 
-	public void colorArrayChanged(ColorArrayEvent e) {
-		Color[] colors = e.getColors();
-		scatterPlot.setColorArrayForObs(colors);
-	}
-
+	/*
+	 * public void colorArrayChanged(ColorArrayEvent e) { Color[] colors =
+	 * e.getColors(); scatterPlot.setColorArrayForObs(colors); }
+	 */
 	public void variableSelectionChanged(VariableSelectionEvent e) {
 		visClassX.setCurrVariableIndex(e.getVariableIndex() + 1);
 	}
@@ -510,12 +494,30 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 	}
 
 	public Shape reportShape() {
-		// TODO Auto-generated method stub
+
 		return scatterPlot.reportShape();
 	}
 
 	public void processCustomCheckBox(boolean value, String text) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public boolean isSelectionOutline() {
+		return scatterPlot.isSelectionOutline();
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		scatterPlot.useSelectionOutline(selOutline);
+
+	}
+
+	public int getSelectionLineWidth() {
+		return scatterPlot.getSelectionLineWidth();
+	}
+
+	public void setSelectionLineWidth(int width) {
+		scatterPlot.setSelectionLineWidth(width);
 
 	}
 

@@ -47,12 +47,9 @@ public class BivariateLegendWithScatterPlot extends ScatterPlotWithBackground {
 	 *            attributeXName
 	 * @param String
 	 *            attributeYName
-	 * @param double[]
-	 *            dataX
-	 * @param double[]
-	 *            dataY
-	 * @param boolean
-	 *            axisOn
+	 * @param double[] dataX
+	 * @param double[] dataY
+	 * @param boolean axisOn
 	 */
 	public BivariateLegendWithScatterPlot(Object[] dataObject,
 			int[] dataIndices, boolean axisOn, Color c) {
@@ -145,7 +142,7 @@ public class BivariateLegendWithScatterPlot extends ScatterPlotWithBackground {
 		Graphics2D g2 = (Graphics2D) g;
 		if (exLabels != null && axisOn == true) {
 			setToolTipText("");
-			exLabels.paint(g2, getBounds());
+			exLabels.paint(g2);
 		}
 	}
 
@@ -164,7 +161,8 @@ public class BivariateLegendWithScatterPlot extends ScatterPlotWithBackground {
 		pointSize = (size < 360) ? size / 60 : 6;
 		pointSize = (pointSize < 3) ? 3 : pointSize;
 		if (logger.isLoggable(Level.FINEST)) {
-			logger.finest("attribute equal? " + attributeXName.equals(attributeYName));
+			logger.finest("attribute equal? "
+					+ attributeXName.equals(attributeYName));
 		}
 		int len = dataArrayX.length();
 		// draw color background

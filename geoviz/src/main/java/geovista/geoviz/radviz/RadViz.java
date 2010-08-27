@@ -2608,7 +2608,6 @@ public class RadViz extends JPanel implements ActionListener,
 	 */
 	public void dataSetChanged(DataSetEvent e) {
 		setDataSet(e.getDataSetForApps());
-		e.getDataSetForApps().addTableModelListener(this);
 	}
 
 	/**

@@ -102,7 +102,7 @@ public class STFDataSet extends SimpleParallelSpaceModel {
       for (int i = 0; i < varNames.length; i++) {
         String lower = varNames[i].toLowerCase();
         if (lower.endsWith("name") && (dataIn[i + 1] instanceof String[])){
-          dataToShow[numericVarNames.length +1] = (String[])dataIn[i+1];
+          dataToShow[numericVarNames.length +1] = dataIn[i+1];
           //this.spat.setObservationNames((String[])dataIn[i+1]);//+1 to skip varNames
         }
       }
@@ -132,7 +132,7 @@ public class STFDataSet extends SimpleParallelSpaceModel {
             dataVals[column-1] = (float)someDoubles[row];
           } else if (obj instanceof int[]) {
             someInts = (int[])obj;
-            dataVals[column-1] = (float)someInts[row];
+            dataVals[column-1] = someInts[row];
           }//end if
         }//next column
         if (dataToShow[numericVarNames.length + 1] != null) {

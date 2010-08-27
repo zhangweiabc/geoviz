@@ -33,9 +33,13 @@ public class MyRect extends Rectangle {
 
 	private double[] Colors;
 
-	public MyRect(boolean full, char dir, String mode, int x, int y, int w,
-			int h, double obs, double exp, double scale, double p, String info,
-			Vector tileIds, Table tablep) {
+	// public MyRect(boolean full, char dir, String mode, int x, int y, int w,
+	// int h, double obs, double exp, double scale, double p, String info,
+	// Vector tileIds, Table tablep) {
+	public MyRect(char dir, String mode, int x, int y, int w, int h,
+			double obs, double exp, double scale, double p, String info,
+			Vector tileIds) {
+
 		super(x, y, w, h);
 		this.dir = dir;
 		this.exp = exp;

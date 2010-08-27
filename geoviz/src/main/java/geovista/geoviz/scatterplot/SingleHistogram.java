@@ -46,13 +46,14 @@ public class SingleHistogram extends JPanel implements DataSetListener,
 	JLabel nBins;
 	JComboBox variableCombo;
 	DataSetForApps dataSet;
+	JPanel bottomPanel;
 	protected final static Logger logger = Logger
 			.getLogger(SingleHistogram.class.getName());
 
 	public SingleHistogram() {
 		setPreferredSize(new Dimension(450, 300));
 		histo = new Histogram();
-		JPanel bottomPanel = new JPanel();
+		bottomPanel = new JPanel();
 		binSlider = new JSlider();
 
 		binSlider.setMinimum(3);
@@ -70,26 +71,26 @@ public class SingleHistogram extends JPanel implements DataSetListener,
 		setLayout(new BorderLayout());
 		this.add(histo, BorderLayout.CENTER);
 		this.add(bottomPanel, BorderLayout.SOUTH);
+		histo.addSelectionListener(this);
 
 	}
 
+	public void removeBottomPanel() {
+		this.remove(bottomPanel);
+	}
+
 	/**
-	 * adds an SelectionListener.
-	 * 
-	 * @see EventListenerList
+	 * adds an SelectionListener
 	 */
 	public void addSelectionListener(SelectionListener l) {
-		histo.addSelectionListener(l);
+		listenerList.add(SelectionListener.class, l);
 	}
 
 	/**
-	 * removes an SelectionListener from the component.
-	 * 
-	 * @see EventListenerList
+	 * removes an SelectionListener from the component
 	 */
 	public void removeSelectionListener(SelectionListener l) {
-		histo.removeSelectionListener(l);
-
+		listenerList.remove(SelectionListener.class, l);
 	}
 
 	/**
@@ -122,7 +123,7 @@ public class SingleHistogram extends JPanel implements DataSetListener,
 			return;
 		}
 		dataSet = e.getDataSetForApps();
-		dataSet.addTableModelListener(this);
+
 		histo.dataSetChanged(e);
 		variableCombo.removeActionListener(this);
 		variableCombo.removeAllItems();
@@ -134,8 +135,11 @@ public class SingleHistogram extends JPanel implements DataSetListener,
 	}
 
 	public void selectionChanged(SelectionEvent e) {
-		histo.selectionChanged(e);
-
+		if (e.getSource() == histo) {
+			fireSelectionChanged(e.getSelection());
+		} else {
+			histo.selectionChanged(e);
+		}
 	}
 
 	public SelectionEvent getSelectionEvent() {
@@ -255,7 +259,7 @@ public class SingleHistogram extends JPanel implements DataSetListener,
 
 	}
 
-	public static void main2(String[] args) {
+	public static void main2(@SuppressWarnings("unused") String[] args) {
 		// int N = Integer.parseInt(args[0]);
 
 		int N = 5000;

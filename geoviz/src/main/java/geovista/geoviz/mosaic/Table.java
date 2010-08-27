@@ -9,9 +9,11 @@ public class Table implements Cloneable {
 	public dataSet data;
 	public final int count; // == -1 if the tables needs to be "breaked
 
-	private Table(String name, double[] table, int k, int[] levels,
-			String[] names, String[][] lnames, int[] initialVars, int[][] Ids,
-			dataSet data, int count) {
+	// private Table(String name, double[] table, int k, int[] levels,
+	// String[] names, String[][] lnames, int[] initialVars, int[][] Ids,
+	// dataSet data, int count) {
+	private Table(double[] table, int k, String[][] lnames, int[][] Ids,
+			int count) {
 		this.table = table;
 		this.Ids = Ids;
 		this.count = count;

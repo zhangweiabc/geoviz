@@ -32,20 +32,14 @@ public class Stat {
 				/ (1 + b1 * t + b2 * t * t + b3 * t * t * t);
 	}
 
-	public static double qt(double p, int df) {
-
-		return 1.0;
-	}
-
 	public static double dchisq(double q, int df) {
 
 		if (q > 0) {
 			return 1 / (Math.pow(2, (double) df / 2) * Gamma((double) df / 2))
 					* Math.pow(q, (double) df / 2 - 1)
 					* Math.pow(Math.E, -q / 2);
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 	public static double pchisq(double q, int df) {
@@ -89,9 +83,8 @@ public class Stat {
 		tmp = "" + Stat.round(x, n);
 		if (tmp.endsWith(".0")) {
 			return tmp.substring(0, tmp.length() - 2);
-		} else {
-			return tmp;
 		}
+		return tmp;
 	}
 
 	public static String roundToSpaceString(double x, int n) {

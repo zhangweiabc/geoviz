@@ -100,7 +100,7 @@ public class StarPlot extends JPanel implements DataSetListener,
 
 	public void dataSetChanged(DataSetEvent e) {
 		starLeg.isInitializing = true;
-		e.getDataSetForApps().addTableModelListener(this);
+
 		starCan.dataSetChanged(e);
 		vc.setDataSet(e.getDataSetForApps());
 

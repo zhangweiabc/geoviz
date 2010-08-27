@@ -20,7 +20,8 @@ public class TableViewerModel extends DefaultTableModel {
 		if (dataSet == null) {
 			return 0;
 		}
-		int nCols = dataSet.getColumnCount();
+
+		int nCols = dataSet.getAttributeNamesOriginal().length;
 		// if (dataSet.getShapeData() != null) {
 		nCols = nCols + 1;
 		// }
@@ -55,18 +56,17 @@ public class TableViewerModel extends DefaultTableModel {
 	public String getColumnName(int columnIndex) {
 		if (columnIndex == 0) {
 			return "Geometry";
-		} else {
-			return dataSet.getColumnName(columnIndex - 1);
 		}
+		return dataSet.getAttributeNamesOriginal()[columnIndex - 1];
 	}
 
 	void setDataSet(DataSetForApps data) {
 		dataSet = data;
 		super.addColumn("Geometry", data.getShapeData());
-		for (int i = 1; i < data.getColumnCount() + 1; i++) {
+		for (int i = 1; i < data.getAttributeNamesOriginal().length + 1; i++) {
 			Object[] namedArrays = data.getNamedArrays();
 
-			super.addColumn(data.getColumnName(i - 1),
+			super.addColumn(data.getAttributeNamesOriginal()[i - 1],
 					(Object[]) namedArrays[i - 1]);
 		}
 

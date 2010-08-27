@@ -231,11 +231,6 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 		dragModePanel.add(brushButton);
 
 		jButton1.setText("gc()");
-		jButton1.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton1ActionPerformed(evt);
-			}
-		});
 
 		// dragModePanel.add(jButton1); only use garbage collection in debug
 		// mode
@@ -255,7 +250,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 		numberBox.setText("show Numbers");
 		numberBox.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				numberBoxActionPerformed(evt);
+				numberBoxActionPerformed();
 			}
 		});
 
@@ -264,7 +259,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 		zeroMaxButton.setText("0-max scale");
 		zeroMaxButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				zeroMaxButtonActionPerformed(evt);
+				zeroMaxButtonActionPerformed();
 			}
 		});
 
@@ -273,7 +268,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 		minMaxButton.setText("min-max scale");
 		minMaxButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				minMaxButtonActionPerformed(evt);
+				minMaxButtonActionPerformed();
 			}
 		});
 
@@ -283,7 +278,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 		minMaxAbsButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				minMaxAbsButtonActionPerformed(evt);
+				minMaxAbsButtonActionPerformed();
 			}
 		});
 		optionsPanel.add(minMaxAbsButton);
@@ -292,7 +287,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 		varMinMaxButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				varMinMaxButtonActionPerformed(evt);
+				varMinMaxButtonActionPerformed();
 			}
 		});
 		optionsPanel.add(varMinMaxButton);
@@ -351,20 +346,13 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 	// GEN-END:initComponents
 
-	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
-																			// FIRST
-																			// :
-																			// event_jButton1ActionPerformed
-
-	}
-
 	// GEN-LAST:event_jButton1ActionPerformed
 
 	private void brushButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN
-																				// -
-																				// FIRST
-																				// :
-																				// event_brushButtonActionPerformed
+		// -
+		// FIRST
+		// :
+		// event_brushButtonActionPerformed
 
 		if (lastButton != null) {
 			lastButton.setSelected(false);
@@ -378,15 +366,15 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 	// GEN-LAST:event_brushButtonActionPerformed
 
-	private void minMaxAbsButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	private void minMaxAbsButtonActionPerformed() {
 		parallelDisplay.minMaxAbsScale();
 	}
 
-	private void varMinMaxButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN
-																					// -
-																					// FIRST
-																					// :
-																					// event_minMaxAbsButtonActionPerformed
+	private void varMinMaxButtonActionPerformed() {// GEN
+		// -
+		// FIRST
+		// :
+		// event_minMaxAbsButtonActionPerformed
 
 		int var = vc.getCurrVariableIndex();
 		parallelDisplay.varMinMaxScale(var);
@@ -394,40 +382,40 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 	// GEN-LAST:event_minMaxAbsButtonActionPerformed
 
-	private void minMaxButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN
-																				// -
-																				// FIRST
-																				// :
-																				// event_minMaxButtonActionPerformed
+	private void minMaxButtonActionPerformed() {// GEN
+		// -
+		// FIRST
+		// :
+		// event_minMaxButtonActionPerformed
 		parallelDisplay.minMaxScale();
 	}
 
 	// GEN-LAST:event_minMaxButtonActionPerformed
 
-	private void zeroMaxButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN
-																				// -
-																				// FIRST
-																				// :
-																				// event_zeroMaxButtonActionPerformed
+	private void zeroMaxButtonActionPerformed() {// GEN
+		// -
+		// FIRST
+		// :
+		// event_zeroMaxButtonActionPerformed
 		parallelDisplay.zeroMaxScale();
 	}
 
 	// GEN-LAST:event_zeroMaxButtonActionPerformed
 
-	private void numberBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
-																			// FIRST
-																			// :
-																			// event_numberBoxActionPerformed
+	private void numberBoxActionPerformed() {// GEN-
+		// FIRST
+		// :
+		// event_numberBoxActionPerformed
 		parallelDisplay.setBoolPreference("hoverText", numberBox.isSelected());
 	}
 
 	// GEN-LAST:event_numberBoxActionPerformed
 
 	private void translateButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN
-																					// -
-																					// FIRST
-																					// :
-																					// event_translateButtonActionPerformed
+		// -
+		// FIRST
+		// :
+		// event_translateButtonActionPerformed
 
 		if (lastButton != null) {
 			lastButton.setSelected(false);
@@ -442,10 +430,10 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 	// GEN-LAST:event_translateButtonActionPerformed
 
 	private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN
-																				// -
-																				// FIRST
-																				// :
-																				// event_scaleButtonActionPerformed
+		// -
+		// FIRST
+		// :
+		// event_scaleButtonActionPerformed
 
 		if (lastButton != null) {
 			lastButton.setSelected(false);
@@ -460,7 +448,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 	// GEN-LAST:event_scaleButtonActionPerformed
 
 	private void reorderPressed(java.awt.event.ActionEvent evt) {// GEN-FIRST:
-																	// event_reorderPressed
+		// event_reorderPressed
 
 		if (lastButton != null) {
 			lastButton.setSelected(false);
@@ -491,12 +479,13 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 	public void setDataSet(DataSetForApps dataSet) {
 		vc.setDataSet(dataSet);
 
-		STFDataSet ds = new STFDataSet(dataSet.getDataObjectOriginal());//hmmm...
-																		// ..
+		STFDataSet ds = new STFDataSet(dataSet.getDataObjectOriginal());// hmmm...
+		// ..
 
 		parallelDisplay.setModel(ds);
 
 		// Color[] colors = this.vc.getColorForObservations();
+
 		setColors(vc.getColorForObservations());
 		if (savedSelection != null
 				&& DescriptiveStatistics.max(savedSelection) < dataSet
@@ -593,9 +582,9 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 	 */
 	public void dataSetChanged(DataSetEvent e) {
 
-		// no more hacks!!! x2!!!! x3!!!!!
+		// no more hacks!!! x2!!!! x3!!!!! x4!!!!
 		dataSet = e.getDataSetForApps();
-		dataSet.addTableModelListener(this);
+
 		int nVars = dataSet.getNumberNumericAttributes();
 		int min = maxAxes;
 		if (nVars < min) {
@@ -749,52 +738,6 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 		parallelDisplay.removeSelectionListener(l);
 	}
 
-	public void tableChanged(TableModelEvent e) {
-		vc.setDataSet(dataSet);
-
-	}
-
-	public Color getIndicationColor() {
-		return parallelDisplay.getIndicationColor();
-	}
-
-	public Color getSelectionColor() {
-		return parallelDisplay.getSelectionColor();
-	}
-
-	public boolean isSelectionBlur() {
-		return parallelDisplay.isSelectionBlur();
-	}
-
-	public boolean isSelectionFade() {
-		return parallelDisplay.isSelectionFade();
-	}
-
-	public void setIndicationColor(Color indColor) {
-		parallelDisplay.setIndicationColor(indColor);
-
-	}
-
-	public void setSelectionColor(Color selColor) {
-		parallelDisplay.setSelectionColor(selColor);
-
-	}
-
-	public void useMultiIndication(boolean useMultiIndic) {
-		parallelDisplay.useMultiIndication(useMultiIndic);
-
-	}
-
-	public void useSelectionBlur(boolean selBlur) {
-		parallelDisplay.useSelectionBlur(selBlur);
-
-	}
-
-	public void useSelectionFade(boolean selFade) {
-		parallelDisplay.useSelectionFade(selFade);
-
-	}
-
 	/**
 	 * Main method for testing purposes.
 	 */
@@ -848,6 +791,52 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 		});
 	}
 
+	public void tableChanged(TableModelEvent e) {
+		vc.setDataSet(dataSet);
+
+	}
+
+	public Color getIndicationColor() {
+		return parallelDisplay.getIndicationColor();
+	}
+
+	public Color getSelectionColor() {
+		return parallelDisplay.getSelectionColor();
+	}
+
+	public boolean isSelectionBlur() {
+		return parallelDisplay.isSelectionBlur();
+	}
+
+	public boolean isSelectionFade() {
+		return parallelDisplay.isSelectionFade();
+	}
+
+	public void setIndicationColor(Color indColor) {
+		parallelDisplay.setIndicationColor(indColor);
+
+	}
+
+	public void setSelectionColor(Color selColor) {
+		parallelDisplay.setSelectionColor(selColor);
+
+	}
+
+	public void useMultiIndication(boolean useMultiIndic) {
+		parallelDisplay.useMultiIndication(useMultiIndic);
+
+	}
+
+	public void useSelectionBlur(boolean selBlur) {
+		parallelDisplay.useSelectionBlur(selBlur);
+
+	}
+
+	public void useSelectionFade(boolean selFade) {
+		parallelDisplay.useSelectionFade(selFade);
+
+	}
+
 	public Component renderingComponent() {
 		return parallelDisplay;
 	}
@@ -858,6 +847,24 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 	public void processCustomCheckBox(boolean value, String text) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public boolean isSelectionOutline() {
+		return parallelDisplay.isSelectionOutline();
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		parallelDisplay.useSelectionOutline(selOutline);
+
+	}
+
+	public int getSelectionLineWidth() {
+		return parallelDisplay.getSelectionLineWidth();
+	}
+
+	public void setSelectionLineWidth(int width) {
+		parallelDisplay.setSelectionLineWidth(width);
 
 	}
 

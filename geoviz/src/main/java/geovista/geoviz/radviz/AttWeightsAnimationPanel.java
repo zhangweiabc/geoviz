@@ -67,9 +67,9 @@ public class AttWeightsAnimationPanel extends JPanel implements ActionListener, 
     
     /** Creates a new instance of AttWeightsAnimationPanel */
     public AttWeightsAnimationPanel(String[] attributeList, double[] weights) {
-        startWeights = (double[])weights.clone();//new double[weights.length];
-        endWeights = (double[])weights.clone();//new double[weights.length];
-        attributes = (String[])attributeList.clone();
+        startWeights = weights.clone();//new double[weights.length];
+        endWeights = weights.clone();//new double[weights.length];
+        attributes = attributeList.clone();
         //System.arraycopy(weights, 0, startWeights, 0, weights.length);
         //System.arraycopy(weights, 0, endWeights, 0, weights.length);
         initComponents();
@@ -93,7 +93,7 @@ public class AttWeightsAnimationPanel extends JPanel implements ActionListener, 
     }
     
     public void setAttributeNames(String[] newNames) {
-        attributes = (String[])newNames.clone();
+        attributes = newNames.clone();
         DefaultComboBoxModel startModel = new DefaultComboBoxModel(attributes);
         startAttCombo.setModel(startModel);
         DefaultComboBoxModel endModel = new DefaultComboBoxModel(attributes);
@@ -101,14 +101,14 @@ public class AttWeightsAnimationPanel extends JPanel implements ActionListener, 
     }
     
     public void setStartWeights(double[] newWeights) {
-        startWeights = (double[])newWeights.clone();//new double[weights.length];
+        startWeights = newWeights.clone();//new double[weights.length];
         startWeightText.setValue(new Double(startWeights[startAttCombo.getSelectedIndex()]));
         int initWtSliderValue = Math.round((float)(startWeights[startAttCombo.getSelectedIndex()] * 100));
         startWeightSlider.setValue(initWtSliderValue);
     }
     
     public void setEndWeights(double[] newWeights) {
-        endWeights = (double[])newWeights.clone();//new double[weights.length];
+        endWeights = newWeights.clone();//new double[weights.length];
         endWeightText.setValue(new Double(endWeights[endAttCombo.getSelectedIndex()]));
         int initWtSliderValue = Math.round((float)(endWeights[endAttCombo.getSelectedIndex()] * 100));
         endWeightSlider.setValue(initWtSliderValue);
@@ -184,7 +184,7 @@ public class AttWeightsAnimationPanel extends JPanel implements ActionListener, 
                 startWeightText.setText(String.valueOf(startWeights[start_curr]));
             }
             else { //done adjusting
-                double help = (double)source.getValue();
+                double help = source.getValue();
                 help /= WT_MAX;
                 if (! (Math.abs(help - startWeights[start_curr]) < .0000001 )) {
                     startWeights[start_curr] = help;
@@ -200,7 +200,7 @@ public class AttWeightsAnimationPanel extends JPanel implements ActionListener, 
                 endWeightText.setText(String.valueOf(endWeights[end_curr]));
             }
             else { //done adjusting
-                double help = (double)source.getValue();
+                double help = source.getValue();
                 help /= WT_MAX;
                 
                 if (!(Math.abs(help - endWeights[end_curr]) < .0000001) ){

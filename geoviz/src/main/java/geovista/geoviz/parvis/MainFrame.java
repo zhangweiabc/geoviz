@@ -78,7 +78,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
 			public void windowClosing(java.awt.event.WindowEvent evt) {
-				exitForm(evt);
+				exitForm();
 			}
 		});
 
@@ -121,7 +121,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		tooltipBox.setMargin(new java.awt.Insets(0, 2, 0, 2));
 		tooltipBox.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				tooltipBoxActionPerformed(evt);
+				tooltipBoxActionPerformed();
 			}
 		});
 
@@ -133,7 +133,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		hoverBox.setMargin(new java.awt.Insets(0, 2, 0, 2));
 		hoverBox.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				hoverBoxActionPerformed(evt);
+				hoverBoxActionPerformed();
 			}
 		});
 
@@ -151,14 +151,14 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 						"Button.select")));
 		radiusField.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				radiusFieldActionPerformed(evt);
+				radiusFieldActionPerformed();
 			}
 		});
 
 		radiusField.addFocusListener(new java.awt.event.FocusAdapter() {
 			@Override
 			public void focusGained(java.awt.event.FocusEvent evt) {
-				radiusFieldFocusGained(evt);
+				radiusFieldFocusGained();
 			}
 		});
 
@@ -188,7 +188,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		orderButton.setMinimumSize(new java.awt.Dimension(65, 27));
 		orderButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeOrder(evt);
+				setEditModeOrder();
 			}
 		});
 
@@ -204,7 +204,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		scaleButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
 		scaleButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeScale(evt);
+				setEditModeScale();
 			}
 		});
 
@@ -220,7 +220,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		translateButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
 		translateButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeTranslate(evt);
+				setEditModeTranslate();
 			}
 		});
 
@@ -235,7 +235,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		brushButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
 		brushButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeBrush(evt);
+				setEditModeBrush();
 			}
 		});
 
@@ -254,7 +254,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		urlField.setMinimumSize(new java.awt.Dimension(9, 15));
 		urlField.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				urlFieldActionPerformed(evt);
+				urlFieldActionPerformed();
 			}
 		});
 
@@ -265,7 +265,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		jButton1.setMargin(new java.awt.Insets(0, 5, 0, 0));
 		jButton1.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				openItemActionPerformed(evt);
+				openItemActionPerformed();
 			}
 		});
 
@@ -282,7 +282,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		openMenu.setText("Open File...");
 		openMenu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				openItemActionPerformed(evt);
+				openItemActionPerformed();
 			}
 		});
 
@@ -301,7 +301,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 				"/geovista/geoviz/parvis/reorder.gif")));
 		orderMenu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeOrder(evt);
+				setEditModeOrder();
 			}
 		});
 
@@ -317,7 +317,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 				"/geovista/geoviz/parvis/scale.gif")));
 		scaleMenu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeScale(evt);
+				setEditModeScale();
 			}
 		});
 
@@ -333,7 +333,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 				"/geovista/geoviz/parvis/move.gif")));
 		translateMenu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeTranslate(evt);
+				setEditModeTranslate();
 			}
 		});
 
@@ -349,7 +349,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 				"/geovista/geoviz/parvis/brush.gif")));
 		brushMenu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				setEditModeBrush(evt);
+				setEditModeBrush();
 			}
 		});
 
@@ -365,7 +365,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		scaleZeroMaxItem.setText("Scale Axes 0-max");
 		scaleZeroMaxItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				scaleZeroMaxItemActionPerformed(evt);
+				scaleZeroMaxItemActionPerformed();
 			}
 		});
 
@@ -374,7 +374,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		scaleMinMaxItem.setText("Scale Axes min-max");
 		scaleMinMaxItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				scaleMinMaxItemActionPerformed(evt);
+				scaleMinMaxItemActionPerformed();
 			}
 		});
 
@@ -384,7 +384,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		scaleMinMaxAbsItem
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						scaleMinMaxAbsItemActionPerformed(evt);
+						scaleMinMaxAbsItemActionPerformed();
 					}
 				});
 
@@ -395,59 +395,58 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		pack();
 	}// GEN-END:initComponents
 
-	private void hoverBoxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_hoverBoxActionPerformed
+	private void hoverBoxActionPerformed() {// GEN-FIRST:event_hoverBoxActionPerformed
 		parallelDisplay.setBoolPreference("hoverLine", hoverBox.isSelected());
 	}// GEN-LAST:event_hoverBoxActionPerformed
 
-	private void radiusFieldActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_radiusFieldActionPerformed
+	private void radiusFieldActionPerformed() {// GEN-FIRST:event_radiusFieldActionPerformed
 		int num = Integer.parseInt(radiusField.getText());
 		parallelDisplay.setFloatPreference("brushRadius", (num) / 100.0f);
 		radiusField.setText(" " + num + " %");
 		radiusField.transferFocus();
 	}// GEN-LAST:event_radiusFieldActionPerformed
 
-	private void radiusFieldFocusGained(java.awt.event.FocusEvent evt) {// GEN-FIRST:event_radiusFieldFocusGained
+	private void radiusFieldFocusGained() {// GEN-FIRST:event_radiusFieldFocusGained
 		radiusField.selectAll();
 	}// GEN-LAST:event_radiusFieldFocusGained
 
-	private void scaleMinMaxAbsItemActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_scaleMinMaxAbsItemActionPerformed
+	private void scaleMinMaxAbsItemActionPerformed() {// GEN-FIRST:event_scaleMinMaxAbsItemActionPerformed
 		parallelDisplay.minMaxAbsScale();
 	}// GEN-LAST:event_scaleMinMaxAbsItemActionPerformed
 
-	private void scaleMinMaxItemActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_scaleMinMaxItemActionPerformed
+	private void scaleMinMaxItemActionPerformed() {// GEN-FIRST:event_scaleMinMaxItemActionPerformed
 		parallelDisplay.minMaxScale();
 	}// GEN-LAST:event_scaleMinMaxItemActionPerformed
 
-	private void scaleZeroMaxItemActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_scaleZeroMaxItemActionPerformed
+	private void scaleZeroMaxItemActionPerformed() {// GEN-FIRST:event_scaleZeroMaxItemActionPerformed
 		parallelDisplay.zeroMaxScale();
 	}// GEN-LAST:event_scaleZeroMaxItemActionPerformed
 
-	private void setEditModeTranslate(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_setEditModeTranslate
+	private void setEditModeTranslate() {// GEN-FIRST:event_setEditModeTranslate
 		parallelDisplay.setEditMode(ParallelDisplay.TRANSLATE);
 		translateButton.setSelected(true);
 		translateMenu.setSelected(true);
 	}// GEN-LAST:event_setEditModeTranslate
 
-	private void setEditModeScale(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_setEditModeScale
+	private void setEditModeScale() {// GEN-FIRST:event_setEditModeScale
 		parallelDisplay.setEditMode(ParallelDisplay.SCALE);
 		scaleButton.setSelected(true);
 		scaleMenu.setSelected(true);
 	}// GEN-LAST:event_setEditModeScale
 
-	private void setEditModeOrder(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_setEditModeOrder
+	private void setEditModeOrder() {// GEN-FIRST:event_setEditModeOrder
 		parallelDisplay.setEditMode(ParallelDisplay.REORDER);
 		orderButton.setSelected(true);
 		orderMenu.setSelected(true);
 	}// GEN-LAST:event_setEditModeOrder
 
-	private void setEditModeBrush(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_setEditModeBrush
+	private void setEditModeBrush() {// GEN-FIRST:event_setEditModeBrush
 		parallelDisplay.setEditMode(ParallelDisplay.BRUSH);
 		brushButton.setSelected(true);
 		brushMenu.setSelected(true);
 	}// GEN-LAST:event_setEditModeBrush
 
-	private void urlFieldActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_urlFieldActionPerformed
+	private void urlFieldActionPerformed() {// GEN-FIRST:event_urlFieldActionPerformed
 		try {
 			STFFile f = new STFFile(new URL(urlField.getText()));
 			f.addProgressListener(this);
@@ -460,13 +459,13 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 		}
 	}// GEN-LAST:event_urlFieldActionPerformed
 
-	private void tooltipBoxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_tooltipBoxActionPerformed
+	private void tooltipBoxActionPerformed() {// GEN-FIRST:event_tooltipBoxActionPerformed
 		parallelDisplay.setBoolPreference("hoverText", tooltipBox.isSelected());
 	}// GEN-LAST:event_tooltipBoxActionPerformed
 
 	File currentPath = null;
 
-	private void openItemActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_openItemActionPerformed
+	private void openItemActionPerformed() {// GEN-FIRST:event_openItemActionPerformed
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
 			@Override
@@ -510,7 +509,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener {
 	}// GEN-LAST:event_openItemActionPerformed
 
 	/** Exit the Application */
-	private void exitForm(java.awt.event.WindowEvent evt) {// GEN-FIRST:event_exitForm
+	private void exitForm() {// GEN-FIRST:event_exitForm
 		System.exit(0);
 	}// GEN-LAST:event_exitForm
 

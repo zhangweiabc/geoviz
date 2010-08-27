@@ -16,6 +16,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import geovista.image_blur.image.BoxBlurFilter;
@@ -211,33 +212,41 @@ class RenderThread extends Thread {
 										/ comp.getNumRecords(), "rendering "
 										+ modestr));
 					}
+
 					if (!isBrushThread
 							|| (brushVal = comp.getBrushValue(i)) > 0.0f) {
 						// select records in brushmode, render all in normal
 						// mode
 						// skip soft edges
+
 						if (!quality && isBrushThread && brushVal < 0.8) {
 							continue;
 						}
+
 						if (isBrushThread && quality) {
 
 							Color col = new Color(color.getRed(), color
 									.getBlue(), color.getGreen(),
 									(int) (255 * brushVal));
-							logger.finest("Brush value: " + brushVal
-									+ " alpha: " + col.getAlpha());
+							if (logger.isLoggable(Level.FINEST)) {
+								logger.finest("Brush value: " + brushVal
+										+ " alpha: " + col.getAlpha());
+							}
 
-							// g2.setColor(col);
 							ui.drawRecord(g2, comp, i, progressiveStartAxis,
-									progressiveStopAxis);
+									progressiveStopAxis, brushVal);
 
 						}
+
 						if (secondPass) {
+
 							ui.drawRecord(g2, comp, i, progressiveStartAxis,
-									progressiveStopAxis);
+									progressiveStopAxis, brushVal);
 
 						} else {
-							ui.drawRecord(g2, comp, i, startAxis, stopAxis);
+
+							ui.drawRecord(g2, comp, i, startAxis, stopAxis,
+									brushVal);
 
 						}
 

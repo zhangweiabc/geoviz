@@ -35,7 +35,7 @@ import geovista.common.event.IndicationEvent;
 import geovista.common.event.IndicationListener;
 import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
-import geovista.common.jts.NullShape;
+import geovista.common.jts.EmptyShape;
 import geovista.common.ui.ExcentricLabelClient;
 import geovista.common.ui.ShapeReporter;
 import geovista.common.ui.VisualSettingsPopupAdapter;
@@ -176,9 +176,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	public int getNumAxes() {
 		if (axisOrder != null) {
 			return axisOrder.length;
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 	/**
@@ -326,25 +325,22 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	public int getNumRecords() {
 		if (model != null) {
 			return model.getNumRecords();
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 	public String getRecordLabel(int num) {
 		if (model != null) {
 			return model.getRecordLabel(num);
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	public float getValue(int recordNum, int axisNum) {
 		if (model != null && axisOrder.length > axisNum) {
 			return model.getValue(recordNum, axisOrder[axisNum]);
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 	private int brushCount = 0;
@@ -370,9 +366,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	public float getBrushValue(int num) {
 		if (brushValues != null) {
 			return brushValues[num];
-		} else {
-			return 0.0f;
 		}
+		return 0.0f;
 	}
 
 	public void setBrushValue(int num, float val) {
@@ -404,9 +399,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 			int newids[] = new int[count];
 			System.arraycopy(ids, 0, newids, 0, count);
 			return newids;
-		} else {
-			return new int[0];
 		}
+		return new int[0];
 	}
 
 	public Color getRecordColor() {
@@ -540,9 +534,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	public float getAxisOffset(int num) {
 		if (axisOffset != null && axisOrder.length > num) {
 			return axisOffset[axisOrder[num]];
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 	/**
@@ -556,9 +549,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	public float getAxisScale(int num) {
 		if (axisScale != null && axisOrder.length > num) {
 			return axisScale[axisOrder[num]];
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 	/**
@@ -575,12 +567,10 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 			String label = model.getAxisLabel(axisOrder[num]);
 			if (label != null) {
 				return label;
-			} else {
-				return ("X" + axisOrder[num]);
 			}
-		} else {
-			return null;
+			return ("X" + axisOrder[num]);
 		}
+		return "";
 	}
 
 	/**
@@ -764,18 +754,16 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 		Object obj = preferences.get(key);
 		if ((obj != null) && (obj instanceof Boolean)) {
 			return ((Boolean) obj).booleanValue();
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	public float getFloatPreference(String key) {
 		Object obj = preferences.get(key);
 		if ((obj != null) && (obj instanceof Float)) {
 			return ((Float) obj).floatValue();
-		} else {
-			return 0.0f;
 		}
+		return 0.0f;
 	}
 
 	public String getObservationLabel(int i) {
@@ -882,11 +870,6 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 		return null;
 	}
 
-	public Color getSelectionColor() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public boolean isSelectionBlur() {
 		return useSelectionBlur;
 	}
@@ -902,24 +885,17 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 
 	}
 
-	public void setSelectionColor(Color selColor) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void useMultiIndication(boolean useMultiIndic) {
 		// TODO Auto-generated method stub
 
 	}
 
 	public void useSelectionBlur(boolean selBlur) {
-		if (selBlur != useSelectionBlur) {
-			useSelectionBlur = selBlur;
+		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
+		if (selBlur != pui.getRenderThread().useSelectionBlur) {
 
-			deepRepaint = true;
-
-			BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
 			pui.getRenderThread().useSelectionBlur = selBlur;
+			deepRepaint = true;
 
 			repaint();
 		}
@@ -943,7 +919,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 
 	public Shape reportShape() {
 		if (indication < 0) {
-			return NullShape.INSTANCE;
+			return EmptyShape.INSTANCE;
 		}
 
 		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
@@ -957,6 +933,51 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 
 	public void processCustomCheckBox(boolean value, String text) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public boolean isSelectionOutline() {
+		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
+		return pui.selectionOutline;
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+
+		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
+
+		// if (selOutline != pui.selectionOutline) {
+		pui.selectionOutline = selOutline;
+		deepRepaint = true;
+		repaint();
+		// }
+	}
+
+	public int getSelectionLineWidth() {
+		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
+		return pui.selectionWidth;
+	}
+
+	public void setSelectionLineWidth(int width) {
+		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
+		if (width != pui.selectionWidth) {
+			pui.setSelectionWidth(width);
+			deepRepaint = true;
+			repaint();
+		}
+
+	}
+
+	public Color getSelectionColor() {
+		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
+		return pui.selectionColor;
+	}
+
+	public void setSelectionColor(Color selColor) {
+		BasicParallelDisplayUI pui = (BasicParallelDisplayUI) getUI();
+
+		pui.selectionColor = selColor;
+		deepRepaint = true;
+		repaint();
 
 	}
 }

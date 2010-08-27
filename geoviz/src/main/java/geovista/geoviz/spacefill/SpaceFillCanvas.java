@@ -1211,11 +1211,10 @@ public class SpaceFillCanvas extends JPanel implements MouseListener,
 			if ((fillOrder > FillOrder.FILL_ORDER_MAX) || (fillOrder < 0)) {
 				throw new IllegalArgumentException(
 						"Fill order outside legal range defined in FillOrder");
-			} else {
-				this.fillOrder = fillOrder;
-				findBuffFillOrder();
-				colorPixels();
 			}
+			this.fillOrder = fillOrder;
+			findBuffFillOrder();
+			colorPixels();
 		} //
 	} // end method
 

@@ -46,7 +46,7 @@ import geovista.common.event.IndicationEvent;
 import geovista.common.event.IndicationListener;
 import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
-import geovista.common.jts.NullShape;
+import geovista.common.jts.EmptyShape;
 import geovista.common.ui.ShapeReporter;
 
 public class Histogram extends JPanel implements MouseListener,
@@ -1270,15 +1270,14 @@ public class Histogram extends JPanel implements MouseListener,
 		savedSelection = selected;
 		if (selected == null || data == null) {
 			return;
-		} else {
-			if (selectedRecords == null) {
-				selectedRecords = new BitSet(data.length);
-			}
-			selectedRecords.clear();
-			for (int whichObs : selected) {
-				selectedRecords.set(whichObs, true);
+		}
+		if (selectedRecords == null) {
+			selectedRecords = new BitSet(data.length);
+		}
+		selectedRecords.clear();
+		for (int whichObs : selected) {
+			selectedRecords.set(whichObs, true);
 
-			}
 		}
 		setSelections(selectedRecords);
 		this.repaint();
@@ -1319,7 +1318,7 @@ public class Histogram extends JPanel implements MouseListener,
 
 	public Shape reportShape() {
 		if (indicatedBin < 0) {
-			return NullShape.INSTANCE;
+			return EmptyShape.INSTANCE;
 		}
 		return histRecs[indicatedBin];
 	}

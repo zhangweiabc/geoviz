@@ -127,7 +127,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 
 	// stuff added for colors
 	transient protected Color[] pointColors;
-	transient protected BivariateColorSymbolClassification bivarColorClasser = new BivariateColorSymbolClassificationSimple();
+	transient protected BivariateColorSymbolClassification bivarColorClasser;
 	protected Histogram histogram;
 	transient protected ExcentricLabels exLabels; // For paint label of
 	// observation data while
@@ -174,7 +174,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 	public ScatterPlotBasic() {
 
 		super();
-
+		bivarColorClasser = new BivariateColorSymbolClassificationSimple();
 		VisualSettingsPopupMenu popMenu = new VisualSettingsPopupMenu(this);
 		MouseAdapter listener = new VisualSettingsPopupAdapter(popMenu);
 		popMenu.addMouseListener(listener);
@@ -376,10 +376,6 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		return yAxisExtents;
 	}
 
-	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser) {
-	}
-
 	/**
 	 * pass conditioning into scatterplot. Observations which are shown are
 	 * marked as 1.
@@ -388,9 +384,6 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 	 */
 	public void setConditionArray(int[] conditionArray) {
 		this.conditionArray = conditionArray;
-	}
-
-	public void setColorArrayForObs(Color[] colorArray) {
 	}
 
 	/**
@@ -573,7 +566,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 
 		if (exLabels != null && axisOn == true) {
 			setToolTipText("");
-			exLabels.paint(g2, getBounds());
+			exLabels.paint(g2);
 		}
 		if (logger.isLoggable(Level.FINEST)) {
 			logger.finest("in scatterplotbasic, plotLine = " + plotLine);
@@ -627,6 +620,16 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		}
 		for (int i = 0; i < dataArrayX.length(); i++) {
 			if (selections[i] == 1) {
+
+				if (selectionOutline) {
+					Stroke stro = g2.getStroke();
+					g2.setColor(selectionColor);
+					g2.setStroke(selectionStroke);
+					g2.drawOval(exsint[i] - 2, whyint[i] - 2, pointSize,
+							pointSize);
+					g2.setStroke(stro);
+				}
+
 				Color drawColor = pointColors[i];
 
 				g2.setColor(drawColor);
@@ -679,10 +682,10 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		}
 		if (dataIndices[0] == dataIndices[1]) {
 			logger.info("painting histogram inside SP");
-			histogram.paintComponent(g);// XXX not the whole thing, please!
-
+			// histogram.paintComponent(g);// XXX not the whole thing, please!
+			drawPlot(g);
 			return;
-			// drawPlot(g);
+			// 
 		}
 
 		if (drawingBuff == null) {
@@ -704,7 +707,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		Graphics2D g2d = (Graphics2D) g;
 		drawSelectRectangle(g2d, rec);
 		if (exLabels != null && exLabels.isVisible()) {
-			exLabels.paint(g2, getBounds());
+			exLabels.paint(g2);
 		}
 
 	}
@@ -774,7 +777,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 			if (dataArrayX != null) {
 				int len = dataArrayX.length();
 				// draw the points
-				drawSelections(g, pointColors, len);
+				drawSelections(g, len);
 
 			}
 		}
@@ -823,7 +826,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		g2.fillOval(pointDrawX, pointDrawY, pointSize, pointSize);
 	}
 
-	protected void drawSelections(Graphics g, Color[] colorNonSelected, int len) {
+	protected void drawSelections(Graphics g, int len) {
 		logger.info("in scatterplotbasic, drawslections");
 		g.setColor(foreground);
 		for (int i = 0; i < len; i++) {
@@ -1002,6 +1005,8 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		if (selections == null || selectedObservations == null) {
 			return;
 		}
+		// histogram.selectionChanged(new SelectionEvent(this,
+		// selectedObservations));
 		if (selections.length != selectedObservations.length) {
 			for (int i = 0; i < selections.length; i++) {
 				selections[i] = 0;
@@ -1179,9 +1184,8 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		String[] labels = observNames;
 		if (labels != null && labels.length - 1 >= i) {
 			return labels[i];
-		} else {
-			return "";
 		}
+		return "";
 	}
 
 	public Shape getShapeAt(int i) {
@@ -1524,7 +1528,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 
 				detailSP.setBackground(background);
 				detailSP.setBivarColorClasser(bivarColorClasser, false);
-				detailSP.setColorArrayForObs(pointColors);
+				// detailSP.setColorArrayForObs(pointColors);
 
 				detailSP.setSelectionColor(selectionColor);
 				detailSP.setSelOriginalColorMode(selOriginalColorMode);
@@ -1908,6 +1912,12 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 	public void setBivarColorClasser(
 			BivariateColorSymbolClassification bivarColorClasser,
 			boolean reverseColor) {
+
+		this.bivarColorClasser = bivarColorClasser;
+		makeColors();
+		paintDrawingBuff();
+
+		this.repaint();
 	}
 
 	public BivariateColorSymbolClassification getBivarColorClasser() {
@@ -2234,6 +2244,37 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 
 	public void processCustomCheckBox(boolean value, String text) {
 		// TODO Auto-generated method stub
+
+	}
+
+	private boolean selectionOutline;
+	private int selectionLineWidth = 5;
+	private BasicStroke selectionStroke = new BasicStroke(5);
+
+	public boolean isSelectionOutline() {
+		return selectionOutline;
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		if (selectionOutline != selOutline) {
+			selectionOutline = selOutline;
+			paintDrawingBuff();
+			this.repaint();
+		}
+
+	}
+
+	public int getSelectionLineWidth() {
+		return selectionLineWidth;
+	}
+
+	public void setSelectionLineWidth(int width) {
+		if (selectionLineWidth != width) {
+			selectionLineWidth = width;
+			selectionStroke = new BasicStroke(width);
+			paintDrawingBuff();
+			this.repaint();
+		}
 
 	}
 

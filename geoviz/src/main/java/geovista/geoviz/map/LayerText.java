@@ -149,7 +149,7 @@ public class LayerText extends LayerShape {
 	 * @param g2
 	 */
 	@Override
-	public void render(Graphics2D g2) {
+	public void renderSelectedObservations(Graphics2D g2) {
 
 		int numStrings = strings.size();
 		for (int stringNum = 0; stringNum < numStrings; stringNum++) {
@@ -194,6 +194,6 @@ public class LayerText extends LayerShape {
 		Point point = new Point(50, 100);
 		LayerText gvTextLayer = new LayerText();
 		gvTextLayer.addString(s, point);
-		gvTextLayer.render(g2);
+		gvTextLayer.renderSelectedObservations(g2);
 	}
 }

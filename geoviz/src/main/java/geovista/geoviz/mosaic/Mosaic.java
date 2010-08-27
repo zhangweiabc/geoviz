@@ -128,37 +128,36 @@ public class Mosaic {
 				if (stop || empty) { // Now the rectangles are generated
 					if (Dirs[levelid] == 'x') {
 						if (empty) {
-							tile = new MyRect(false, 'y', displayMode, x1
+							tile = new MyRect('y', displayMode, x1
 									+ (int) (counts[j] / total * sizeX) + j
 									* thisGap, y1, emptyBin,
 									sizeY + emptyWidth, 0, exps[j],
-									1 / residSum, tablep.p, info, tileIds[j],
-									tablep);
+									1 / residSum, tablep.p, info, tileIds[j]);
 						} else {
-							tile = new MyRect(true, 'y', displayMode, x1
+							tile = new MyRect('y', displayMode, x1
 									+ (int) (counts[j] / total * sizeX) + j
 									* thisGap, y1, Math
 									.max(1, (int) ((counts[j + 1] - counts[j])
 											/ total * sizeX))
 									+ addGapX, y2 - y1 + addGapY, obs[j],
 									exps[j], 1 / residSum, tablep.p, info,
-									tileIds[j], tablep);
+									tileIds[j]);
 						}
 					} else {
 						if (empty) {
-							tile = new MyRect(false, 'x', displayMode, x1, y1
+							tile = new MyRect('x', displayMode, x1, y1
 									+ (int) (counts[j] / total * sizeY) + j
 									* thisGap, sizeX + emptyWidth, emptyBin, 0,
 									exps[j], 1 / residSum, tablep.p, info,
-									tileIds[j], tablep);
+									tileIds[j]);
 						} else {
-							tile = new MyRect(true, 'x', displayMode, x1, y1
+							tile = new MyRect('x', displayMode, x1, y1
 									+ (int) (counts[j] / total * sizeY) + j
 									* thisGap, x2 - x1 + addGapX, Math
 									.max(1, (int) ((counts[j + 1] - counts[j])
 											/ total * sizeY))
 									+ addGapY, obs[j], exps[j], 1 / residSum,
-									tablep.p, info, tileIds[j], tablep);
+									tablep.p, info, tileIds[j]);
 						}
 					}
 					rects.addElement(tile);
