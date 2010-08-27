@@ -98,19 +98,19 @@ public class ExcentricLabels extends MouseAdapter implements Comparator,
 		}
 	}
 
-	public void paint(Graphics2D graphics, Rectangle2D bounds) {
+	public void paint(Graphics2D graphics) {
 		// if (visualization == null || !visible)
 		if (client == null || !visible) { // added fah 18 march 2003
 			return;
 		}
 		FontMetrics fm = graphics.getFontMetrics();
-		computeExcentricLabels(graphics, bounds);
+		computeExcentricLabels(graphics);
 
 		Line2D.Double line = new Line2D.Double();
 		for (int i = 0; i < labelCount; i++) {
 			int hit = hits[i];
 			String lab = client.getObservationLabel(hit);// added fah 18
-															// march 2003
+			// march 2003
 			// visualization.getLabel(hits.get(i));
 			if (lab == null) {
 				lab = "item" + hits[i];
@@ -136,8 +136,7 @@ public class ExcentricLabels extends MouseAdapter implements Comparator,
 		graphics.draw(cursorBounds);
 	}
 
-	protected void computeExcentricLabels(Graphics2D graphics,
-			Rectangle2D bounds) {
+	protected void computeExcentricLabels(Graphics2D graphics) {
 		if (client == null) {
 			return;
 		}
@@ -152,12 +151,12 @@ public class ExcentricLabels extends MouseAdapter implements Comparator,
 
 		labelCount = Math.min(maxLabels, hits.length);
 		if (labelCount != 0) {
-			computeItemPositions(graphics, bounds);
-			projectLeftRight(graphics, bounds);
+			computeItemPositions();
+			projectLeftRight(graphics);
 		}
 	}
 
-	protected void computeItemPositions(Graphics2D graphics, Rectangle2D bounds) {
+	protected void computeItemPositions() {
 		Rectangle2D.Double inter = new Rectangle2D.Double();
 
 		for (int i = 0; i < labelCount; i++) {
@@ -173,20 +172,18 @@ public class ExcentricLabels extends MouseAdapter implements Comparator,
 	protected double comparableValueLeft(Point2D.Double pos) {
 		if (yStable) {
 			return pos.y;
-		} else {
-			return Math.atan2(pos.y - centerY, centerX - pos.x);
 		}
+		return Math.atan2(pos.y - centerY, centerX - pos.x);
 	}
 
 	protected double comparableValueRight(Point2D.Double pos) {
 		if (yStable) {
 			return pos.getY();
-		} else {
-			return Math.atan2(pos.y - centerY, pos.x - centerX);
 		}
+		return Math.atan2(pos.y - centerY, pos.x - centerX);
 	}
 
-	protected void projectLeftRight(Graphics2D graphics, Rectangle2D bounds) {
+	protected void projectLeftRight(Graphics2D graphics) {
 		int radius = focusSize / 2;
 		int i;
 
@@ -314,7 +311,7 @@ public class ExcentricLabels extends MouseAdapter implements Comparator,
 	/**
 	 * @see java.awt.event.MouseMotionListener#mouseDragged(MouseEvent)
 	 */
-	
+
 	public void mouseDragged(MouseEvent e) {
 	}
 
@@ -325,7 +322,7 @@ public class ExcentricLabels extends MouseAdapter implements Comparator,
 	/**
 	 * @see java.awt.event.MouseMotionListener#mouseMoved(MouseEvent)
 	 */
-	
+
 	public void mouseMoved(MouseEvent e) {
 		if (isVisible()) {
 			if (dist2(centerX - e.getX(), centerY - e.getY()) > threshold
