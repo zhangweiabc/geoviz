@@ -41,10 +41,6 @@ public class Testing {
 		logger.info(colXML);
 
 		GeoMap map = new GeoMap();
-		System.out
-				.println("map instanceof Object = " + (map instanceof Object));
-		System.out
-				.println("map instanceof JPanel = " + (map instanceof JPanel));
 
 		logger.info("(map.getClass().isAssignableFrom(Object.class)) = "
 				+ (map.getClass().isAssignableFrom(Object.class)));

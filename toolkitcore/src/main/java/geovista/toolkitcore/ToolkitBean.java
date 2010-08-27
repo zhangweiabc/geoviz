@@ -35,7 +35,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.event.EventListenerList;
 
-import geovista.common.jts.NullShape;
+import geovista.common.jts.EmptyShape;
 import geovista.common.ui.ShapeReporter;
 import geovista.coordination.CoordinationUtils;
 
@@ -206,7 +206,7 @@ public class ToolkitBean implements ComponentListener, ShapeReporter {
 			ShapeReporter sr = (ShapeReporter) originalBean;
 			return sr.reportShape();
 		}
-		return NullShape.INSTANCE;
+		return EmptyShape.INSTANCE;
 	}
 
 	public Component renderingComponent() {

@@ -3,6 +3,8 @@
  */
 package geovista.toolkitcore.marshal;
 
+import java.util.logging.Logger;
+
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
@@ -46,6 +48,7 @@ public class Marshaler {
 
 	XStream streamer;
 	public final static Marshaler INSTANCE = new Marshaler();
+	static final Logger logger = Logger.getLogger(Marshaler.class.getName());
 
 	private Marshaler() {
 
@@ -145,7 +148,7 @@ public class Marshaler {
 	// as yet unimplemented. If the constructor with every class listed
 	// approach gets cumbersome, then it would not be too hard.
 	public void registerConverter(Class clazz) {
-
+		logger.finest(clazz.getName());
 	}
 
 	static String JAVA_NEWLINE = "\n";
@@ -176,7 +179,7 @@ public class Marshaler {
 	}
 
 	public String vizToXML(GeoVizToolkit gvt) {
-
+		logger.info(gvt.toString());
 		return null;
 	}
 

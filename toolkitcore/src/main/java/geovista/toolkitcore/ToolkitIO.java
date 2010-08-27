@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -38,6 +39,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,6 +57,14 @@ import javax.swing.JPanel;
 
 import org.w3c.dom.NodeList;
 
+import com.vividsolutions.jts.geom.Geometry;
+
+import geovista.common.data.DataSetForApps;
+import geovista.common.data.DescriptiveStatistics;
+import geovista.geoviz.map.GeoMap;
+import geovista.readers.example.GeoDataGeneralizedStates;
+import geovista.readers.shapefile.ShapeFileDataReader;
+import geovista.readers.shapefile.ShapeFileDataWriter;
 import geovista.readers.util.MyFileFilter;
 import geovista.toolkitcore.marshal.Marshaler;
 
@@ -187,7 +197,7 @@ public class ToolkitIO {
 					if (erase == JOptionPane.NO_OPTION) {
 						GeoVizToolkit gvt = (GeoVizToolkit) parent;
 						String xml = Marshaler.INSTANCE.toXML(gvt);
-						ToolkitIO.writeLayout(gvt.getFileName(), xml, parent);
+						ToolkitIO.writeLayout(xml, parent);
 					} else if (erase == JOptionPane.CANCEL_OPTION) {
 						return null;
 					}
@@ -219,8 +229,7 @@ public class ToolkitIO {
 
 	}
 
-	public static void writeLayout(String dataSetFullName, String xml,
-			Component parent) {
+	public static void writeLayout(String xml, Component parent) {
 		String xmlFullName = ToolkitIO.getFileName(parent,
 				ToolkitIO.Action.SAVE, ToolkitIO.FileType.LAYOUT);
 		if (xmlFullName == null) {
@@ -244,11 +253,11 @@ public class ToolkitIO {
 			out.close();
 			Preferences gvPrefs = Preferences
 					.userNodeForPackage(ToolkitBeanSet.class);
-			if (xmlFullName != null) {
-				File fi = new File(xmlFullName);
-				String path = fi.getAbsolutePath();
-				gvPrefs.put("LastGoodLayoutDirectory", path);
-			}
+
+			File fi = new File(xmlFullName);
+			String path = fi.getAbsolutePath();
+			gvPrefs.put("LastGoodLayoutDirectory", path);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -546,6 +555,212 @@ public class ToolkitIO {
 	}
 
 	public static void main(String[] args) {
+
+	}
+
+	public static DataSetForApps getClevelandData() {
+		String bgLocation = "C:\\data\\grants\\NIJ_ESDA\\cleveland_bgs\\cleveland bgs";
+		ShapeFileDataReader reader = new ShapeFileDataReader();
+		reader.setFileName(bgLocation + ".shp");
+		DataSetForApps dsaBGs = reader.getDataForApps();
+
+		HashMap<String, Integer> counts = new HashMap<String, Integer>();
+
+		String crimeLocation = "C:\\data\\grants\\NIJ_ESDA\\part1\\part1data";
+		ShapeFileDataReader reader2 = new ShapeFileDataReader();
+		reader2.setFileName(crimeLocation + ".shp");
+		DataSetForApps dsaCrime = reader2.getDataForApps();
+
+		Geometry[] bgs = ShapeFileDataReader.getGeoms(bgLocation);
+		Geometry[] pts = ShapeFileDataReader.getGeoms(crimeLocation);
+		int hits = 0;
+		for (int i = 0; i < dsaCrime.getNumObservations(); i++) {
+			// find the bg
+
+			Geometry point = pts[i];
+
+			for (int bgNum = 0; bgNum < dsaBGs.getNumObservations(); bgNum++) {
+
+				Geometry bgGeom = bgs[bgNum];
+				if (bgGeom.contains(point)) {
+					// find the year
+					int year = (Integer) dsaCrime.getValueAt(i, 2);
+					// get the crime
+					String crimeType = (String) dsaCrime.getValueAt(i, 10);
+					String crimeCode = crimeType.substring(0, 1);
+					// here's our encoding: YYYYTypeID
+					// Type = "R"robbery, "A"assault, "H"homicide
+					String id = year + crimeCode + bgNum;
+					Integer count = counts.get(id);
+					if (count == null) {
+						count = 0;
+					}
+					count++;
+					counts.put(id, count);
+					hits++;
+				}
+
+			}
+
+		}
+
+		// assemble dsa
+		int nVars = Crime.values().length * Year.values().length * 2;
+		Object[] dataSetNums = new Object[nVars];
+		String[] varNames = new String[nVars];
+		for (int i = 0; i < nVars; i++) {
+			dataSetNums[i] = new double[dsaBGs.getNumObservations()];
+		}
+		int i = 0;
+		HashMap<String, Integer> varIDs = new HashMap<String, Integer>();
+		for (Crime cri : Crime.values()) {
+			for (Year year : Year.values()) {
+				String varName = cri.name() + year.val;
+				varNames[i] = varName;
+				varIDs.put(varName, i);
+				i++;
+			}
+		}
+
+		for (Crime cri : Crime.values()) {
+			for (Year year : Year.values()) {
+				String varName = cri.name() + year.val;
+				varName = "Ch" + varName;
+				varNames[i] = varName;
+				varIDs.put(varName, i);
+				i++;
+			}
+		}
+
+		for (String key : counts.keySet()) {
+			int count = counts.get(key);
+			// here's our encoding: YYYYTypeID
+			String year = key.substring(0, 4);
+			String type = key.substring(4, 5);
+			String ID = key.substring(5);
+			String typeName = "";
+			if (type.equals(Crime.Robbery.initial)) {
+				typeName = Crime.Robbery.name();
+			} else if (type.equals(Crime.Assault.initial)) {
+				typeName = Crime.Assault.name();
+			} else if (type.equals(Crime.Homicide.initial)) {
+				typeName = Crime.Homicide.name();
+			}
+			int place = varIDs.get(typeName + year);
+			double[] data = (double[]) dataSetNums[place];
+			int id = Integer.valueOf(ID);
+			data[id] = count;
+
+		}
+
+		i = 0;
+		int var = 0;
+
+		// robbery
+		for (int obs = 0; obs < dsaBGs.getNumObservations(); obs++) {
+			double[] threeData = new double[3];
+			double mean = 0;
+			for (i = 0; i < 3; i++) {
+				double[] data = (double[]) dataSetNums[i];
+				mean = mean + data[obs];
+				threeData[i] = data[obs];
+			}
+			mean = mean / 3;
+			double[] zScores = DescriptiveStatistics
+					.calculateZScores(threeData);
+			double diff = 0;
+			for (i = 0; i < 3; i++) {
+				double[] data = (double[]) dataSetNums[i];
+				diff = data[obs] - mean;
+				double[] diffData = (double[]) dataSetNums[nVars / 2 + i];
+				diffData[obs] = zScores[i];
+			}
+		}
+
+		// robbery
+		for (int obs = 0; obs < dsaBGs.getNumObservations(); obs++) {
+			double mean = 0;
+			for (i = 3; i < 6; i++) {
+				double[] data = (double[]) dataSetNums[i];
+				mean = mean + data[obs];
+			}
+			mean = mean / 3;
+			double diff = 0;
+			for (i = 3; i < 6; i++) {
+				double[] data = (double[]) dataSetNums[i];
+				diff = data[obs] - mean;
+				double[] diffData = (double[]) dataSetNums[nVars / 2 + i];
+				diffData[obs] = diff;
+			}
+		}
+
+		// homicide
+		for (int obs = 0; obs < dsaBGs.getNumObservations(); obs++) {
+
+			double mean = 0;
+			for (i = 6; i < 9; i++) {
+				double[] data = (double[]) dataSetNums[i];
+				mean = mean + data[obs];
+			}
+			mean = mean / 3;
+			double diff = 0;
+			for (i = 6; i < 9; i++) {
+				double[] data = (double[]) dataSetNums[i];
+				diff = data[obs] - mean;
+				double[] diffData = (double[]) dataSetNums[nVars / 2 + i];
+				diffData[obs] = diff;
+			}
+		}
+
+		Object[] dataObject = new Object[dataSetNums.length + 3];
+		dataObject[0] = varNames;
+		for (int j = 0; j < dataSetNums.length; j++) {
+			dataObject[j + 1] = dataSetNums[j];
+		}
+		dataObject[dataObject.length - 2] = dsaBGs.getShapeData();
+		dataObject[dataObject.length - 1] = dsaBGs.getSpatialWeights();
+		DataSetForApps dsa = new DataSetForApps(dataObject);
+		System.out.println("hit " + hits + " out of "
+				+ dsaCrime.getNumObservations());
+		return dsa;
+
+	}
+
+	private enum Crime {
+		Robbery("R"), Assault("A"), Homicide("H");
+		String initial;
+
+		Crime(String initial) {
+			this.initial = initial;
+		}
+	}
+
+	private enum Year {
+		Six(2006), Seven(2007), Eight(2008);
+		int val;
+
+		Year(int val) {
+			this.val = val;
+		}
+	}
+
+	private static void testShapefileWriter() {
+		GeoDataGeneralizedStates states = new GeoDataGeneralizedStates();
+		String fileRoot = "C://temp//shp//shpfile";
+		ToolkitIO.saveShapeFile(new File(fileRoot), states.getDataForApps());
+
+		ShapeFileDataReader reader = new ShapeFileDataReader();
+		reader.setFileName(fileRoot + ".shp");
+		DataSetForApps dsa = reader.getDataForApps();
+		GeoMap map = new GeoMap();
+		map.setDataSet(dsa);
+		JFrame fram = new JFrame();
+		fram.add(map);
+		fram.pack();
+		fram.setVisible(true);
+	}
+
+	private static void testImageWrite() {
 		JFrame app = new JFrame("image test");
 		JPanel pan = new JPanel();
 		pan.setBackground(Color.pink);
@@ -558,5 +773,30 @@ public class ToolkitIO {
 		// ToolkitIO.saveCommentedImage(app);
 		logger.finest(ToolkitIO.openCommentedImage(""));
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	public static void saveShapeFile(File location, DataSetForApps dataSet) {
+		Geometry[] geoms = dataSet.getGeomData();
+		if (geoms == null) {
+			Shape[] shps = dataSet.getShapeData();
+			geoms = ShapeFileDataReader.shapesToGeoms(shps);
+		}
+		ShapeFileDataWriter.writeShapefile(geoms, location.getPath());
+		ShapeFileDataWriter.writeDBFile(dataSet.getAttributeNamesOriginal(),
+				dataSet.getNamedArrays(), dataSet.getNumObservations(),
+				location.getPath());
+	}
+
+	public static void saveShapeFile(Component parent, DataSetForApps dataSet) {
+		logger.info("start");
+		String shapeFileName = ToolkitIO.getFileName(parent,
+				ToolkitIO.Action.SAVE, ToolkitIO.FileType.SHAPEFILE);
+		ShapeFileDataWriter
+				.writeShapefile(dataSet.getGeomData(), shapeFileName);
+		ShapeFileDataWriter.writeDBFile(dataSet.getAttributeNamesOriginal(),
+				dataSet.getNamedArrays(), dataSet.getNumObservations(),
+				shapeFileName);
+		logger.info("finish!");
+
 	}
 }

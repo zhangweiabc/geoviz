@@ -100,15 +100,6 @@ public class GvDesktopPane extends JDesktopPane implements
 		inputMap.put(key, act);
 	}
 
-	public void keyPressed(KeyEvent e) {
-
-	}
-
-	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void keyTyped(KeyEvent e) {
 		logger.info("got key event");
 		logger.info("char = " + e.getKeyChar());
@@ -164,7 +155,15 @@ public class GvDesktopPane extends JDesktopPane implements
 	}
 
 	public void setSelectionColor(Color selColor) {
-		// TODO Auto-generated method stub
+
+		ToolkitBeanSet beanSet = parentKit.getTBeanSet();
+		for (ToolkitBean bean : beanSet.getBeanSet()) {
+			Object originalBean = bean.getOriginalBean();
+			if (originalBean instanceof VisualSettingsPopupListener) {
+				VisualSettingsPopupListener listener = (VisualSettingsPopupListener) originalBean;
+				listener.setSelectionColor(selColor);
+			}
+		}
 
 	}
 
@@ -250,6 +249,47 @@ public class GvDesktopPane extends JDesktopPane implements
 			}
 		}
 		parentKit.validate();
+	}
+
+	public boolean isSelectionOutline() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		ToolkitBeanSet beanSet = parentKit.getTBeanSet();
+		for (ToolkitBean bean : beanSet.getBeanSet()) {
+			Object originalBean = bean.getOriginalBean();
+			if (originalBean instanceof VisualSettingsPopupListener) {
+				VisualSettingsPopupListener listener = (VisualSettingsPopupListener) originalBean;
+				listener.useSelectionOutline(selOutline);
+			}
+		}
+
+	}
+
+	public int getSelectionLineWidth() {
+		ToolkitBeanSet beanSet = parentKit.getTBeanSet();
+		for (ToolkitBean bean : beanSet.getBeanSet()) {
+			Object originalBean = bean.getOriginalBean();
+			if (originalBean instanceof VisualSettingsPopupListener) {
+				VisualSettingsPopupListener listener = (VisualSettingsPopupListener) originalBean;
+				listener.getSelectionLineWidth();
+			}
+		}
+		return 0;
+	}
+
+	public void setSelectionLineWidth(int width) {
+		ToolkitBeanSet beanSet = parentKit.getTBeanSet();
+		for (ToolkitBean bean : beanSet.getBeanSet()) {
+			Object originalBean = bean.getOriginalBean();
+			if (originalBean instanceof VisualSettingsPopupListener) {
+				VisualSettingsPopupListener listener = (VisualSettingsPopupListener) originalBean;
+				listener.setSelectionLineWidth(width);
+			}
+		}
+
 	}
 
 }
