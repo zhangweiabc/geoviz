@@ -22,7 +22,7 @@ package geovista.symbolization;
 import java.awt.Color;
 
 import geovista.common.classification.Classifier;
-import geovista.common.classification.ClassifierRawQuantiles;
+import geovista.common.classification.ClassifierQuantiles;
 
 public class BivariateColorSymbolClassificationSimple implements
 		BivariateColorSymbolClassification {
@@ -72,14 +72,14 @@ public class BivariateColorSymbolClassificationSimple implements
 		colX.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_PURPLE);
 		colorerX = colX;
 
-		classerX = new ClassifierRawQuantiles();
+		classerX = new ClassifierQuantiles();
 
 		ColorSymbolizerLinear colY = new ColorSymbolizerLinear();
 		colY.setLowColor(ColorRampPicker.DEFAULT_LOW_COLOR);
 		colY.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_GREEN);
 		colorerY = colY;
 
-		classerY = new ClassifierRawQuantiles();
+		classerY = new ClassifierQuantiles();
 		numClassesX = BivariateColorSymbolClassificationSimple.DEFAULT_NUM_CLASSES;
 		numClassesY = BivariateColorSymbolClassificationSimple.DEFAULT_NUM_CLASSES;
 

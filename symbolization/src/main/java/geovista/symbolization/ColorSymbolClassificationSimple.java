@@ -7,7 +7,7 @@ package geovista.symbolization;
 import java.awt.Color;
 
 import geovista.common.classification.Classifier;
-import geovista.common.classification.ClassifierRawQuantiles;
+import geovista.common.classification.ClassifierQuantiles;
 
 public class ColorSymbolClassificationSimple implements
 		ColorSymbolClassification {
@@ -18,7 +18,7 @@ public class ColorSymbolClassificationSimple implements
 	public ColorSymbolClassificationSimple() {
 		// defaults
 		colorer = new ColorSymbolizerLinear();
-		classer = new ClassifierRawQuantiles();
+		classer = new ClassifierQuantiles();
 	}
 
 	public Color[] symbolize(double[] data) {

@@ -16,7 +16,7 @@ public class ColorInterpolator {
 	public static Color mixColorsHSB(Color leftColor, Color rightColor) {
 		// float[] lowVals;
 		// lowVals =
-		//Color.RGBtoHSB(this.getLowColor().getRed(),this.getLowColor().getGreen
+		// Color.RGBtoHSB(this.getLowColor().getRed(),this.getLowColor().getGreen
 		// (),this.getLowColor().getBlue(),null);
 		float[] leftVals;
 		leftVals = Color.RGBtoHSB(leftColor.getRed(), leftColor.getGreen(),
@@ -47,9 +47,11 @@ public class ColorInterpolator {
 
 		// float[] lowVals;
 		// lowVals =
-		//Color.RGBtoHSB(this.getLowColor().getRed(),this.getLowColor().getGreen
+		// Color.RGBtoHSB(this.getLowColor().getRed(),this.getLowColor().getGreen
 		// (),this.getLowColor().getBlue(),null);
-
+		if (leftColor == null || rightColor == null) {
+			return Color.black;
+		}
 		int r = (int) (((float) leftColor.getRed() + (float) rightColor
 				.getRed()) / 2f);
 		int g = (int) (((float) leftColor.getGreen() + (float) rightColor
@@ -74,11 +76,19 @@ public class ColorInterpolator {
 		// logger.info("s " + sat);
 
 		float[] leftVals;
-		leftVals = Color.RGBtoHSB(leftColor.getRed(), leftColor.getGreen(),
-				leftColor.getBlue(), null);
+		if (leftColor != null) {
+			leftVals = Color.RGBtoHSB(leftColor.getRed(), leftColor.getGreen(),
+					leftColor.getBlue(), null);
+		} else {
+			leftVals = new float[4];
+		}
 		float[] rightVals;
-		rightVals = Color.RGBtoHSB(rightColor.getRed(), rightColor.getGreen(),
-				rightColor.getBlue(), null);
+		if (rightColor != null) {
+			rightVals = Color.RGBtoHSB(rightColor.getRed(), rightColor
+					.getGreen(), rightColor.getBlue(), null);
+		} else {
+			rightVals = new float[4];
+		}
 
 		float s = (leftVals[1] + rightVals[1]) / 2f;
 
@@ -93,5 +103,4 @@ public class ColorInterpolator {
 
 		return hsbColor;
 	}
-
 }

@@ -70,7 +70,7 @@ public class SimplePaletteImpl implements Palette{
     }
     
     private int recalculateAnchorPosition(int oldPosition, int newSize){
-        return Math.round(((float)oldPosition / (float)noOfInputColors) * (float)newSize);
+        return Math.round(((float)oldPosition / (float)noOfInputColors) * newSize);
     }
     
     public void setName(String s){

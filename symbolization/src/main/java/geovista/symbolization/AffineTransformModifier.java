@@ -9,10 +9,6 @@ import java.awt.geom.Rectangle2D;
 
 public class AffineTransformModifier {
 
-	public AffineTransformModifier() {
-
-	}
-
 	public static AffineTransform makeGeogAffineTransform(Rectangle2D source,
 			Rectangle2D target, boolean mirror, boolean flipVertical) {
 

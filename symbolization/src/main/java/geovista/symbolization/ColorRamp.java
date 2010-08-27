@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ public class ColorRamp {
 
 	private transient Color lowColor; // associated with low values
 	private transient Color highColor; // associated with high values
+	static final Logger logger = Logger.getLogger(ColorRamp.class.getName());
 
 	public ColorRamp() {
 		// lowColor = Color.white;
@@ -130,7 +132,10 @@ public class ColorRamp {
 		// if (i == 0){
 		// return this.getRampedValueHSB(prop);
 		// }
-
+		if (highColor == null || lowColor == null) {
+			logger.info("hit null color");
+			return Color.black.getRGB();
+		}
 		int redRange = highColor.getRed() - lowColor.getRed();
 		int newRed = (int) Math.round(prop * redRange);
 		newRed = newRed + lowColor.getRed();

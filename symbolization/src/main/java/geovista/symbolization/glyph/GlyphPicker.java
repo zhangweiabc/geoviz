@@ -53,6 +53,7 @@ public class GlyphPicker extends JDialog implements ActionListener {
 		// TODO Auto-generated constructor stub
 	}
 
+	@SuppressWarnings("unused")
 	public Glyph showGvDialog(Component component, String title,
 			Color initialColor) {
 		return null;

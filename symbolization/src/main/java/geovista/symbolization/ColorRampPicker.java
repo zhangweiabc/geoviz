@@ -11,10 +11,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.HashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.event.EventListenerList;
+
+import cern.colt.Arrays;
+
+import geovista.colorbrewer.ColorBrewerDataReader;
+import geovista.colorbrewer.UnivariatePalette;
 
 public class ColorRampPicker extends JPanel implements ComponentListener {
 
@@ -30,6 +36,7 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 	public static final int DEFAULT_NUM_SWATCHES = 3;
 
 	public static final Color DEFAULT_LOW_COLOR = new Color(200, 200, 200);
+	// public static final Color DEFAULT_LOW_COLOR = new Color(0, 0, 0);
 	// //light grey
 	// public static final Color DEFAULT_LOW_COLOR = new Color(0, 150, 150);
 	public static final Color DEFAULT_HIGH_COLOR_PURPLE = new Color(255, 0, 0);
@@ -39,11 +46,17 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 	public static final int Y_AXIS = 1;
 	private transient int currOrientation = 0;
 
+	private UnivariatePalette pal;
+
+	private static HashMap<String, UnivariatePalette> palettes = ColorBrewerDataReader
+			.readContents();
+
 	public ColorRampPicker() {
 		init();
 	}
 
 	private void init() {
+		pal = ColorRampPicker.palettes.get("Accent");
 		// this.setBorder(BorderFactory.createLineBorder(Color.black));
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		ramp = new ColorRamp();
@@ -53,9 +66,13 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 		colors[0] = ColorRampPicker.DEFAULT_LOW_COLOR;
 		colors[nSwatches - 1] = ColorRampPicker.DEFAULT_HIGH_COLOR_PURPLE;
 		anchored = new boolean[nSwatches];
+		for (int i = 0; i < anchored.length; i++) {
+			anchored[i] = false;
+		}
 		makeRamp(nSwatches);
 		rampSwatches();
-		ramp.rampColors(colors, anchored);
+		colors = pal.getColors(colors.length);
+		// ramp.rampColors(colors, anchored);
 
 		setPreferredSize(new Dimension(365, 20)); // these match 0.5 of the
 		// ClassifierPicker
@@ -126,7 +143,8 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 				anchored[j] = false;
 			}
 		}
-		ramp.rampColors(colors, anchored);
+		colors = pal.getColors(colors.length);
+		// ramp.rampColors(colors, anchored);
 		for (int j = 0; j < panSet.length; j++) {
 			panSet[j].setSwatchColor(colors[j]);
 		}
@@ -367,4 +385,8 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 		return getColors();
 	}
 
+	public static void main(String[] args) {
+		boolean[] bools = new boolean[10];
+		System.out.println(Arrays.toString(bools));
+	}
 }
