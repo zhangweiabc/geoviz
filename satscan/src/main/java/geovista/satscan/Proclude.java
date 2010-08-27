@@ -394,12 +394,11 @@ public class Proclude extends JPanel implements ActionListener,
 		Fitness fit = new FitnessRelativePct(initializer.getDataSet());
 		if (initializer.getDataSet() == null) {
 			return;
-		} else {
-			SelectionGene sGene = new SelectionGene(selectedPoints, fit);
-			logger.info(Arrays.toString(selectedPoints));
-			double out = fit.run(sGene);
-			createSelectionDisplay(out, sGene);
 		}
+		SelectionGene sGene = new SelectionGene(selectedPoints, fit);
+		logger.info(Arrays.toString(selectedPoints));
+		double out = fit.run(sGene);
+		createSelectionDisplay(out, sGene);
 	}
 
 	public SelectionEvent getSelectionEvent() {
