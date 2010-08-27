@@ -193,7 +193,7 @@ public class DiscriminantAnalysisGUI extends JPanel implements ActionListener,
 		// identify the variables of type 'int'
 		// and add them to the 'category' combo box
 		// int numNumericVars = dataSet.getNumberNumericAttributes();
-		int numVars = dataSet.getNamedArrays().length;
+		int numVars = dataSet.getColumnCount();
 		int[] dTypes = dataSet.getDataTypeArray();
 
 		// categoryIndexMap maps the indices of variables
@@ -214,7 +214,7 @@ public class DiscriminantAnalysisGUI extends JPanel implements ActionListener,
 
 			if (dTypes[i] == DataSetForApps.TYPE_INTEGER) {
 
-				categoryCombo.addItem(dataSet.getAttributeNamesOriginal()[i]);
+				categoryCombo.addItem(dataSet.getColumnName(i));
 				categoryIndexMap.put(Integer.valueOf(++categoryComboIndex),
 						Integer.valueOf(++numericIndex));
 			} else if (dTypes[i] == DataSetForApps.TYPE_BOOLEAN
@@ -254,7 +254,7 @@ public class DiscriminantAnalysisGUI extends JPanel implements ActionListener,
 					+ String.valueOf(dataSet.getNumObservations())
 					+ "] observations");
 			logger.info("Dataset contains ["
-					+ String.valueOf(dataSet.getNumObservations()) + "] fields");
+					+ String.valueOf(dataSet.getColumnCount()) + "] fields");
 
 			// the data array consists of arrays of columns
 			double[][] data = new double[indVarIndices.length][0];
