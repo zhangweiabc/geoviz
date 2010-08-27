@@ -14,7 +14,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -22,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -71,6 +69,7 @@ import geovista.common.data.ColumnAppendedBroadcaster;
 import geovista.common.data.DataSetBroadcaster;
 import geovista.common.data.DataSetForApps;
 import geovista.common.data.GeoDataSource;
+import geovista.common.data.SpatialWeights;
 import geovista.common.event.AnnotationEvent;
 import geovista.common.event.AnnotationListener;
 import geovista.common.event.DataSetEvent;
@@ -81,6 +80,9 @@ import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.common.event.SubspaceEvent;
 import geovista.common.event.SubspaceListener;
+import geovista.common.event.TextEvent;
+import geovista.common.event.TextListener;
+import geovista.common.text.SearchBox;
 import geovista.common.ui.NotePad;
 import geovista.common.ui.ShapeReporter;
 import geovista.common.ui.VariablePicker;
@@ -100,14 +102,16 @@ import geovista.geoviz.spreadsheet.TableViewer;
 import geovista.geoviz.spreadsheet.VariableTransformer;
 import geovista.geoviz.star.StarPlot;
 import geovista.geoviz.star.StarPlotMap;
+import geovista.largedata.DCCrimeDataReader;
+import geovista.largedata.H1N1DataReader;
 import geovista.matrix.MapAndScatterplotMatrix;
 import geovista.matrix.MapMatrix;
 import geovista.matrix.MapScatterplotTreemapMatrix;
 import geovista.matrix.MultiplotMatrix;
 import geovista.matrix.TreemapAndScatterplotMatrix;
+import geovista.matrix.map.LISTAViz;
 import geovista.matrix.map.MoranMap;
 import geovista.readers.example.GeoData2008Election;
-import geovista.readers.example.GoogleFluDataReader;
 import geovista.readers.example.TexasZoonoticDataReader;
 import geovista.readers.seerstat.SeerStatReader;
 import geovista.readers.shapefile.ShapeFileDataReader;
@@ -132,11 +136,11 @@ import geovista.touchgraph.SubspaceLinkGraph;
 public class GeoVizToolkit extends JFrame implements ActionListener,
 		ComponentListener, InternalFrameListener, AnnotationListener,
 		ComponentProvider, FrameListener, MarshaledComponentListener,
-		IndicationListener {
+		IndicationListener, TextListener {
 
 	final static Logger logger = Logger
 			.getLogger(GeoVizToolkit.class.getName());
-	private static String VERSION_NUM = "0.8.8";
+	private static String VERSION_NUM = "0.8.9";
 
 	JComponent regularUI;
 	IndicationConnectUI<JComponent> indUI;
@@ -194,7 +198,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 	JMenuItem menuItemCopySelectedWindowToClipboard;
 	JMenuItem menuItemSaveWholeImageToFile;
 	JMenuItem menuItemSaveSelectedWindowToFile;
-	JMenuItem menuItemSaveImageToGEX;
+	JMenuItem menuItemSaveShapefile;
 	
 	JCheckBoxMenuItem menuItemUseProj;
 
@@ -295,7 +299,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuItemCopySelectedWindowToClipboard = new JMenuItem();
 		menuItemSaveWholeImageToFile = new JMenuItem();
 		menuItemSaveSelectedWindowToFile = new JMenuItem();
-		menuItemSaveImageToGEX = new JMenuItem();
+		menuItemSaveShapefile = new JMenuItem();
 		
 		menuItemUseProj = new JCheckBoxMenuItem();
 
@@ -314,7 +318,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		initMembers();
 		desktop.setBackground(new Color(20, 20, 80));
 		this.useProj = useProj;
-		useProj = false;
+		// useProj = false;
 		JXLayer<JComponent> layer = new JXLayer<JComponent>(desktop);
 		indUI = new IndicationConnectUI<JComponent>();
 		getContentPane().add(layer, BorderLayout.CENTER);
@@ -530,8 +534,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 	}
 
 	/*
-	 * adds bean to coordinator. Adds bean to the main gui area, also to the
-	 * remove bean menu
+	 * Adds bean to the main gui area, also to the remove bean menu
 	 */
 	private void addBeanToGui(ToolkitBean newToolkitBean) {
 
@@ -661,6 +664,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 	}
 
 	public void actionPerformed(ActionEvent e) {
+
 		if (e.getSource() == menuItemAboutGeoVista) {
 
 			JOptionPane.showMessageDialog(this,
@@ -731,7 +735,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 			if (logger.isLoggable(Level.FINEST)) {
 				logger.finest(xml);
 			}
-			ToolkitIO.writeLayout(getFileName(), xml, this);
+			ToolkitIO.writeLayout(xml, this);
 			// ToolkitIO.writeLayout(getFileName(), tBeanSet, this);
 
 		} else if (toolClassHash.containsKey(e.getSource())) {
@@ -767,11 +771,14 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 			if (frame != null) {
 				ToolkitIO.saveImageToFile(frame);
 			}
-		} else if (e.getSource() == menuItemSaveImageToGEX) {
-			BufferedImage buff = new BufferedImage(desktop.getWidth(), desktop
-					.getHeight(), BufferedImage.TYPE_INT_ARGB);
-			Graphics g = buff.getGraphics();
-			desktop.paint(g);
+		} else if (e.getSource() == menuItemSaveShapefile) {
+			// BufferedImage buff = new BufferedImage(desktop.getWidth(),
+			// desktop
+			// .getHeight(), BufferedImage.TYPE_INT_ARGB);
+			// Graphics g = buff.getGraphics();
+			// desktop.paint(g);
+
+			ToolkitIO.saveShapeFile(this, dataSet);
 			// GEXClient.uploadScreenshot(buff, "new test");
 
 		}
@@ -788,6 +795,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		fireNewBeanMethods(newBean);
 		tBeanSet.add(tBean);
 		setCursor(Cursor.getDefaultCursor());
+
 	}
 
 	private void loadAdditionalTable(String name) {
@@ -840,10 +848,9 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		this.repaint();
 		vizState.setDataSource(name);
 		filePath = name;
-		logger
-				.fine("geovizdemo, loadData, dataSetIsNull ="
-						+ (dataSet == null));
+		logger.fine("geovizdemo, loadData, dataSetIsNull =" + (dataSet == null));
 		Object[] newDataSet = null;
+		// name = "H1N1 Patterns";
 
 		try {
 			newDataSet = createData(name);
@@ -854,9 +861,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 			e.printStackTrace();
 		}
 
-		logger
-				.fine("geovizdemo, loadData, dataSetIsNull ="
-						+ (dataSet == null));
+		logger.fine("geovizdemo, loadData, dataSetIsNull =" + (dataSet == null));
 		dataSet = new DataSetForApps(newDataSet);
 		File newFile = new File(name);
 		if (newFile.canRead()) {
@@ -867,35 +872,54 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 			dataSet.setDataSourceName("");
 		}
 		dataCaster.setAndFireDataSet(dataSet);
-		logger
-				.fine("geovizdemo, loadData, dataSetIsNull ="
-						+ (dataSet == null));
+		logger.fine("geovizdemo, loadData, dataSetIsNull =" + (dataSet == null));
 		setCursor(Cursor.getDefaultCursor());
 
 	}
 
+	H1N1DataReader reader = null;
+
 	private Object[] createData(String name) throws IOException {
+		setTitle("GeoViz Toolkit -- " + name);
+
 		if (name == null) {
 			return null;
 		}
+		// if (name != null) {
+		// reader = new H1N1DataReader();
+		//
+		// return reader.getDataForApps().getDataObjectOriginal();
+		// }
+
 		logger.fine("creating data: " + name);
 		Object[] newDataSet = null;
+		if (name.equals("Cleveland Crime Patterns")) {
+
+			return ToolkitIO.getClevelandData().getDataObjectOriginal();
+		}
+
 		// name = "TX";
-		if (name.equals("48States")) {
+		if (name.equals("48States") || name.equals("USCounties")) {
+
 			// GeoDataGeneralizedStates statesData = new
 			// GeoDataGeneralizedStates();
+			// TexasZoonoticDataReader statesData = new
+			// TexasZoonoticDataReader();
 
-			GoogleFluDataReader statesData = new GoogleFluDataReader();
+			DCCrimeDataReader crimeReader = new DCCrimeDataReader();
+			newDataSet = crimeReader.getDataForApps().getDataObjectOriginal();
+
+			// GoogleFluDataReader statesData = new GoogleFluDataReader();
+			// ShapeFileProjection proj = new ShapeFileProjection();
+			// proj.setInputDataSetForApps(statesData.getDataForApps());
+			// newDataSet = proj.getOutputDataSet();
 
 			// geovista.largedata.GeoDataNiger statesData = new
 			// geovista.largedata.GeoDataNiger();
-			ShapeFileProjection proj = new ShapeFileProjection();
-			proj.setInputDataSetForApps(statesData.getDataForApps());
+
 			// newDataSet = statesData.getDataForApps().getDataObjectOriginal();
 
 			// proj.setInputDataSet(countyData.getDataSet());
-
-			newDataSet = proj.getOutputDataSet();
 
 		} else if (name.equals("TX")) {
 			TexasZoonoticDataReader statesData = new TexasZoonoticDataReader();
@@ -933,10 +957,14 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 			// newDataSet = cartogramData.getDataSet();
 
 		} else if (name.equals("USCounties")) {
-
-			GeoData2008Election countyData = new GeoData2008Election();
+			TexasZoonoticDataReader statesData = new TexasZoonoticDataReader();
 			ShapeFileProjection proj = new ShapeFileProjection();
-			proj.setInputDataSet(countyData.getDataSet());
+			proj.setInputDataSetForApps(statesData.getDataForApps());
+			newDataSet = proj.getOutputDataSet();
+
+			// GeoData2008Election countyData = new GeoData2008Election();
+			// ShapeFileProjection proj = new ShapeFileProjection();
+			// proj.setInputDataSet(countyData.getDataSet());
 
 			newDataSet = proj.getOutputDataSet();
 		} else if (name.equals("2008 Presidential Election")) {
@@ -944,6 +972,9 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 			GeoData2008Election countyData = new GeoData2008Election();
 			ShapeFileProjection proj = new ShapeFileProjection();
 			proj.setInputDataSet(countyData.getDataSet());
+
+			SpatialWeights sw = proj.getOutputDataSetForApps()
+					.getSpatialWeights();
 
 			newDataSet = proj.getOutputDataSet();
 
@@ -969,7 +1000,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 				logger.severe("could not read:" + name);
 				return null;
 			}
-			if (useProj) {
+			if (useProj && shpRead.getDataForApps().getShapeData() != null) {
 				shpProj.setInputDataSet(shpRead.getDataSet());
 				newDataSet = shpProj.getOutputDataSet();
 			} else {
@@ -978,7 +1009,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 			}
 		}
-		setTitle("GeoViz Toolkit -- " + name);
+
 		return newDataSet;
 
 	}
@@ -1044,7 +1075,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 	}
 
 	private void joinCsvData(String fileName) {
-
+		logger.finest(fileName);
 	}
 
 	/*
@@ -1060,12 +1091,11 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		String shortName = className.substring(place, len);
 		Image im = CoordinationUtils.findSmallIcon(tool);
 		Icon ic = new ImageIcon(im);
-		JMenuItem item = new JMenuItem(shortName, ic);
-		menuAddTool.add(item); // the menu
-		item.addActionListener(this);
-		toolClassHash.put(item, className); // the menuItem is the key,
-		// the classname the value
-		toolMenuList.add(item);
+		JMenuItem menuItem = new JMenuItem(shortName, ic);
+		menuAddTool.add(menuItem);
+		menuItem.addActionListener(this);
+		toolClassHash.put(menuItem, className);
+		toolMenuList.add(menuItem);
 
 	}
 
@@ -1143,7 +1173,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuItemHelp.addActionListener(this);
 		menuItemSaveWholeImageToFile.addActionListener(this);
 		menuItemSaveSelectedWindowToFile.addActionListener(this);
-		menuItemSaveImageToGEX.addActionListener(this);
+		menuItemSaveShapefile.addActionListener(this);
 		menuItemCopyApplicationToClipboard.addActionListener(this);
 		menuItemCopySelectedWindowToClipboard.addActionListener(this);
 		
@@ -1206,6 +1236,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		menuAddTool.add(new JLabel(
 				" ~~~~~ Spatial Analysis and Clustering ~~~~~ "));
+		addToolToMenu(LISTAViz.class);
 		addToolToMenu(MoranMap.class);
 		addToolToMenu(Proclude.class);
 		addToolToMenu(DiscriminantAnalysisGUI.class);
@@ -1214,6 +1245,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuAddTool.add(new JLabel(" ~~~~~ Collaboration and Text ~~~~~ "));
 		addToolToMenu(GeoJabber.class);
 		addToolToMenu(NotePad.class);
+		addToolToMenu(SearchBox.class);
 
 	}
 
@@ -1254,8 +1286,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuItemSaveSelectedWindowToFile
 				.setText("Export image of currently selected window to file");
 
-		menuItemSaveImageToGEX
-				.setText("Export image of main window to G-EX Portal");
+		menuItemSaveShapefile.setText("Export data to shapefile");
 		
 		menuItemUseProj.setText("Use U.S. Projection");
 		menuItemUseProj.setState(true);
@@ -1291,7 +1322,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuFile.add(menuItemSaveWholeImageToFile);
 		menuFile.add(menuItemSaveSelectedWindowToFile);
 		menuFile.addSeparator();
-		menuFile.add(menuItemSaveImageToGEX);
+		menuFile.add(menuItemSaveShapefile);
 		menuFile.addSeparator();
 		menuFile.add(menuItemOpenProject);
 		menuFile.add(menuItemSaveProject);
@@ -1457,7 +1488,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 	}
 
-	public static void main2(String[] args) {
+	public static void main2(@SuppressWarnings("unused") String[] args) {
 		JFrame app = new JFrame();
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		URL url = null;
@@ -1564,8 +1595,8 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 					logger.info("originalBean = "
 							+ originalBean.getClass().getName());
 					if (obj == originalBean) {
-						indUI.addShape(shpR.reportShape(), shpR
-								.renderingComponent());
+						indUI.addShape(shpR.reportShape(),
+								shpR.renderingComponent());
 					}
 				}
 
@@ -1585,4 +1616,13 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		}
 
 	}
+
+	@Override
+	public void textChanged(TextEvent e) {
+		String s = e.getText();
+		DataSetForApps dsa = reader.makeDataSetForApps(s);
+		dataCaster.setAndFireDataSet(dsa);
+
+	}
+
 }
