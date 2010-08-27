@@ -12,13 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.event.EventListenerList;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.AbstractTableModel;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -49,7 +43,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Xiping Dai
  * @author Frank Hardisty
  */
-public class DataSetForApps extends AbstractTableModel {
+public class DataSetForApps {
 
 	public static final int TYPE_NONE = -1;
 	public static final int TYPE_NAME = 0;
@@ -68,7 +62,7 @@ public class DataSetForApps extends AbstractTableModel {
 
 	private transient Object[] dataObjectOriginal;
 	private transient Object[] dataSetNumericAndSpatial;
-	private transient Object[] dataSetAttAndNumeric;
+
 	private transient Object[] dataSetNumeric;
 	private transient Object[] dataSetFull;
 	private transient String[] attributeNames;
@@ -83,7 +77,6 @@ public class DataSetForApps extends AbstractTableModel {
 	private String dataSourceName;// adding for Jared
 
 	private transient SpatialWeights spatialWeights;
-	private transient EventListenerList listenerList;
 
 	public Map<String, String>[] aliases;
 
@@ -93,7 +86,7 @@ public class DataSetForApps extends AbstractTableModel {
 			.getName());
 
 	public DataSetForApps() {
-		listenerList = new EventListenerList();
+
 	}
 
 	/**
@@ -107,7 +100,7 @@ public class DataSetForApps extends AbstractTableModel {
 	 *            Shapely shapes
 	 */
 	public DataSetForApps(String[] varNames, Object[] data, Shape[] geoms) {
-		listenerList = new EventListenerList();
+
 		Object[] originalData = new Object[data.length + 2];
 		originalData[0] = varNames;
 		for (int i = 0; i < data.length; i++) {
@@ -126,13 +119,13 @@ public class DataSetForApps extends AbstractTableModel {
 	 */
 
 	public DataSetForApps(Object[] data) {
-		listenerList = new EventListenerList();
+
 		setDataObject(data);
 	}
 
 	public DataSetForApps(String[] varNames, Object[] data, Shape[] geoms,
 			SpatialWeights weights) {
-		listenerList = new EventListenerList();
+
 		Object[] originalData = new Object[data.length + 3];
 		originalData[0] = varNames;
 		for (int i = 0; i < data.length; i++) {
@@ -148,6 +141,27 @@ public class DataSetForApps extends AbstractTableModel {
 
 		Object[] theData = { varName, data };
 		setDataObject(theData);
+	}
+
+	public DataSetForApps(DataSetForApps currData, String varName, double[] var) {
+		Object[] originalData = currData.getDataObjectOriginal();
+		Object[] newData = new Object[originalData.length + 1];
+		String[] oldNames = currData.getAttributeNamesOriginal();
+		String[] newNames = new String[oldNames.length + 1];
+
+		newNames[0] = varName;
+		for (int i = 1; i < newNames.length; i++) {
+			newNames[i] = oldNames[i - 1];
+
+		}
+
+		newData[0] = newNames;
+		newData[1] = var;
+		for (int i = 2; i < newData.length; i++) {
+			newData[i] = originalData[i - 1];
+
+		}
+		setDataObject(newData);
 	}
 
 	/**
@@ -200,19 +214,10 @@ public class DataSetForApps extends AbstractTableModel {
 
 	/**
 	 * @return the object array with only numerical variables (double[], int[],
-	 *         and String[]) from the attribute arrays
+	 *         and boolean[]) from the attribute arrays
 	 */
 	public Object[] getDataSetNumeric() {
 		return dataSetNumeric;
-	}
-
-	public Object[] getDataSetNumericAndAtt() {
-		dataSetAttAndNumeric = new Object[dataSetNumeric.length + 1];
-		dataSetAttAndNumeric[0] = attributeNamesNumeric;
-		for (int i = 0; i < dataSetNumeric.length; i++) {
-			dataSetAttAndNumeric[i + 1] = dataSetNumeric[i];
-		}
-		return dataSetAttAndNumeric;
 	}
 
 	/**
@@ -224,7 +229,7 @@ public class DataSetForApps extends AbstractTableModel {
 
 	/**
 	 * Returns the names of only the numerical variables (double[], int[], and
-	 * String[]) from the attribute arrays.
+	 * boolean[]) from the attribute arrays.
 	 * 
 	 */
 	public String[] getAttributeNamesNumeric() {
@@ -900,10 +905,12 @@ public class DataSetForApps extends AbstractTableModel {
 
 	}
 
+	@SuppressWarnings("unused")
 	public String makeUniqueName(String duplicatedName, ArrayList nameList) {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	public void addColumn(String columnName, float[] columnData) {
 		// XXX placeholder
 		throw new UnsupportedOperationException(
@@ -926,7 +933,6 @@ public class DataSetForApps extends AbstractTableModel {
 		DataSetForApps dataSet = new DataSetForApps(allData);
 		DataSetForApps newDataSet = prependDataSet(dataSet);
 		setDataObject(newDataSet.getDataObjectOriginal());
-		fireTableChanged();
 
 	}
 
@@ -942,75 +948,6 @@ public class DataSetForApps extends AbstractTableModel {
 
 		return newDataSet;
 
-	}
-
-	/**
-	 * Notify all listeners that have registered interest for notification on
-	 * this event type. The event instance is lazily created using the
-	 * parameters passed into the fire method.
-	 * 
-	 * @see EventListenerList note: at this point, always fires an insertion
-	 */
-	public void fireTableChanged() {
-		if (logger.isLoggable(Level.FINEST)) {
-			logger.finest("DataSetForApps, firing table changed");
-		}
-
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		TableModelEvent e = null;
-
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == TableModelListener.class) {
-				// Lazily create the event:
-				if (e == null) {
-					// TableModelEvent(TableModel source, int firstRow, int
-					// lastRow, int column, int type)
-					e = new TableModelEvent(this, 0, getNumObservations(),
-							getObservationNames().length,
-							TableModelEvent.INSERT);
-				}
-
-				((TableModelListener) listeners[i + 1]).tableChanged(e);
-			}
-		} // next i
-	}
-
-	@Override
-	public void addTableModelListener(TableModelListener l) {
-		// listenerList.add(TableModelListener.class, l);
-
-	}
-
-	@Override
-	public void removeTableModelListener(TableModelListener l) {
-		// listenerList.remove(TableModelListener.class, l);
-
-	}
-
-	// start TableModel methods
-	@Override
-	public Class getColumnClass(int columnIndex) {
-
-		Object dataArray = getDataObjectOriginal()[columnIndex + 1];
-
-		if (dataArray instanceof double[]) {
-			return Double.class;
-		} else if (dataArray instanceof int[]) {
-			return Integer.class;
-		} else if (dataArray instanceof String[]) {
-			return String.class;
-		} else if (dataArray instanceof boolean[]) {
-			return Boolean.class;
-		} else {
-			logger
-					.severe("datasetforaps, getcolumnclass, hit unknown array type, type = "
-							+ dataArray.getClass());
-		}
-
-		return null;
 	}
 
 	public Object getValueAt(int rowIndex, int columnIndex) {
@@ -1043,16 +980,14 @@ public class DataSetForApps extends AbstractTableModel {
 		Map<String, String> colAliases = null;
 		if (aliases[columnIndex + 1] == null) {
 			return "";
-		} else {
-			String alias = "";
-			colAliases = aliases[columnIndex + 1];
-			alias = colAliases.get(String.valueOf(rowIndex));
-			if (alias == null) {
-				return "";
-			} else {
-				return alias;
-			}
 		}
+		String alias = "";
+		colAliases = aliases[columnIndex + 1];
+		alias = colAliases.get(String.valueOf(rowIndex));
+		if (alias == null) {
+			return "";
+		}
+		return alias;
 
 	}
 
@@ -1070,50 +1005,6 @@ public class DataSetForApps extends AbstractTableModel {
 			intVals[i] = String.valueOf(intVals[i]);
 		}
 		this.setAlias(column, vals, aliases);
-	}
-
-	@Override
-	public boolean isCellEditable(int arg0, int arg1) {
-
-		return false;
-	}
-
-	@Override
-	public void setValueAt(Object arg0, int arg1, int arg2) {
-		// noop, we don't allow editing
-
-	}
-
-	public int getColumnCount() {
-		return attributeNames.length;
-	}
-
-	@Override
-	public String getColumnName(int columnIndex) {
-
-		return attributeNames[columnIndex];
-
-	}
-
-	public int getRowCount() {
-		return numObservations;
-	}
-
-	// end TableModel events
-
-	/**
-	 * @return the listenerList
-	 */
-	public EventListenerList getListenerList() {
-		return listenerList;
-	}
-
-	/**
-	 * @param listenerList
-	 *            the listenerList to set
-	 */
-	public void setListenerList(EventListenerList listenerList) {
-		this.listenerList = listenerList;
 	}
 
 	public String getDataSourceName() {
