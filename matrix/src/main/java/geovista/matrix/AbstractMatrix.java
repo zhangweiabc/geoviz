@@ -17,7 +17,6 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -35,8 +34,6 @@ import javax.swing.event.ListSelectionListener;
 
 import geovista.common.classification.Classifier;
 import geovista.common.data.DataSetForApps;
-import geovista.common.event.ColorArrayEvent;
-import geovista.common.event.ColorArrayListener;
 import geovista.common.event.ConditioningEvent;
 import geovista.common.event.ConditioningListener;
 import geovista.common.event.DataSetEvent;
@@ -57,8 +54,7 @@ import geovista.symbolization.event.ColorClassifierListener;
 public abstract class AbstractMatrix extends JPanel implements MouseListener,
 		MouseMotionListener, ChangeListener, ListSelectionListener,
 		SelectionListener, DataSetListener, ConditioningListener,
-		ColorArrayListener, IndicationListener, SubspaceListener, Serializable,
-		ColorClassifierListener {
+		IndicationListener, SubspaceListener, ColorClassifierListener {
 	protected final static Logger logger = Logger
 			.getLogger(AbstractMatrix.class.getName());
 	protected static final int DEFAULT_MAX_NUM_ARRAYS = 3;
@@ -75,9 +71,9 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 	protected transient int plotNumber;
 	protected transient int maxNumArrays = DEFAULT_MAX_NUM_ARRAYS;
 	protected transient int[] plottedAttributes;
-	// protected transient Vector selectedObvs = new Vector();
+
 	protected transient Color[] multipleSelectionColors;
-	protected transient Color[] colorArrayForObs;
+
 	protected transient MatrixElement[] element;
 	protected transient int[] selectedObvsInt;
 	protected transient int[] selections;// short array, sharing with other
@@ -218,13 +214,12 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 		logger.finest("Set Selected Obs: ");
 		if (selected == null || selectedObvsInt == null) {
 			return;
-		} else {
-			for (int i = 0; i < selectedObvsInt.length; i++) {
-				selectedObvsInt[i] = 0;
-			}
-			for (int i = 0; i < selected.length; i++) {
-				selectedObvsInt[selected[i]] = 1;
-			}
+		}
+		for (int i = 0; i < selectedObvsInt.length; i++) {
+			selectedObvsInt[i] = 0;
+		}
+		for (int i = 0; i < selected.length; i++) {
+			selectedObvsInt[selected[i]] = 1;
 		}
 		multipleSelectionColors = null;
 		// Once selection from other components has been set, pass it to each
@@ -323,16 +318,15 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 
 		if (condition == null) {
 			return;
-		} else {
-			conditionArray = condition;
-			for (int k = 0; k < plotNumber * plotNumber; k++) {
-				MatrixElement otherElement = element[k];
-				if (otherElement != null) {
-					otherElement.setConditionArray(conditionArray);
-				}
-			}
-			repaint();
 		}
+		conditionArray = condition;
+		for (int k = 0; k < plotNumber * plotNumber; k++) {
+			MatrixElement otherElement = element[k];
+			if (otherElement != null) {
+				otherElement.setConditionArray(conditionArray);
+			}
+		}
+		repaint();
 	}
 
 	/**
@@ -381,17 +375,6 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 		for (MatrixElement otherElement : element) {
 			otherElement.setSelectionColor(selectionColor);
 		}
-	}
-
-	public void setColorArrayForObs(Color[] colorArray) {
-		if (element == null) {
-			return;
-		}
-		colorArrayForObs = colorArray;
-		for (MatrixElement otherElement : element) {
-			otherElement.setColorArrayForObs(colorArrayForObs);
-		}
-		repaint();
 	}
 
 	/**
@@ -801,11 +784,6 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 
 	public void conditioningChanged(ConditioningEvent e) {
 		setConditionArray(e.getConditioning());
-	}
-
-	public void colorArrayChanged(ColorArrayEvent e) {
-		logger.finest("colorArrayChanged...");
-		setColorArrayForObs(e.getColors());
 	}
 
 	public void colorClassifierChanged(ColorClassifierEvent e) {

@@ -36,10 +36,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
-public class UniformBivariateSmallMultiple extends AbstractMatrix implements
-		ListSelectionListener {
+public class UniformBivariateSmallMultiple extends AbstractMatrix {
 
 	private static final int DEFAULT_NUM_ROW_VARIABLES = 3;
 	protected EventListenerList listenerList = new EventListenerList();
@@ -100,16 +98,15 @@ public class UniformBivariateSmallMultiple extends AbstractMatrix implements
 	public void setConditionArray(int[] condition) {
 		if (condition == null) {
 			return;
-		} else {
-			conditionArray = condition;
-			for (int k = 0; k < plotNumber * rowVarNumber; k++) {
-				MatrixElement otherElement = element[k];
-				if (otherElement != null) {
-					otherElement.setConditionArray(conditionArray);
-				}
-			}
-			repaint();
 		}
+		conditionArray = condition;
+		for (int k = 0; k < plotNumber * rowVarNumber; k++) {
+			MatrixElement otherElement = element[k];
+			if (otherElement != null) {
+				otherElement.setConditionArray(conditionArray);
+			}
+		}
+		repaint();
 	}
 
 	@Override
@@ -119,13 +116,12 @@ public class UniformBivariateSmallMultiple extends AbstractMatrix implements
 		}
 		if (selected == null) {
 			return;
-		} else {
-			for (int i = 0; i < selectedObvsInt.length; i++) {
-				selectedObvsInt[i] = 0;
-			}
-			for (int i = 0; i < selected.length; i++) {
-				selectedObvsInt[selected[i]] = 1;
-			}
+		}
+		for (int i = 0; i < selectedObvsInt.length; i++) {
+			selectedObvsInt[i] = 0;
+		}
+		for (int i = 0; i < selected.length; i++) {
+			selectedObvsInt[selected[i]] = 1;
 		}
 		multipleSelectionColors = null;
 		// Once selection from other components has been set, pass it to each
@@ -758,12 +754,11 @@ public class UniformBivariateSmallMultiple extends AbstractMatrix implements
 		JList theList = (JList) e.getSource();
 		if (theList.isSelectionEmpty()) {
 			return;
+		}
+		if (e.getSource() == attList) {
+			plottedAttributes = theList.getSelectedIndices();
 		} else {
-			if (e.getSource() == attList) {
-				plottedAttributes = theList.getSelectedIndices();
-			} else {
-				plottedRowAttributes = theList.getSelectedIndices();
-			}
+			plottedRowAttributes = theList.getSelectedIndices();
 		}
 	}
 

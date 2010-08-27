@@ -75,10 +75,6 @@ public class StarPlotMatrixElement extends StarPlotCanvas implements
 		// xxx implement me
 	}
 
-	public void setColorArrayForObs(Color[] c) {
-		// xxx implement me
-	}
-
 	public Vector getSelectedObservations() {
 		// xxx implement me
 		return null;

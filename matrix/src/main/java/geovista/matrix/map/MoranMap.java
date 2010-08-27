@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -36,6 +37,8 @@ import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.common.event.SpatialExtentEvent;
 import geovista.common.event.SpatialExtentListener;
+import geovista.common.event.SubspaceEvent;
+import geovista.common.event.SubspaceListener;
 import geovista.common.ui.VariablePicker;
 import geovista.coordination.CoordinationManager;
 import geovista.geoviz.map.GeoMap;
@@ -52,7 +55,7 @@ import geovista.symbolization.event.ColorClassifierListener;
 public class MoranMap extends JPanel implements SelectionListener,
 		IndicationListener, DataSetListener, ColorClassifierListener,
 		SpatialExtentListener, PaletteListener, TableModelListener,
-		ActionListener, ListSelectionListener {
+		ActionListener, ListSelectionListener, SubspaceListener {
 	protected final static Logger logger = Logger.getLogger(MoranMap.class
 			.getName());
 
@@ -148,6 +151,7 @@ public class MoranMap extends JPanel implements SelectionListener,
 		sendButt.addActionListener(this);
 		varPanel.setLayout(new BorderLayout());
 		varPanel.add(varList, BorderLayout.CENTER);
+		// varPanel.add(varPicker, BorderLayout.CENTER);
 		varPanel.add(sendButt, BorderLayout.SOUTH);
 
 		this.add(varPanel, BorderLayout.WEST);
@@ -155,6 +159,10 @@ public class MoranMap extends JPanel implements SelectionListener,
 	}
 
 	public void selectionChanged(SelectionEvent e) {
+
+		if (coord.containsBean(e.getSource())) {
+			fireSelectionChanged(e);
+		}
 		varSigMap.selectionChanged(e);
 		if (sp != null) {
 			sp.selectionChanged(e);
@@ -179,12 +187,20 @@ public class MoranMap extends JPanel implements SelectionListener,
 	}
 
 	public void dataSetChanged(DataSetEvent e) {
+		coord.removeBean(this);
+		// XXX NGA demo hack
+		if (e.getSource().getClass().getName()
+				.equals("geovista.toolkitcore.GeoVizToolkit") == false) {
+			coord.addBean(this);
+			return;
+		}
 		dataSetOriginal = e.getDataSetForApps();
 		String[] varNames = dataSetOriginal.getAttributeNamesNumeric();
 		spatialWeights = dataSetOriginal.getSpatialWeights();
 		varList.setListData(varNames);
 		varList.setSelectedIndex(0);
-
+		varPicker.dataSetChanged(e);
+		coord.addBean(this);
 	}
 
 	public void colorClassifierChanged(ColorClassifierEvent e) {
@@ -252,34 +268,82 @@ public class MoranMap extends JPanel implements SelectionListener,
 
 		if (e.getSource().equals(varList)) {
 			int whichItem = varList.getSelectedIndex();
-			if (whichItem < 0) {
-				return;
-			}
-			double[] newData = dataSetOriginal
-					.getNumericDataAsDouble(whichItem);
-
-			String itemName = (String) varList.getSelectedValue();
-
-			double[] zData = DescriptiveStatistics.calculateZScores(newData);
-			String zName = "Z_" + itemName;
-			double[] moranData = SpatialStatistics.calculateMoranScores(zData,
-					spatialWeights);
-			String moranName = "Moran_" + itemName;
-			double[] monteCarloData = SpatialStatistics.findPValues(zData,
-					moranData, monteCarloIterations, spatialWeights);
-			String pName = "P_" + itemName;
-			String[] resultNames = { itemName, zName, moranName, pName };
-			Object[] dataSetObject = { resultNames, newData, zData, moranData,
-					monteCarloData, dataSetOriginal.getShapeData() };
-
-			dataCaster.setAndFireDataSet(dataSetObject);
-			moranHist.setSelectedVariable(2);
-			sigHist.setSelectedVariable(3);
-			moranMap.setSelectedVariable(2);
-			sigMap.setSelectedVariable(3);
+			newVariableSelected(whichItem);
 
 		}
 
+	}
+
+	private void newVariableSelected(int whichItem) {
+		if (whichItem < 0) {
+			return;
+		}
+		double[] newData = dataSetOriginal.getNumericDataAsDouble(whichItem);
+
+		String itemName = (String) varList.getSelectedValue();
+
+		double[] zData = DescriptiveStatistics.calculateZScores(newData);
+		String zName = "Z_" + itemName;
+		double[] moranData = SpatialStatistics.calculateMoranScores(zData,
+				spatialWeights);
+		String moranName = "Moran_" + itemName;
+		double[] monteCarloData = SpatialStatistics.findPValues(zData,
+				monteCarloIterations, spatialWeights);
+		String pName = "P_" + itemName;
+		String[] resultNames = { itemName, zName, moranName, pName };
+		Object[] dataSetObject = { resultNames, newData, zData, moranData,
+				monteCarloData, dataSetOriginal.getShapeData() };
+
+		dataCaster.setAndFireDataSet(dataSetObject);
+		moranHist.setSelectedVariable(2);
+		sigHist.setSelectedVariable(3);
+		moranMap.setSelectedVariable(2);
+		sigMap.setSelectedVariable(3);
+	}
+
+	@Override
+	public void subspaceChanged(SubspaceEvent e) {
+		int[] vars = e.getSubspace();
+		int firstVar = vars[0];
+		varList.setSelectedIndex(firstVar);
+		// newVariableSelected(firstVar);
+
+	}
+
+	/**
+	 * adds an SelectionListener
+	 */
+	public void addSelectionListener(SelectionListener l) {
+		listenerList.add(SelectionListener.class, l);
+	}
+
+	/**
+	 * removes an SelectionListener from the component
+	 */
+	public void removeSelectionListener(SelectionListener l) {
+		listenerList.remove(SelectionListener.class, l);
+	}
+
+	/**
+	 * Notify all listeners that have registered interest for notification on
+	 * this event type. The event instance is lazily created using the
+	 * parameters passed into the fire method.
+	 * 
+	 * @see EventListenerList
+	 */
+	private void fireSelectionChanged(SelectionEvent e) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+
+			((SelectionListener) listeners[i + 1]).selectionChanged(e);
+
+		}
+
+		// next i
 	}
 
 }

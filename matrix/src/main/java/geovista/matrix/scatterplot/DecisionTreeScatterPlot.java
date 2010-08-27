@@ -24,7 +24,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -58,7 +57,7 @@ import geovista.symbolization.BivariateColorSymbolClassificationSimple;
  */
 public class DecisionTreeScatterPlot extends JPanel implements
 		ComponentListener, MouseListener, MouseMotionListener, MatrixElement,
-		Serializable, ExcentricLabelClient {
+		ExcentricLabelClient {
 
 	public static final double AXISSPACEPORTION = 1.0 / 6.0;
 	public static final String COMMAND_POINT_SELECTED = "cmdSel";
@@ -173,12 +172,9 @@ public class DecisionTreeScatterPlot extends JPanel implements
 	 *            attributeXName
 	 * @param String
 	 *            attributeYName
-	 * @param double[]
-	 *            dataX
-	 * @param double[]
-	 *            dataY
-	 * @param boolean
-	 *            axisOn
+	 * @param double[] dataX
+	 * @param double[] dataY
+	 * @param boolean axisOn
 	 */
 	public DecisionTreeScatterPlot(Object[] dataObject, int[] dataIndices,
 			boolean axisOn, Color c) {
@@ -211,10 +207,10 @@ public class DecisionTreeScatterPlot extends JPanel implements
 	/**
 	 * @param data
 	 * 
-	 * This method is deprecated becuase it wants to create its very own pet
-	 * DataSetForApps. This is no longer allowed, to allow for a mutable, common
-	 * data set. Use of this method may lead to unexpected program behavoir.
-	 * Please use setDataSet instead.
+	 *            This method is deprecated becuase it wants to create its very
+	 *            own pet DataSetForApps. This is no longer allowed, to allow
+	 *            for a mutable, common data set. Use of this method may lead to
+	 *            unexpected program behavoir. Please use setDataSet instead.
 	 */
 	@Deprecated
 	public void setDataObject(Object[] data) {
@@ -572,7 +568,7 @@ public class DecisionTreeScatterPlot extends JPanel implements
 		Graphics2D g2 = (Graphics2D) g;
 		if (exLabels != null && axisOn == true) {
 			setToolTipText("");
-			exLabels.paint(g2, getBounds());
+			exLabels.paint(g2);
 		}
 
 	}
@@ -779,9 +775,10 @@ public class DecisionTreeScatterPlot extends JPanel implements
 			fontSize = (plotWidth < plotHeight) ? plotWidth : plotHeight;
 			fontSize = ((fontSize / 32) < 9) ? 9 : fontSize / 32;
 			/*
-			 * if (plotWidth < plotHeight){ if (plotWidth < 300){ fontSize = 9; }
-			 * else { fontSize = (int)(plotWidth/32); } }else { if (plotHeight <
-			 * 300){ fontSize = 9; } else { fontSize = (int)(plotHeight/32); } }
+			 * if (plotWidth < plotHeight){ if (plotWidth < 300){ fontSize = 9;
+			 * } else { fontSize = (int)(plotWidth/32); } }else { if (plotHeight
+			 * < 300){ fontSize = 9; } else { fontSize = (int)(plotHeight/32); }
+			 * }
 			 */
 			Font font = new Font("", Font.PLAIN, fontSize);
 			g.setFont(font);

@@ -33,13 +33,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 /**
  * put your documentation comment here
  */
-public class UniPlotMatrix extends AbstractMatrix implements
-		ListSelectionListener {
+public class UniPlotMatrix extends AbstractMatrix {
 
 	private String elementClassName;
 	private String[] attributesArray;
@@ -249,11 +247,7 @@ public class UniPlotMatrix extends AbstractMatrix implements
 							element[indexCurrent].setBivarColorClasser(
 									bivarColorClasser, reverseColor);
 						}
-						if (colorArrayForObs != null) {
-							logger.finest("about to set color for each obs...");
-							element[indexCurrent]
-									.setColorArrayForObs(colorArrayForObs);
-						}
+
 						if (j == plotNumber) {
 							c.gridwidth = GridBagConstraints.REMAINDER; // end
 							// row
@@ -554,8 +548,7 @@ public class UniPlotMatrix extends AbstractMatrix implements
 		JList theList = (JList) e.getSource();
 		if (theList.isSelectionEmpty()) {
 			return;
-		} else {
-			plottedAttributes = theList.getSelectedIndices();
 		}
+		plottedAttributes = theList.getSelectedIndices();
 	}
 }

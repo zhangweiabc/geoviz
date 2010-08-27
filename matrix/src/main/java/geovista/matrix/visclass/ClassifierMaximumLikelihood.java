@@ -4,7 +4,6 @@
 
 package geovista.matrix.visclass;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -41,8 +40,8 @@ public class ClassifierMaximumLikelihood {
 
 		if (visualDisplay == true) {
 			drawVisualDisplay1D();
-			ActionEvent e = new ActionEvent(this, 1, "training data set");
-			fireActionPerformed(e);
+
+			fireActionPerformed();
 		}
 
 		// this.multiGaussian = new MultiGaussian[this.classnumber];
@@ -58,10 +57,10 @@ public class ClassifierMaximumLikelihood {
 	/**
 	 * @param data
 	 * 
-	 * This method is deprecated becuase it wants to create its very own pet
-	 * DataSetForApps. This is no longer allowed, to allow for a mutable, common
-	 * data set. Use of this method may lead to unexpected program behavoir.
-	 * Please use setDataSet instead.
+	 *            This method is deprecated becuase it wants to create its very
+	 *            own pet DataSetForApps. This is no longer allowed, to allow
+	 *            for a mutable, common data set. Use of this method may lead to
+	 *            unexpected program behavoir. Please use setDataSet instead.
 	 */
 	@Deprecated
 	public void setDataObject(Object[] data) {
@@ -73,8 +72,7 @@ public class ClassifierMaximumLikelihood {
 
 		if (visualDisplay == true) {
 			// this.drawVisualDisplay();
-			ActionEvent e = new ActionEvent(this, 1, "variable name set");
-			fireActionPerformed(e);
+			fireActionPerformed();
 		}
 
 		classify = new ClassifierMLClassify();
@@ -82,38 +80,6 @@ public class ClassifierMaximumLikelihood {
 		classify.setClassificationModel(multiGaussian);
 		classify.setDataSet(data);
 
-		// geovista.common.data.DataSetForApps dataObjTransfer = new
-		// geovista.common.data.DataSetForApps();
-		// dataObjTransfer.setDataObject(data);
-		// this.dataObject = dataObjTransfer.getDataSetNumericAndSpatial();
-		// this.attributesDisplay = dataObjTransfer.getAttributeNamesNumeric();
-		//
-		// dataArray = new
-		// double[dataObjTransfer.getNumObservations()][attributesDisplay.length];
-		// // transfer data array to double array
-		// for (int j=0;j<attributesDisplay.length;j++)
-		// {
-		// int t = 0;
-		// if (dataObject[j+1] instanceof double[]) t=0;
-		// else if (dataObject[j+1] instanceof int[]) t=1;
-		// else if (dataObject[j+1] instanceof boolean[]) t=2;
-		// for (int i=0;i<dataArray.length;i++)
-		// {
-		// switch (t)
-		// {
-		// case 0 :
-		// dataArray[i][j]=((double[])dataObject[j+1])[i];
-		// break;
-		// case 1 :
-		// dataArray[i][j]=(double)((int[])dataObject[j+1])[i];
-		// break;
-		// case 2 :
-		// dataArray[i][j]=((boolean[])dataObject[j+1])[i]?1.0:0.0;
-		// break;
-		// }
-		// }
-		// }
-		// maximumClassifier();
 	}
 
 	public void setSingleTuple(double[] tuple) {
@@ -134,9 +100,6 @@ public class ClassifierMaximumLikelihood {
 		classnumber = classNumber;
 	}
 
-	public void setClassColors(Color[] colors) {
-	}
-
 	public int[] getClassificaiton() {
 		return classify.getClassificaiton();
 		// return this.classes;
@@ -152,9 +115,6 @@ public class ClassifierMaximumLikelihood {
 
 	public Vector[] getTrainingData() {
 		return trainingDataVector;
-	}
-
-	public void setTrainingAttributesLabels(String[] att) {
 	}
 
 	// private void maximumClassifier(){
@@ -275,7 +235,7 @@ public class ClassifierMaximumLikelihood {
 	 * 
 	 * @see EventListenerList
 	 */
-	public void fireActionPerformed(ActionEvent e) {
+	public void fireActionPerformed() {
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerListAction.getListenerList();
 		// Process the listeners last to first, notifying

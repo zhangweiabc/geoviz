@@ -40,8 +40,7 @@ import javax.swing.event.ListSelectionListener;
 
 import geovista.symbolization.BivariateColorSymbolClassificationOneColor;
 
-public class BiPlotMatrix extends AbstractMatrix implements
-		ListSelectionListener {
+public class BiPlotMatrix extends AbstractMatrix {
 
 	private Color foreground = Color.white;
 	protected EventListenerList listenerList = new EventListenerList();
@@ -262,7 +261,7 @@ public class BiPlotMatrix extends AbstractMatrix implements
 						font = font.deriveFont(trans);
 						// rowLabel.setFont(font);
 						// BufferedImage labelImage = new
-						//BufferedImage(rowLabel.getWidth()+1,rowLabel.getHeight
+						// BufferedImage(rowLabel.getWidth()+1,rowLabel.getHeight
 						// ()+1,BufferedImage.TYPE_INT_ARGB);
 						// Graphics2D g2 = labelImage.createGraphics();
 						// rowButton[i-1].paint(g2);
@@ -324,10 +323,11 @@ public class BiPlotMatrix extends AbstractMatrix implements
 							element[indexCurrent].setBivarColorClasser(
 									bivarColorClasser, reverseColor);
 						}
-						if (colorArrayForObs != null) {
-							element[indexCurrent]
-									.setColorArrayForObs(colorArrayForObs);
-						}
+
+						// if (colorArrayForObs != null) {
+						// element[indexCurrent]
+						// .setColorArrayForObs(colorArrayForObs);
+						// }
 						if (j == plotNumber) {
 							c.gridwidth = GridBagConstraints.REMAINDER; // end
 						}
@@ -627,9 +627,7 @@ public class BiPlotMatrix extends AbstractMatrix implements
 		JList theList = (JList) e.getSource();
 		if (theList.isSelectionEmpty()) {
 			return;
-		} else {
-			plottedAttributes = theList.getSelectedIndices();
-
 		}
+		plottedAttributes = theList.getSelectedIndices();
 	}
 }

@@ -50,7 +50,7 @@ import geovista.symbolization.event.ColorClassifierListener;
 
 public class BivariateGraphFrame extends JPanel implements DataSetListener,
 		ActionListener, ColorClassifierListener, SelectionListener,
-		IndicationListener, ColorArrayListener, VariableSelectionListener {
+		IndicationListener, VariableSelectionListener {
 	protected final static Logger logger = Logger
 			.getLogger(BivariateGraphFrame.class.getName());
 	public static final int VARIABLE_CHOOSER_MODE_ACTIVE = 0;
@@ -169,10 +169,10 @@ public class BivariateGraphFrame extends JPanel implements DataSetListener,
 	/**
 	 * @param data
 	 * 
-	 * This method is deprecated becuase it wants to create its very own pet
-	 * DataSetForApps. This is no longer allowed, to allow for a mutable, common
-	 * data set. Use of this method may lead to unexpected program behavoir.
-	 * Please use setDataSet instead.
+	 *            This method is deprecated becuase it wants to create its very
+	 *            own pet DataSetForApps. This is no longer allowed, to allow
+	 *            for a mutable, common data set. Use of this method may lead to
+	 *            unexpected program behavoir. Please use setDataSet instead.
 	 */
 	@Deprecated
 	public void setData(Object[] data) {
@@ -262,12 +262,11 @@ public class BivariateGraphFrame extends JPanel implements DataSetListener,
 		// first button
 		try {
 			urlGif = cl.getResource("resources/select16.gif");
-			button = new JButton(new ImageIcon(urlGif));
-			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
+		button = new JButton(new ImageIcon(urlGif));
+		button.setPreferredSize(buttDim);
 		button.setToolTipText("Enter selection mode");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -448,7 +447,7 @@ public class BivariateGraphFrame extends JPanel implements DataSetListener,
 		biColorSymbolizer.setClasserY(colorSymbolizerY.getClasser());
 		biColorSymbolizer.setColorerY(colorSymbolizerY.getColorer());
 		bivariateGraph.setBivarColorClasser(biColorSymbolizer, false);
-		// this.colorArrays = this.scatterPlot.getColors();
+
 	}
 
 	public void dataSetChanged(DataSetEvent e) {
@@ -546,13 +545,12 @@ public class BivariateGraphFrame extends JPanel implements DataSetListener,
 
 		if (selected == null) {
 			return;
-		} else {
-			for (int i = 0; i < selections.length; i++) {
-				selections[i] = 0;
-			}
-			for (int i = 0; i < selected.length; i++) {
-				selections[selected[i]] = 1;
-			}
+		}
+		for (int i = 0; i < selections.length; i++) {
+			selections[i] = 0;
+		}
+		for (int i = 0; i < selected.length; i++) {
+			selections[selected[i]] = 1;
 		}
 		multipleSelectionColors = null;
 		bivariateGraph.setSelections(selections);
@@ -661,11 +659,10 @@ public class BivariateGraphFrame extends JPanel implements DataSetListener,
 		bivariateGraph.setIndication(e.getIndication());
 	}
 
-	public void colorArrayChanged(ColorArrayEvent e) {
-		Color[] colors = e.getColors();
-		bivariateGraph.setColorArrayForObs(colors);
-	}
-
+	/*
+	 * public void colorArrayChanged(ColorArrayEvent e) { Color[] colors =
+	 * e.getColors(); bivariateGraph.setColorArrayForObs(colors); }
+	 */
 	public void variableSelectionChanged(VariableSelectionEvent e) {
 		visClassOne.setCurrVariableIndex(e.getVariableIndex() + 1);
 		// scatterPlot.setCurrColorColumnX(e.getVariableIndex()+1);

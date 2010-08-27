@@ -137,9 +137,6 @@ public class MapMatrixElement extends MapCanvas implements MatrixElement {
 		return super.bivarColorClasser;
 	}
 
-	public void setColorArrayForObs(Color[] colorArrays) {
-	}
-
 	private void setHistogramData() {
 		if (data == null || elementPosition == null) {
 			return;
@@ -184,12 +181,12 @@ public class MapMatrixElement extends MapCanvas implements MatrixElement {
 			// first button
 			try {
 				urlGif = cl.getResource("resources/select16.gif");
-				button = new JButton(new ImageIcon(urlGif));
-				button.setPreferredSize(buttDim);
+
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
-
+			button = new JButton(new ImageIcon(urlGif));
+			button.setPreferredSize(buttDim);
 			button.setToolTipText("Enter selection mode");
 			button.addActionListener(new ActionListener() {
 

@@ -37,8 +37,6 @@ public interface MatrixElement {
 
 	public void setMultipleSelectionColors(Color[] c);
 
-	public void setColorArrayForObs(Color[] c);
-
 	public Vector getSelectedObservations();
 
 	public void setIndication(int indication);

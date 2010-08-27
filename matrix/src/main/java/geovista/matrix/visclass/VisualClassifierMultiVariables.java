@@ -61,7 +61,6 @@ import geovista.common.event.DataSetEvent;
 import geovista.common.event.DataSetListener;
 import geovista.common.event.MergeCategoryEvent;
 import geovista.common.event.MergeCategoryListener;
-import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.readers.util.MyFileFilter;
 import geovista.symbolization.ColorRampPicker;
@@ -172,7 +171,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		// get
 		// updates
 		// this.dataObject = dataObjTransfer.getDataSetNumericAndSpatial();
-		this.dataObject = dataObjTransfer.getDataSetNumericAndAtt();
+		this.dataObject = dataObjTransfer.getNamedArrays();
 
 		setUpTrainingData = new TrainingData();
 		if ((trainingData != null) && (nClasses == trainingData.length)) {
@@ -188,8 +187,8 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		mlcTuple();
 	}
 
-	public void setClassifyDataObject(Object[] dataObject) {
-		mlcDataObject(dataObject);
+	public void setClassifyDataObject() {
+		mlcDataObject();
 	}
 
 	public Color[] getClassificationColors() {
@@ -273,7 +272,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		applyButton = new JButton("Apply");
 		applyButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				applyButton_actionPerformed(e);
+				applyButton_actionPerformed();
 			}
 		});
 		classPickerPanel.add(applyButton);
@@ -323,7 +322,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		detailButton = new JButton("Detail");
 		detailButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				detailButton_actionPerformed(e);
+				detailButton_actionPerformed();
 			}
 		});
 		classPickerPanel.add(detailButton);
@@ -337,7 +336,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		classifyTrainDataButton
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						classifyTrainButton_actionPerformed(e);
+						classifyTrainButton_actionPerformed();
 					}
 				});
 
@@ -345,7 +344,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		classifyLoadDataButton
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						classifyLoadButton_actionPerformed(e);
+						classifyLoadButton_actionPerformed();
 					}
 				});
 
@@ -353,7 +352,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		displayResultsButton
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						displayButton_actionPerformed(e);
+						displayButton_actionPerformed();
 					}
 				});
 
@@ -361,7 +360,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		saveResultsButton
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						saveButton_actionPerformed(e);
+						saveButton_actionPerformed();
 					}
 				});
 
@@ -481,7 +480,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 
 	JFrame dummyFrame;
 
-	private void detailButton_actionPerformed(ActionEvent e) {
+	private void detailButton_actionPerformed() {
 		// Bring up a detailed parameter setting GUI.
 		nClasses = Integer.parseInt(classNumField.getText());
 		if (dataObject == null) {
@@ -566,7 +565,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		}
 	}
 
-	private void applyButton_actionPerformed(ActionEvent e) {
+	private void applyButton_actionPerformed() {
 		// Actually apply the parameters and do the classification, pass to
 		// other components.
 		nClasses = Integer.parseInt(classNumField.getText());
@@ -612,15 +611,11 @@ public class VisualClassifierMultiVariables extends JPanel implements
 				trainingClassLabels = setUpTrainingData
 						.getTrainingClassLabels();
 			}
-			classifierML.setClassColors(colors);
-			// this.classifierML.setTrainingData(this.dataObject);
-			classifierML.setTrainingAttributesLabels(setUpTrainingData
-					.getAttributeNames());
+			// classifierML.setClassColors(colors);
+
 			classifierML.setVisualDisplay(visualDisplay);
 			classifierML.setTrainingData(trainingData);
 
-			// this.classifierML.setDataObject(this.dataObject);
-			// this.classificationIndex = this.classifierML.getClassificaiton();
 			return;
 		}
 
@@ -633,13 +628,13 @@ public class VisualClassifierMultiVariables extends JPanel implements
 				returnColors[i] = colors[classificationIndexTrain[i]];
 			}
 		}
-		// fireSelectionChanged(getClassificationColors());
+
 		fireColorArrayChanged(getClassificationColors());
 	}
 
 	JFrame errorMatrixFrame;
 
-	private void classifyTrainButton_actionPerformed(ActionEvent e) {
+	private void classifyTrainButton_actionPerformed() {
 		// Actually apply the parameters and do the classification, pass to
 		// other components.
 		// this.nClasses = Integer.parseInt(this.classNumField.getText());
@@ -692,7 +687,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		// this.fireColorArrayChanged(getClassificationColors());
 	}
 
-	private void classifyLoadButton_actionPerformed(ActionEvent e) {
+	private void classifyLoadButton_actionPerformed() {
 		// apply the maximum classify rule to a new data set.
 		if (dataObject != null) {
 			logger.finest("data object is not null...");
@@ -736,7 +731,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 	};
 	JFrame imageFrame = new JFrame();
 
-	private void displayButton_actionPerformed(ActionEvent e) {
+	private void displayButton_actionPerformed() {
 
 		// int len = this.classificationIndex.length;
 		int w, h;
@@ -766,7 +761,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 	}
 
 	// save classification results to a file.
-	private void saveButton_actionPerformed(ActionEvent e) {
+	private void saveButton_actionPerformed() {
 		saveOutput();
 	}
 
@@ -832,7 +827,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		}
 	}
 
-	private void mlcDataObject(Object[] data) {
+	private void mlcDataObject() {
 		classificationIndex = new int[classifyData.length];
 		classifierML.setDataSet(dataSet);
 	}
@@ -979,9 +974,6 @@ public class VisualClassifierMultiVariables extends JPanel implements
 	// Work with coordinator.
 	public void dataSetChanged(DataSetEvent e) {
 		setDataObject(e.getDataSet());
-	}
-
-	public void selectionChanged(SelectionEvent e) {
 	}
 
 	public void classColorChanged(ClassColorEvent e) {

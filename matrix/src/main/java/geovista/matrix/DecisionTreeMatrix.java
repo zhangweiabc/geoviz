@@ -5,7 +5,6 @@
 package geovista.matrix;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,15 +27,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import geovista.matrix.scatterplot.DecisionTreeScatterPlot;
 
 /**
  * put your documentation comment here
  */
-public class DecisionTreeMatrix extends AbstractMatrix implements
-		ListSelectionListener {
+public class DecisionTreeMatrix extends AbstractMatrix {
 
 	private String elementClassName;
 
@@ -110,18 +107,6 @@ public class DecisionTreeMatrix extends AbstractMatrix implements
 	 */
 	public String[] getAttributesArray() {
 		return attributesArray;
-	}
-
-	@Override
-	public void setColorArrayForObs(Color[] colorArray) {
-		if (scatterPlot == null) {
-			return;
-		}
-		colorArrayForObs = colorArray;
-		for (DecisionTreeScatterPlot otherElement : scatterPlot) {
-			otherElement.setColorArrayForObs(colorArrayForObs);
-		}
-		repaint();
 	}
 
 	@Override
@@ -282,8 +267,7 @@ public class DecisionTreeMatrix extends AbstractMatrix implements
 						scatterPlot[indexCurrent].setDataSet(dataSet);
 
 						scatterPlot[indexCurrent].setBackground(background);
-						scatterPlot[indexCurrent]
-								.setDataIndices(dataIndices);
+						scatterPlot[indexCurrent].setDataIndices(dataIndices);
 						scatterPlot[indexCurrent]
 								.setSelectionColor(selectionColor);
 						if (decisionTree != null) {
@@ -294,11 +278,7 @@ public class DecisionTreeMatrix extends AbstractMatrix implements
 							scatterPlot[indexCurrent].setBivarColorClasser(
 									bivarColorClasser, false);
 						}
-						if (colorArrayForObs != null) {
-							logger.finest("about to set color for each obs...");
-							scatterPlot[indexCurrent]
-									.setColorArrayForObs(colorArrayForObs);
-						}
+
 						if (j == plotNumber) {
 							c.gridwidth = GridBagConstraints.REMAINDER; // end
 							// row
@@ -587,9 +567,8 @@ public class DecisionTreeMatrix extends AbstractMatrix implements
 		JList theList = (JList) e.getSource();
 		if (theList.isSelectionEmpty()) {
 			return;
-		} else {
-			plottedAttributes = theList.getSelectedIndices();
 		}
+		plottedAttributes = theList.getSelectedIndices();
 	}
 
 	/**
@@ -704,7 +683,7 @@ public class DecisionTreeMatrix extends AbstractMatrix implements
 	 * 
 	 * @see EventListenerList
 	 */
-	public void fireActionPerformed(ActionEvent e) {
+	public void fireActionPerformed() {
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerListAction.getListenerList();
 		// Process the listeners last to first, notifying
