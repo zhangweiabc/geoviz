@@ -36,6 +36,21 @@ public class CoordinationManager {
 		listeningBeans = new HashSet<ListeningBean>();
 	}
 
+	public boolean containsBean(Object bean) {
+		for (FiringBean fireBean : firingBeans) {
+			if (fireBean.getOriginalBean() == bean) {
+				return true;
+			}
+		}
+		for (ListeningBean listenBean : listeningBeans) {
+			if (listenBean.getOriginalBean() == bean) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	// /**
 	// * Prevents this bean from firing any events.
 	// */
@@ -255,13 +270,13 @@ public class CoordinationManager {
 	}
 
 	public void disconnectBeans(FiringMethod meth, ListeningBean lBean) {
-		meth.deregisterListener(lBean, meth.getListeningInterface(), meth
-				.getParentBean());
+		meth.deregisterListener(lBean, meth.getListeningInterface(),
+				meth.getParentBean());
 	}
 
 	public void reconnectBeans(FiringMethod meth, ListeningBean lBean) {
-		meth.registerListener(lBean, meth.getListeningInterface(), meth
-				.getParentBean());
+		meth.registerListener(lBean, meth.getListeningInterface(),
+				meth.getParentBean());
 	}
 
 }
