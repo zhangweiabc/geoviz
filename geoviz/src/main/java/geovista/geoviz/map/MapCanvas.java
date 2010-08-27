@@ -53,7 +53,7 @@ import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.common.event.SpatialExtentEvent;
 import geovista.common.event.SpatialExtentListener;
-import geovista.common.jts.NullShape;
+import geovista.common.jts.EmptyShape;
 import geovista.common.ui.ExcentricLabelClient;
 import geovista.common.ui.ExcentricLabels;
 import geovista.common.ui.Fisheyes;
@@ -140,7 +140,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 			(float) 2.0, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
 			(float) 10.0, dash, 0);
 	private transient final BasicStroke solidStroke = new BasicStroke(2f);
-	protected transient boolean autofit = false;
+	protected transient boolean autofit = true;
 	protected Fisheyes fisheyes;
 	final static Logger logger = Logger.getLogger(MapCanvas.class.getName());
 
@@ -639,7 +639,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 	}
 
 	public void componentResized(ComponentEvent e) {
-		if (shapeLayers.size() == 0) {
+		if (shapeLayers.size() == 0 || drawingBuff == null) {
 			return;
 		}
 		if ((shapeLayers.size() > 0) && (getWidth() > 0) && (getHeight() > 0)) {
@@ -820,6 +820,9 @@ public class MapCanvas extends JPanel implements ComponentListener,
 
 			logger.finest("in setDataSet, shapeLayer.size = "
 					+ shapeLayers.size() + ", activeLayer = " + activeLayer);
+		}
+		if (dataSet.getShapeData() == null) {
+			return;
 		}
 
 		variableNames = this.dataSet.getAttributeNamesNumeric();
@@ -1513,7 +1516,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 				RenderingHints.VALUE_ANTIALIAS_OFF);
 		g.setColor(getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
-		renderLayers(g2);
+		renderBackgroundLayers(g2);
 		if (useSelectionBlur) {
 
 			// g.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -1546,14 +1549,15 @@ public class MapCanvas extends JPanel implements ComponentListener,
 		if (shapeLayers.size() > 0) {
 			for (LayerShape ls : shapeLayers) {
 				ls.fisheyes = fisheyes;
-				ls.render(g2); // paint your whole self, selected observations
+				ls.renderSelectedObservations(g2); // paint your whole self,
+				// selected observations
 				// only
 			} // next element
 		} // end if
 
 	}
 
-	private void renderLayers(Graphics2D g2) {
+	private void renderBackgroundLayers(Graphics2D g2) {
 		for (LayerShape ls : shapeLayers) {
 
 			if (ls == null) {
@@ -1604,7 +1608,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 					// on
 					// top
 					ls.fisheyes = fisheyes;
-					ls.render(g2); // paint your whole self
+					ls.renderSelectedObservations(g2); // paint your whole self
 				} // end if aux
 				layerNum++;
 			} // next element
@@ -1690,7 +1694,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 			g2.setFont(biggerFont);
 			Stroke biggerStroke = new BasicStroke(3f);
 			g2.setStroke(biggerStroke);
-			exLabels.paint(g2, getBounds());
+			exLabels.paint(g2);
 		}
 	}
 
@@ -1865,7 +1869,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 
 	public Shape getShapeAt(int i) {
 		if (i < 0) {
-			return NullShape.INSTANCE;
+			return EmptyShape.INSTANCE;
 		}
 		LayerShape ls = shapeLayers.get(activeLayer);
 		Shape shp = ls.getSpatialData()[i];
@@ -2092,24 +2096,23 @@ public class MapCanvas extends JPanel implements ComponentListener,
 
 	public void setSelectionColor(Color selColor) {
 		getActiveLayer().colorSelection = selColor;
-
+		paintDrawingBuff();
+		this.repaint();
 	}
 
 	public void useSelectionBlur(boolean selBlur) {
-		if (useSelectionBlur != selBlur) {
-			useSelectionBlur = selBlur;
-			paintDrawingBuff();
-			this.repaint();
-		}
+
+		useSelectionBlur = selBlur;
+		paintDrawingBuff();
+		this.repaint();
 
 	}
 
 	public void useSelectionFade(boolean selFade) {
-		if (useSelectionFade != selFade) {
-			useSelectionFade = selFade;
-			paintDrawingBuff();
-			this.repaint();
-		}
+
+		useSelectionFade = selFade;
+		paintDrawingBuff();
+		this.repaint();
 
 	}
 
@@ -2128,7 +2131,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 
 	public Shape reportShape() {
 		if (indication < 0) {
-			return NullShape.INSTANCE;
+			return EmptyShape.INSTANCE;
 		}
 		return getShapeAt(indication);
 	}
@@ -2139,6 +2142,41 @@ public class MapCanvas extends JPanel implements ComponentListener,
 
 	public void processCustomCheckBox(boolean value, String text) {
 		// TODO Auto-generated method stub
+
+	}
+
+	boolean selOutline = false;
+	private final boolean simpleHighlighting = false;
+
+	public boolean isSelectionOutline() {
+		return selOutline;
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		this.selOutline = selOutline;
+		getActiveLayer().useSelectionOutline(selOutline);
+		paintDrawingBuff();
+		repaint();
+	}
+
+	public boolean isSimpleHighlighting() {
+		return isSimpleHighlighting();
+	}
+
+	public boolean isSimpleHighlighing() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public int getSelectionLineWidth() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void setSelectionLineWidth(int width) {
+		getActiveLayer().setSelectionLineWidth(width);
+		paintDrawingBuff();
+		repaint();
 
 	}
 }
