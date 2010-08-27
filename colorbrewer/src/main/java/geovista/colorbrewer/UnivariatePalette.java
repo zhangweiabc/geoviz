@@ -3,20 +3,37 @@ package geovista.colorbrewer;
 import java.awt.Color;
 import java.util.HashMap;
 
+/**
+ * This class is intended to be immutable, and therefore thread-safe.
+ * 
+ */
 public final class UnivariatePalette implements Palette1D {
 
 	String name;
-	SequenceType sequence;
+	SequenceType type;
 	HashMap<Integer, Color[]> colorMap;
 	static int minLength = 3;
 	int maxLength;
 
-	UnivariatePalette(String name, SequenceType sequence,
+	UnivariatePalette(String name, SequenceType type,
 			HashMap<Integer, Color[]> colorMap, int maxLength) {
 		this.name = name;
-		this.sequence = sequence;
+		this.type = type;
 		this.colorMap = colorMap;
 		this.maxLength = maxLength;
+	}
+
+	UnivariatePalette combine(UnivariatePalette otherPalette) {
+		int max = maxLength;
+		if (otherPalette.maxLength > maxLength) {
+			max = otherPalette.maxLength;
+		}
+		HashMap<Integer, Color[]> newColorMap = (HashMap<Integer, Color[]>) colorMap
+				.clone();
+		for (Integer key : otherPalette.colorMap.keySet()) {
+			newColorMap.put(key, otherPalette.colorMap.get(key));
+		}
+		return new UnivariatePalette(name, type, newColorMap, max);
 	}
 
 	public Color[] getColors(int length) {
@@ -54,7 +71,7 @@ public final class UnivariatePalette implements Palette1D {
 	}
 
 	public SequenceType getType() {
-		return sequence;
+		return type;
 	}
 
 	public String getName() {
