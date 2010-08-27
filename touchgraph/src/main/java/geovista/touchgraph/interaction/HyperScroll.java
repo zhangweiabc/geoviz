@@ -157,9 +157,8 @@ public class HyperScroll implements GraphListener {
 		if (inverseArray[mid] < dist) {
 			if (max - mid == 1) {
 				return max;
-			} else {
-				return findInd(mid, max, dist);
 			}
+			return findInd(mid, max, dist);
 		} else if (mid - min == 1) {
 			return mid;
 		} else {

@@ -25,8 +25,6 @@ import cern.jet.math.Functions;
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.DataSetListener;
-import geovista.common.event.IndicationEvent;
-import geovista.common.event.SelectionEvent;
 import geovista.common.event.SubspaceEvent;
 import geovista.common.event.SubspaceListener;
 import geovista.common.ui.VariablePicker;
@@ -108,12 +106,6 @@ public class PCAViz extends JPanel implements DataSetListener,
 		SubspaceEvent eSub = new SubspaceEvent(this, selVars);
 		subspaceChanged(eSub);
 
-	}
-
-	public void selectionChanged(SelectionEvent e) {
-	}
-
-	public void indicationChanged(IndicationEvent e) {
 	}
 
 	/**

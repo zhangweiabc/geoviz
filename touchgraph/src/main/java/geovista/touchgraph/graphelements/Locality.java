@@ -55,139 +55,164 @@ import geovista.touchgraph.Edge;
 import geovista.touchgraph.Node;
 import geovista.touchgraph.TGException;
 
-/**  Locality:  A way of representing a subset of a larger set of nodes.
-  *  Allows for both manipulation of the subset, and manipulation of the
-  *  larger set.  For instance, one can call removeNode to delete it from
-  *  the subset, or deleteNode to remove it from the larger set.
-  *
-  *  Locality is used in conjunction with LocalityUtils, which handle
-  *  locality shift animations.
-  *
-  *  More synchronization will almost definitely be required.
-  *
-  * @author   Alexander Shapiro
-  * 
-  */
+/**
+ * Locality: A way of representing a subset of a larger set of nodes. Allows for
+ * both manipulation of the subset, and manipulation of the larger set. For
+ * instance, one can call removeNode to delete it from the subset, or deleteNode
+ * to remove it from the larger set.
+ * 
+ * Locality is used in conjunction with LocalityUtils, which handle locality
+ * shift animations.
+ * 
+ * More synchronization will almost definitely be required.
+ * 
+ * @author Alexander Shapiro
+ * 
+ */
 public class Locality extends GraphEltSet {
 
-    protected transient GraphEltSet completeEltSet;
+	protected transient GraphEltSet completeEltSet;
 
-  // ............
+	// ............
 
-  /** Constructor with GraphEltSet <tt>ges</tt>.
-    */
-    public Locality(GraphEltSet ges) {
-        super();
-        completeEltSet = ges;
-    }
+	/**
+	 * Constructor with GraphEltSet <tt>ges</tt>.
+	 */
+	public Locality(GraphEltSet ges) {
+		super();
+		completeEltSet = ges;
+	}
 
-    public GraphEltSet getCompleteEltSet() {
-        return completeEltSet;
-    }
+	public GraphEltSet getCompleteEltSet() {
+		return completeEltSet;
+	}
 
-    public void addNode( Node n ) throws TGException {
-        super.addNode(n);
-        //If a new node is added to locality, add it to the complete elt set as well
-        if (!completeEltSet.contains(n)) completeEltSet.addNode(n);
-    }
+	@Override
+	public void addNode(Node n) throws TGException {
+		super.addNode(n);
+		// If a new node is added to locality, add it to the complete elt set as
+		// well
+		if (!completeEltSet.contains(n)) {
+			completeEltSet.addNode(n);
+		}
+	}
 
-    public void addEdge( Edge e ) {
-        if(!contains(e)) {
-            edges.addElement(e);
-            e.from.localEdgeCount++;
-            e.to.localEdgeCount++;
-        }
-        //If a new node edge is added to locality, add it to the complete elt set as well
-        if (!completeEltSet.contains(e)) completeEltSet.addEdge(e);
-    }
+	@Override
+	public void addEdge(Edge e) {
+		if (!contains(e)) {
+			edges.addElement(e);
+			e.from.localEdgeCount++;
+			e.to.localEdgeCount++;
+		}
+		// If a new node edge is added to locality, add it to the complete elt
+		// set as well
+		if (!completeEltSet.contains(e)) {
+			completeEltSet.addEdge(e);
+		}
+	}
 
-    public void addNodeWithEdges( Node n ) throws TGException
-    {
-        addNode(n);
-        for (int i = 0 ; i < n.edgeNum(); i++) {
-            Edge e=n.edgeAt(i);
-            if(contains(e.getOtherEndpt(n))) addEdge(e);
-        }
+	public void addNodeWithEdges(Node n) throws TGException {
+		addNode(n);
+		for (int i = 0; i < n.edgeNum(); i++) {
+			Edge e = n.edgeAt(i);
+			if (contains(e.getOtherEndpt(n))) {
+				addEdge(e);
+			}
+		}
 
-    }
+	}
 
-    public Edge findEdge( Node from, Node to ) {
-        Edge foundEdge=super.findEdge(from,to);
-        if (foundEdge!=null && edges.contains(foundEdge)) return foundEdge;
-        else return null;
-    }
+	@Override
+	public Edge findEdge(Node from, Node to) {
+		Edge foundEdge = super.findEdge(from, to);
+		if (foundEdge != null && edges.contains(foundEdge)) {
+			return foundEdge;
+		}
+		return null;
+	}
 
-    public boolean deleteEdge( Edge e ) {
-        if (e == null) return false;
-        else {
-            removeEdge(e);
-            return completeEltSet.deleteEdge(e);
-        }
-    }
+	@Override
+	public boolean deleteEdge(Edge e) {
+		if (e == null) {
+			return false;
+		}
+		removeEdge(e);
+		return completeEltSet.deleteEdge(e);
+	}
 
-    public synchronized void deleteEdges( Vector edgesToDelete ) {
-        removeEdges(edgesToDelete);
-        completeEltSet.deleteEdges(edgesToDelete);
-    }
+	@Override
+	public synchronized void deleteEdges(Vector edgesToDelete) {
+		removeEdges(edgesToDelete);
+		completeEltSet.deleteEdges(edgesToDelete);
+	}
 
-    public boolean removeEdge( Edge e ) {
-          if (e == null) return false;
-          else {
-              if(edges.removeElement(e)) {
-                  e.from.localEdgeCount--;
-                e.to.localEdgeCount--;
-                return true;
-            }
-            return false;
-        }
-    }
+	public boolean removeEdge(Edge e) {
+		if (e == null) {
+			return false;
+		}
+		if (edges.removeElement(e)) {
+			e.from.localEdgeCount--;
+			e.to.localEdgeCount--;
+			return true;
+		}
+		return false;
+	}
 
-    public synchronized void removeEdges( Vector edgesToRemove ) {
-        for (int i=0;i<edgesToRemove.size();i++) {
-            removeEdge((Edge) edgesToRemove.elementAt(i));
-        }
-    }
+	public synchronized void removeEdges(Vector edgesToRemove) {
+		for (int i = 0; i < edgesToRemove.size(); i++) {
+			removeEdge((Edge) edgesToRemove.elementAt(i));
+		}
+	}
 
-    public boolean deleteNode( Node node ) {
-        if ( node == null ) return false;
-        else {
-            removeNode(node);
-            return completeEltSet.deleteNode(node);
-        }
-    }
+	@Override
+	public boolean deleteNode(Node node) {
+		if (node == null) {
+			return false;
+		}
+		removeNode(node);
+		return completeEltSet.deleteNode(node);
+	}
 
-    public synchronized void deleteNodes( Vector nodesToDelete ) {
-        removeNodes(nodesToDelete);
-        completeEltSet.deleteNodes(nodesToDelete);
-    }
+	@Override
+	public synchronized void deleteNodes(Vector nodesToDelete) {
+		removeNodes(nodesToDelete);
+		completeEltSet.deleteNodes(nodesToDelete);
+	}
 
-    public boolean removeNode( Node node ) {
-          if (node == null) return false;
-          if (!nodes.removeElement(node)) return false;
+	public boolean removeNode(Node node) {
+		if (node == null) {
+			return false;
+		}
+		if (!nodes.removeElement(node)) {
+			return false;
+		}
 
-		  String id = node.getID();
-          if ( id != null ) nodeIDRegistry.remove(id); // remove from registry
+		String id = node.getID();
+		if (id != null) {
+			nodeIDRegistry.remove(id); // remove from registry
+		}
 
-          for (int i = 0 ; i < node.edgeNum(); i++) {
-             removeEdge(node.edgeAt(i));
-         }
+		for (int i = 0; i < node.edgeNum(); i++) {
+			removeEdge(node.edgeAt(i));
+		}
 
-         return true;
-    }
+		return true;
+	}
 
-    public synchronized void removeNodes( Vector nodesToRemove ) {
-        for (int i=0;i<nodesToRemove.size();i++) {
-            removeNode((Node) nodesToRemove.elementAt(i));
-        }
-    }
+	public synchronized void removeNodes(Vector nodesToRemove) {
+		for (int i = 0; i < nodesToRemove.size(); i++) {
+			removeNode((Node) nodesToRemove.elementAt(i));
+		}
+	}
 
-    public synchronized void removeAll() {
-        super.clearAll();
-    }
+	public synchronized void removeAll() {
+		super.clearAll();
+	}
 
-    public synchronized void clearAll() {
-        removeAll();
-        completeEltSet.clearAll();
-    }
+	@Override
+	public synchronized void clearAll() {
+		removeAll();
+		completeEltSet.clearAll();
+	}
 
 } // end com.touchgraph.graphlayout.graphelements.Locality

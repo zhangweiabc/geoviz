@@ -463,9 +463,8 @@ public class LinkGraph extends JPanel implements DataSetListener,
 
 		if (theList.isSelectionEmpty()) {
 			return;
-		} else {
-			plottedAttributes = theList.getSelectedIndices();
 		}
+		plottedAttributes = theList.getSelectedIndices();
 	}
 
 	/**
@@ -801,7 +800,7 @@ public class LinkGraph extends JPanel implements DataSetListener,
 		// dataSet = null;
 		// return;
 		// }
-		dataSet.addTableModelListener(this);
+
 		setDataSet(dataSet);
 		vc.setDataSet(dataSet);
 		setColors(vc.getColorForObservations());

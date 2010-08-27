@@ -15,14 +15,12 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.event.EventListenerList;
-import javax.swing.event.ListSelectionListener;
 
 import geovista.common.cluster.MSTEdge;
 import geovista.common.cluster.NDimensionalMST;
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.ColorArrayEvent;
 import geovista.common.event.DataSetEvent;
-import geovista.common.event.DataSetListener;
 import geovista.common.event.IndicationEvent;
 import geovista.common.event.SelectionEvent;
 import geovista.common.event.SubspaceEvent;
@@ -39,8 +37,7 @@ import geovista.touchgraph.graphelements.VisibleLocality;
  * @author Alexander Shapiro
  * 
  */
-public class SubspaceLinkGraph extends LinkGraph implements DataSetListener,
-		ListSelectionListener, ActionListener {
+public class SubspaceLinkGraph extends LinkGraph implements ActionListener {
 	JButton sendButton = new JButton("Send Selection");
 
 	/**
@@ -94,14 +91,14 @@ public class SubspaceLinkGraph extends LinkGraph implements DataSetListener,
 		Node currNode = selNode;
 
 		while (returnVec.size() < eds.length + 1) {// mst always has one more
-													// node than edge
+			// node than edge
 
 			Edge ed = findAndRemoveFirstEdge(sortedEds, currNode);
 
 			if (ed == null) {
 				nodesToFind.remove(currNode);
 				currNode = (Node) nodesToFind.get(nodesToFind.size() - 1); // last
-																			// element
+				// element
 			} else { // found an edge containing that node
 
 				Node nextNode = null;
@@ -114,7 +111,7 @@ public class SubspaceLinkGraph extends LinkGraph implements DataSetListener,
 				nodesToFind.add(nextNode);
 				returnVec.add(nextNode);
 				currNode = (Node) nodesToFind.get(nodesToFind.size() - 1); // last
-																			// element
+				// element
 			}
 		}// loop
 

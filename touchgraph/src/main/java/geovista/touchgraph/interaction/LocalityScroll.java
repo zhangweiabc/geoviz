@@ -59,45 +59,53 @@ import geovista.touchgraph.GraphListener;
 import geovista.touchgraph.Node;
 import geovista.touchgraph.TGPanel;
 
-/** LocalityScroll.
-  *
-  * @author   Alexander Shapiro
-  * 
-  */
+/**
+ * LocalityScroll.
+ * 
+ * @author Alexander Shapiro
+ * 
+ */
 public class LocalityScroll implements GraphListener {
 
-    transient private JScrollBar localitySB;
+	transient private final JScrollBar localitySB;
 
-    transient private TGPanel tgPanel;
+	transient private final TGPanel tgPanel;
 
-    public LocalityScroll(TGPanel tgp) {
-        tgPanel=tgp;
-        localitySB = new JScrollBar(Adjustable.HORIZONTAL, 2, 1, 0, 6);
-        localitySB.setBlockIncrement(1);
-        localitySB.setUnitIncrement(1);
-        localitySB.addAdjustmentListener(new localityAdjustmentListener());
-        tgPanel.addGraphListener(this);
-    }
+	public LocalityScroll(TGPanel tgp) {
+		tgPanel = tgp;
+		localitySB = new JScrollBar(Adjustable.HORIZONTAL, 2, 1, 0, 6);
+		localitySB.setBlockIncrement(1);
+		localitySB.setUnitIncrement(1);
+		localitySB.addAdjustmentListener(new localityAdjustmentListener());
+		tgPanel.addGraphListener(this);
+	}
 
-    public JScrollBar getLocalitySB() {
-        return localitySB;
-    }
+	public JScrollBar getLocalitySB() {
+		return localitySB;
+	}
 
-    public int getRadius() {
-        int locVal = localitySB.getValue();
-        if(locVal==5) return 50;
-        else return locVal;
-    }
+	public int getRadius() {
+		int locVal = localitySB.getValue();
+		if (locVal == 5) {
+			return 50;
+		}
+		return locVal;
+	}
 
-    public void graphMoved() {} //From GraphListener interface
-    public void graphReset() { localitySB.setValue(2); } //From GraphListener interface
+	public void graphMoved() {
+	} // From GraphListener interface
 
-    private class localityAdjustmentListener implements AdjustmentListener {
-        public void adjustmentValueChanged(AdjustmentEvent e) {
-            Node select = tgPanel.getSelect();
-            if (select!=null)
-                tgPanel.setLocale(select, getRadius());
-        }
-    }
+	public void graphReset() {
+		localitySB.setValue(2);
+	} // From GraphListener interface
+
+	private class localityAdjustmentListener implements AdjustmentListener {
+		public void adjustmentValueChanged(AdjustmentEvent e) {
+			Node select = tgPanel.getSelect();
+			if (select != null) {
+				tgPanel.setLocale(select, getRadius());
+			}
+		}
+	}
 
 } // end com.touchgraph.graphlayout.interaction.LocalityScroll

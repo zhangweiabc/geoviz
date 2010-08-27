@@ -55,184 +55,212 @@ import java.awt.Graphics;
 
 import geovista.symbolization.ColorInterpolator;
 
-/**  Edge.
-  *
-  * @author   Alexander Shapiro
-  * 
-  */
+/**
+ * Edge.
+ * 
+ * @author Alexander Shapiro
+ * 
+ */
 public class Edge implements Comparable {
 
-    public static Color DEFAULT_COLOR = Color.decode("#0000B0");
-    public static Color MOUSE_OVER_COLOR = Color.pink;
-    public static int DEFAULT_LENGTH = 40;
+	public static Color DEFAULT_COLOR = Color.decode("#0000B0");
+	public static Color MOUSE_OVER_COLOR = Color.pink;
+	public static int DEFAULT_LENGTH = 40;
 
-    transient public Node from; //Should be private, changing from effects "from" Node
-    transient public Node to;   //Should be private, changing from effects "to" Node
-    transient protected Color col;
-    transient protected int length;
-    transient protected boolean visible;
+	transient public Node from; // Should be private, changing from effects
+								// "from" Node
+	transient public Node to; // Should be private, changing from effects "to"
+								// Node
+	transient protected Color col;
+	transient protected int length;
+	transient protected boolean visible;
 
-  // ............
+	// ............
 
-    /** Constructor with two Nodes and a length.
-      */
-    public Edge(Node f, Node t, int len) {
-        from = f;
-        to = t;
-          length = len;
-          Color colOne = t.getBackColor();
-          Color colTwo = f.getBackColor();
-          this.setColor(ColorInterpolator.mixColorsRGB(colOne, colTwo));
-    }
+	/**
+	 * Constructor with two Nodes and a length.
+	 */
+	public Edge(Node f, Node t, int len) {
+		from = f;
+		to = t;
+		length = len;
+		Color colOne = t.getBackColor();
+		Color colTwo = f.getBackColor();
+		setColor(ColorInterpolator.mixColorsRGB(colOne, colTwo));
+	}
 
-    /** Constructor with two Nodes, which uses a default length.
-      */
-    public Edge(Node f, Node t) {
-        this(f, t, DEFAULT_LENGTH);
-    }
+	/**
+	 * Constructor with two Nodes, which uses a default length.
+	 */
+	public Edge(Node f, Node t) {
+		this(f, t, DEFAULT_LENGTH);
+	}
 
-   // setters and getters ...............
+	// setters and getters ...............
 
-    public static void setEdgeDefaultColor( Color color ) { DEFAULT_COLOR = color; }
-    public static void setEdgeMouseOverColor( Color color ) { MOUSE_OVER_COLOR = color; }
-    public static void setEdgeDefaultLength( int length ) { DEFAULT_LENGTH = length; }
+	public static void setEdgeDefaultColor(Color color) {
+		DEFAULT_COLOR = color;
+	}
 
-   /** Returns the starting "from" node of this edge as Node. */
-    public Node getFrom() { return from; }
+	public static void setEdgeMouseOverColor(Color color) {
+		MOUSE_OVER_COLOR = color;
+	}
 
-   /** Returns the terminating "to" node of this edge as Node. */
-    public Node getTo() { return to; }
+	public static void setEdgeDefaultLength(int length) {
+		DEFAULT_LENGTH = length;
+	}
 
-   /** Returns the color of this edge as Color. */
-    public Color getColor() {
-        return col;
-    }
+	/** Returns the starting "from" node of this edge as Node. */
+	public Node getFrom() {
+		return from;
+	}
 
-   /** Set the color of this Edge to the Color <tt>color</tt>. */
-    public void setColor( Color color ) {
-        col = color;
-    }
+	/** Returns the terminating "to" node of this edge as Node. */
+	public Node getTo() {
+		return to;
+	}
 
-   /** Returns the length of this Edge as a double. */
-    public int getLength() {
-        return length;
-    }
+	/** Returns the color of this edge as Color. */
+	public Color getColor() {
+		return col;
+	}
 
-   /** Set the length of this Edge to the int <tt>len</tt>. */
-    public void setLength(int len) {
-        length=len;
-    }
+	/** Set the color of this Edge to the Color <tt>color</tt>. */
+	public void setColor(Color color) {
+		col = color;
+	}
 
-   /** Set the visibility of this Edge to the boolean <tt>v</tt>. */
-    public void setVisible( boolean v) {
-        visible = v;
-    }
+	/** Returns the length of this Edge as a double. */
+	public int getLength() {
+		return length;
+	}
 
-   /** Return the visibility of this Edge as a boolean. */
-    public boolean isVisible() {
-        return visible;
-    }
+	/** Set the length of this Edge to the int <tt>len</tt>. */
+	public void setLength(int len) {
+		length = len;
+	}
 
-    public Node getOtherEndpt(Node n) { //yields false results if Node n is not an endpoint
-        if (to != n) return to;
-        else return from;
-    }
+	/** Set the visibility of this Edge to the boolean <tt>v</tt>. */
+	public void setVisible(boolean v) {
+		visible = v;
+	}
 
-    /** Switches the endpoints of the edge */
-    public void reverse() {
-        Node temp = to;
-        to = from;
-        from = temp;
-    }
+	/** Return the visibility of this Edge as a boolean. */
+	public boolean isVisible() {
+		return visible;
+	}
 
-    public boolean intersects(Dimension d) {
-        int x1 = (int) from.drawx;
-        int y1 = (int) from.drawy;
-        int x2 = (int) to.drawx;
-        int y2 = (int) to.drawy;
+	public Node getOtherEndpt(Node n) { // yields false results if Node n is not
+										// an endpoint
+		if (to != n) {
+			return to;
+		}
+		return from;
+	}
 
-        return (((x1>0 || x2>0) && (x1<d.width  || x2<d.width)) &&
-                  ((y1>0 || y2>0) && (y1<d.height || y2<d.height) ));
+	/** Switches the endpoints of the edge */
+	public void reverse() {
+		Node temp = to;
+		to = from;
+		from = temp;
+	}
 
-    }
+	public boolean intersects(Dimension d) {
+		int x1 = (int) from.drawx;
+		int y1 = (int) from.drawy;
+		int x2 = (int) to.drawx;
+		int y2 = (int) to.drawy;
 
-    public double distFromPoint(double px, double py) {
-        double x1= from.drawx;
-        double y1= from.drawy;
-        double x2= to.drawx;
-        double y2= to.drawy;
+		return (((x1 > 0 || x2 > 0) && (x1 < d.width || x2 < d.width)) && ((y1 > 0 || y2 > 0) && (y1 < d.height || y2 < d.height)));
 
-        if (px<Math.min(x1, x2)-8 || px>Math.max(x1, x2)+8 ||
-            py<Math.min(y1, y2)-8 || py>Math.max(y1, y2)+8)
-            return 1000;
+	}
 
-        double dist = 1000;
-        if (x1-x2!=0) dist = Math.abs((y2-y1)/(x2-x1)*(px - x1) + (y1 - py));
-        if (y1-y2!=0) dist = Math.min(dist, Math.abs((x2-x1)/(y2-y1)*(py - y1) + (x1 - px)));
+	public double distFromPoint(double px, double py) {
+		double x1 = from.drawx;
+		double y1 = from.drawy;
+		double x2 = to.drawx;
+		double y2 = to.drawy;
 
-        return dist;
-    }
+		if (px < Math.min(x1, x2) - 8 || px > Math.max(x1, x2) + 8
+				|| py < Math.min(y1, y2) - 8 || py > Math.max(y1, y2) + 8) {
+			return 1000;
+		}
 
-    public boolean containsPoint(double px, double py) {
-        return distFromPoint(px,py)<10;
-    }
+		double dist = 1000;
+		if (x1 - x2 != 0) {
+			dist = Math.abs((y2 - y1) / (x2 - x1) * (px - x1) + (y1 - py));
+		}
+		if (y1 - y2 != 0) {
+			dist = Math.min(dist, Math.abs((x2 - x1) / (y2 - y1) * (py - y1)
+					+ (x1 - px)));
+		}
 
-    public static void paintArrow(Graphics g, int x1, int y1, int x2, int y2, Color c) {
-        //Forget hyperbolic bending for now
+		return dist;
+	}
 
-        g.setColor(c);
+	public boolean containsPoint(double px, double py) {
+		return distFromPoint(px, py) < 10;
+	}
 
-        int x3=x1;
-        int y3=y1;
+	public static void paintArrow(Graphics g, int x1, int y1, int x2, int y2,
+			Color c) {
+		// Forget hyperbolic bending for now
 
-        double dist=Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
-        if (dist>10) {
-            double adjustDistRatio = (dist-10)/dist;
-            x3=(int) (x1+(x2-x1)*adjustDistRatio);
-            y3=(int) (y1+(y2-y1)*adjustDistRatio);
-        }
+		g.setColor(c);
 
-        x3=(int) ((x3*4+x1)/5.0);
-        y3=(int) ((y3*4+y1)/5.0);
+		int x3 = x1;
+		int y3 = y1;
 
-        g.drawLine(x3,   y3,   x2, y2);
-        g.drawLine(x1,   y1,   x3, y3);
-        g.drawLine(x1+1, y1,   x3, y3);
-        g.drawLine(x1+2, y1,   x3, y3);
-        g.drawLine(x1+3, y1,   x3, y3);
-        g.drawLine(x1+4, y1,   x3, y3);
-        g.drawLine(x1-1, y1,   x3, y3);
-        g.drawLine(x1-2, y1,   x3, y3);
-        g.drawLine(x1-3, y1,   x3, y3);
-        g.drawLine(x1-4, y1,   x3, y3);
-        g.drawLine(x1,   y1+1, x3, y3);
-        g.drawLine(x1,   y1+2, x3, y3);
-        g.drawLine(x1,   y1+3, x3, y3);
-        g.drawLine(x1,   y1+4, x3, y3);
-        g.drawLine(x1,   y1-1, x3, y3);
-        g.drawLine(x1,   y1-2, x3, y3);
-        g.drawLine(x1,   y1-3, x3, y3);
-        g.drawLine(x1,   y1-4, x3, y3);
-    }
+		double dist = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+		if (dist > 10) {
+			double adjustDistRatio = (dist - 10) / dist;
+			x3 = (int) (x1 + (x2 - x1) * adjustDistRatio);
+			y3 = (int) (y1 + (y2 - y1) * adjustDistRatio);
+		}
 
-    public void paint(Graphics g, TGPanel tgPanel) {
-        Color c = (tgPanel.getMouseOverE()==this) ? MOUSE_OVER_COLOR : col;
+		x3 = (int) ((x3 * 4 + x1) / 5.0);
+		y3 = (int) ((y3 * 4 + y1) / 5.0);
 
-        int x1=(int) from.drawx;
-        int y1=(int) from.drawy;
-        int x2=(int) to.drawx;
-        int y2=(int) to.drawy;
-        if (intersects(tgPanel.getSize())) paintArrow(g, x1, y1, x2, y2, c);
-    }
+		g.drawLine(x3, y3, x2, y2);
+		g.drawLine(x1, y1, x3, y3);
+		g.drawLine(x1 + 1, y1, x3, y3);
+		g.drawLine(x1 + 2, y1, x3, y3);
+		g.drawLine(x1 + 3, y1, x3, y3);
+		g.drawLine(x1 + 4, y1, x3, y3);
+		g.drawLine(x1 - 1, y1, x3, y3);
+		g.drawLine(x1 - 2, y1, x3, y3);
+		g.drawLine(x1 - 3, y1, x3, y3);
+		g.drawLine(x1 - 4, y1, x3, y3);
+		g.drawLine(x1, y1 + 1, x3, y3);
+		g.drawLine(x1, y1 + 2, x3, y3);
+		g.drawLine(x1, y1 + 3, x3, y3);
+		g.drawLine(x1, y1 + 4, x3, y3);
+		g.drawLine(x1, y1 - 1, x3, y3);
+		g.drawLine(x1, y1 - 2, x3, y3);
+		g.drawLine(x1, y1 - 3, x3, y3);
+		g.drawLine(x1, y1 - 4, x3, y3);
+	}
 
-    public int compareTo(Object o){
-      Edge e = (Edge)o;
-      int val = 0;
-      if (this.length < e.length){
-        val = -1;
-      } else if (this.length > e.length){
-        val = 1;
-      }
-      return val;
-    }
+	public void paint(Graphics g, TGPanel tgPanel) {
+		Color c = (tgPanel.getMouseOverE() == this) ? MOUSE_OVER_COLOR : col;
+
+		int x1 = (int) from.drawx;
+		int y1 = (int) from.drawy;
+		int x2 = (int) to.drawx;
+		int y2 = (int) to.drawy;
+		if (intersects(tgPanel.getSize())) {
+			paintArrow(g, x1, y1, x2, y2, c);
+		}
+	}
+
+	public int compareTo(Object o) {
+		Edge e = (Edge) o;
+		int val = 0;
+		if (length < e.length) {
+			val = -1;
+		} else if (length > e.length) {
+			val = 1;
+		}
+		return val;
+	}
 } // end com.touchgraph.graphlayout.Edge

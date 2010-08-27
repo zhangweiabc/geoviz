@@ -53,103 +53,114 @@ import geovista.touchgraph.Edge;
 import geovista.touchgraph.Node;
 import geovista.touchgraph.TGException;
 
-/**  VisibleLocality:  Extends Locality to spefically handle the 
-  *  Nodes + Edges that are visible on screen.  The visible attribute
-  *  of the nodes + edges is set to true when they appear on screen, and
-  *  false when they are removed from screen.
-  *
-  *  Locality is used in conjunction with LocalityUtils, which handle
-  *  locality shift animations.
-  *
-  *
-  * @author   Alexander Shapiro
-  * 
-  */
+/**
+ * VisibleLocality: Extends Locality to spefically handle the Nodes + Edges that
+ * are visible on screen. The visible attribute of the nodes + edges is set to
+ * true when they appear on screen, and false when they are removed from screen.
+ * 
+ * Locality is used in conjunction with LocalityUtils, which handle locality
+ * shift animations.
+ * 
+ * 
+ * @author Alexander Shapiro
+ * 
+ */
 public class VisibleLocality extends Locality {
 
-    public VisibleLocality(GraphEltSet ges) {
-        super(ges);
-    }
+	public VisibleLocality(GraphEltSet ges) {
+		super(ges);
+	}
 
-    public void addNode( Node node ) throws TGException {
-        super.addNode(node);
-        node.setVisible(true);        
-    }
+	@Override
+	public void addNode(Node node) throws TGException {
+		super.addNode(node);
+		node.setVisible(true);
+	}
 
-    public void addEdge( Edge edge ) {
-        super.addEdge(edge);
-        edge.setVisible(true);
-    }
+	@Override
+	public void addEdge(Edge edge) {
+		super.addEdge(edge);
+		edge.setVisible(true);
+	}
 
-    public boolean deleteEdge( Edge edge ) { 
-        boolean deleted = super.deleteEdge(edge);
-        if (deleted) {
-            edge.setVisible(false);  //Shouldn't matter since Edge is deleted                                  
-        }
-        return deleted;
-    }
+	@Override
+	public boolean deleteEdge(Edge edge) {
+		boolean deleted = super.deleteEdge(edge);
+		if (deleted) {
+			edge.setVisible(false); // Shouldn't matter since Edge is deleted
+		}
+		return deleted;
+	}
 
+	@Override
+	public boolean removeEdge(Edge edge) {
+		boolean removed = super.removeEdge(edge);
+		if (removed) {
+			edge.setVisible(false);
+		}
+		return removed;
+	}
 
-    public boolean removeEdge( Edge edge ) {
-        boolean removed = super.removeEdge(edge);
-        if (removed) {
-            edge.setVisible(false);
-        }
-        return removed;
-    }
+	@Override
+	public boolean deleteNode(Node node) {
+		boolean deleted = super.deleteNode(node);
+		if (deleted) {
+			node.setVisible(false); // Shouldn't matter since Node is deleted
+		}
+		return deleted;
+	}
 
-    public boolean deleteNode( Node node ) {
-        boolean deleted = super.deleteNode(node);
-        if (deleted) {
-            node.setVisible(false);  //Shouldn't matter since Node is deleted                                  
-        }
-        return deleted;
-    }
+	@Override
+	public boolean removeNode(Node node) {
+		boolean removed = super.removeNode(node);
+		if (removed) {
+			node.setVisible(false);
+		}
+		return removed;
+	}
 
-    public boolean removeNode( Node node ) {
-        boolean removed = super.removeNode(node);
-        if (removed) {
-            node.setVisible(false);            
-        }        
-        return removed;
-    }
+	@Override
+	public synchronized void removeAll() {
+		for (int i = 0; i < nodeNum(); i++) {
+			nodeAt(i).setVisible(false);
+		}
+		for (int i = 0; i < edgeNum(); i++) {
+			edgeAt(i).setVisible(false);
+		}
+		super.removeAll();
+	}
 
-    public synchronized void removeAll() {
-        for (int i = 0 ; i < nodeNum(); i++) {
-            nodeAt(i).setVisible(false);
-        }
-        for (int i = 0 ; i < edgeNum(); i++) {
-            edgeAt(i).setVisible(false);
-        }
-        super.removeAll();        
-    }
-    
-    public void updateLocalityFromVisibility() throws TGException {
-         //for (int i = 0 ; i < completeEltSet.nodeNum(); i++) {
-         //   Node n = nodeAt(i);
-        TGForEachNode fen = new TGForEachNode() {
-            public void forEachNode( Node node ) {
-                try {
-                    if (node.isVisible() && !contains(node)) 
-                        addNode(node);
-                    else if (!node.isVisible() && contains(node))
-                        removeNode(node);
-                }
-                catch (TGException ex) { ex.printStackTrace(); }
-            }         
-        };
-        completeEltSet.forAllNodes(fen); 
-        
-        //for (int i = 0 ; i < edgeNum(); i++) {
-        //    Edge e = edgeAt(i);              
-        TGForEachEdge fee = new TGForEachEdge() { 
-            public void forEachEdge( Edge edge ) {                           
-                if (edge.isVisible() && !contains(edge)) 
-                    addEdge(edge);
-                else if (!edge.isVisible() && contains(edge))
-                    removeEdge(edge);                
-            }        
-        };
-        completeEltSet.forAllEdges(fee);    
-    }
+	public void updateLocalityFromVisibility() {
+		// for (int i = 0 ; i < completeEltSet.nodeNum(); i++) {
+		// Node n = nodeAt(i);
+		TGForEachNode fen = new TGForEachNode() {
+			@Override
+			public void forEachNode(Node node) {
+				try {
+					if (node.isVisible() && !contains(node)) {
+						addNode(node);
+					} else if (!node.isVisible() && contains(node)) {
+						removeNode(node);
+					}
+				} catch (TGException ex) {
+					ex.printStackTrace();
+				}
+			}
+		};
+		completeEltSet.forAllNodes(fen);
+
+		// for (int i = 0 ; i < edgeNum(); i++) {
+		// Edge e = edgeAt(i);
+		TGForEachEdge fee = new TGForEachEdge() {
+			@Override
+			public void forEachEdge(Edge edge) {
+				if (edge.isVisible() && !contains(edge)) {
+					addEdge(edge);
+				} else if (!edge.isVisible() && contains(edge)) {
+					removeEdge(edge);
+				}
+			}
+		};
+		completeEltSet.forAllEdges(fee);
+	}
 } // end com.touchgraph.graphlayout.graphelements.VisibleLocality
