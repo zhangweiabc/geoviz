@@ -8,11 +8,9 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,9 +40,9 @@ import geovista.readers.shapefile.ShapeFileDataReader;
 import geovista.readers.shapefile.ShapeFileProjection;
 
 @SuppressWarnings("unused")
-public class H1N1DataReader implements GeoDataSource {
+public class DCCrimeDataReader implements GeoDataSource {
 
-	final static Logger logger = Logger.getLogger(H1N1DataReader.class
+	final static Logger logger = Logger.getLogger(DCCrimeDataReader.class
 			.getName());
 
 	HashMap<Integer, Report> reports = new HashMap<Integer, Report>();
@@ -60,32 +58,44 @@ public class H1N1DataReader implements GeoDataSource {
 	HashSet<String> species = new HashSet();
 	ArrayList<Coordinate> locations = new ArrayList();
 	Geometry[] theGeoms;
+	Shape[] shapes;
+	SpatialWeights weights;
 
 	Rectangle2D[] bounds;
 
 	HashMap<Integer, Coordinate> coordinateMap;
 	HashMap<Integer, String> descMap;
 
-	HashMap<Geometry, Integer> geomMap;
-	private static String resource_shapefile = "resources/countries.shp";
-	private static String resource_rhiza = "resources/h1n1_inc.csv";
+	HashMap<String, Integer> nameIDs;
+	HashMap<Geometry, Integer> geomIDs;
+	HashMap<Geometry, String> geomNames;
+	HashMap<Geometry, String> nameGeoms;
+	private static String resource_shapefile = "resources/tr11_d00.shp";
+	private static String resource_fips = "resources/tr11_d00_fips.csv";
+	private static String resource_crimes = "resources/clean_crimes.csv";
 
 	DataSetForApps dataSet;
 
-	public H1N1DataReader() {
+	public DCCrimeDataReader() {
 		coordinateMap = new HashMap<Integer, Coordinate>();
 		descMap = new HashMap<Integer, String>();
 	}
 
-	public void readWorldShapefile() {
+	public void readDCShapefile() {
 
-		logger.info("reading world shapefile");
+		logger.info("reading DC shapefile");
 		InputStream shpStream = this.getClass().getResourceAsStream(
 				resource_shapefile);
 
-		theGeoms = ShapeFileDataReader.getGeoms(shpStream, 1);
+		InputStream fipsStream = this.getClass().getResourceAsStream(
+				resource_shapefile);
+		BufferedReader fipsReader = new BufferedReader(new InputStreamReader(
+				fipsStream));
+		theGeoms = ShapeFileDataReader.getGeoms(shpStream, 0);
+
+		weights = ShapeFileDataReader.findSpatialWeights(theGeoms);
 		// theGeoms = ShapeFileDataReader.makeSimplerGeoms(theGeoms, 1);
-		Shape[] shapes = ShapeFileDataReader.geomsToShapes(theGeoms);
+		shapes = ShapeFileDataReader.geomsToShapes(theGeoms);
 
 		bounds = new Rectangle2D[theGeoms.length];
 		for (int i = 0; i < theGeoms.length; i++) {
@@ -94,12 +104,24 @@ public class H1N1DataReader implements GeoDataSource {
 		}
 
 		int nPolys = 0;
+		geomNames = new HashMap<Geometry, String>();
+		nameGeoms = new HashMap<Geometry, String>();
+		geomIDs = new HashMap<Geometry, Integer>();
+		nameIDs = new HashMap<String, Integer>();
+		try {
+			fipsReader.readLine();
 
-		geomMap = new HashMap<Geometry, Integer>();
-		for (int j = 0; j < theGeoms.length; j++) {
-			Geometry geom = theGeoms[j];
-			geomMap.put(geom, j);
-
+			for (int j = 0; j < theGeoms.length; j++) {
+				Geometry geom = theGeoms[j];
+				geomIDs.put(geom, j);
+				String fips = fipsReader.readLine();
+				geomNames.put(geom, fips);
+				nameGeoms.put(geom, fips);
+				nameIDs.put(fips, j);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		// Geometry[] geoms = new Geometry[theGeoms.length];
 		// for (int i=0;i)
@@ -120,10 +142,10 @@ public class H1N1DataReader implements GeoDataSource {
 
 		Shape[] theShapes = states.getDataForApps().getShapeData();
 		theGeoms = ShapeFileDataReader.shapesToGeoms(theShapes);
-		geomMap = new HashMap<Geometry, Integer>();
+		geomIDs = new HashMap<Geometry, Integer>();
 		for (int j = 0; j < theGeoms.length; j++) {
 			Geometry geom = theGeoms[j];
-			geomMap.put(geom, j);
+			geomIDs.put(geom, j);
 
 		}
 		ShapeFileProjection proj = new ShapeFileProjection();
@@ -165,6 +187,7 @@ public class H1N1DataReader implements GeoDataSource {
 		Date d = null;
 		try {
 			d = sdf.parse(timestamp);
+
 		} catch (ParseException e) {
 			return now;
 		}
@@ -177,18 +200,23 @@ public class H1N1DataReader implements GeoDataSource {
 	 * 
 	 * Data notes
 	 * 
-	 * 0 confirmed -- n cases || 1 country || 2 county || 3 date -- M/DD/YYYY ||
-	 * 4 description -- long text || 5 fatal || 6 fatality || 7 latitude || 8
-	 * longitude || 9 negative || 10 place || 11 postal_code || 12 source_url ||
-	 * 13 state -- text, two chars in case of US || 14 status || 15 suspected
+	 * 0:nid 1:ccn 2:epoch 3:year 4:month 5:week 6:compositeyear
+	 * 7:compositemonth 8:compositeweek 9:shift 10:offense 11:method
+	 * 12:blocksiteaddress 13:narrative 14:latitude 15:longitude 16:district
+	 * 17:psa 18:the_geom 19:grid
 	 */
 
 	private class Report {
 		int id;
-		int nCases;
-		Calendar date;
+
+		Date timeStamp;
 		String description;
 		Point location;
+		String tractName;
+		String offence;
+		String method;
+		int year;
+
 	}
 
 	private final Report emptyReport = new Report();
@@ -197,38 +225,46 @@ public class H1N1DataReader implements GeoDataSource {
 		Report rep = new Report();
 
 		rep.id = id;
-		Integer intCases = 0;
+
+		// Calendar when = parseTimestamp(report[2]);
+		// if (when == now) {
+		// logger.info("no date for " + id);
+		// return emptyReport;
+		// }
 		try {
-			intCases = Integer.valueOf(report[0]);
+			Long longTime = Long.parseLong(report[2]);
+			longTime = longTime * 1000;
+			rep.timeStamp = new Date(longTime);
+
 		} catch (Exception ex) {
-			logger.info("no cases for " + id);
-			return emptyReport;
+
+			logger.info("cant parse timestamp " + id);
+
 		}
-		rep.nCases = intCases;
-		Calendar when = parseTimestamp(report[3]);
-		if (when == now) {
-			logger.info("no date for " + id);
-			return emptyReport;
-		}
-		rep.date = when;
 		String desc = report[4];
-		double lat = Double.valueOf(report[7]);
-		double longit = Double.valueOf(report[8]);
+		double lat = Double.valueOf(report[14]);
+		double longit = Double.valueOf(report[15]);
 
 		Coordinate coord = new Coordinate(longit, lat);
 		coordinateMap.put(id, coord);
 		descMap.put(id, desc);
 
 		rep.location = fact.createPoint(coord);
+		rep.offence = report[10];
+		rep.year = Integer.valueOf(report[3]);
+		rep.method = report[11];
+
+		// Geometry geom = findGeom(rep.location);//too slow with 150,000
+		// rep.tractName = nameGeoms.get(geom);
 		return rep;
 	}
 
-	public void readRhizaContents() {
+	public void readCrimeContents() {
 		long startTime = System.currentTimeMillis();
-
+		logger.info("readingCrimeContents");
 		try {
 			InputStream fis = this.getClass().getResourceAsStream(
-					resource_rhiza);
+					resource_crimes);
 			BufferedReader input = new BufferedReader(
 					new InputStreamReader(fis));
 			// input.readLine();
@@ -240,6 +276,7 @@ public class H1N1DataReader implements GeoDataSource {
 			int id = 0;
 			GeometryFactory fact = new GeometryFactory();
 			for (id = 1; id < vals.length; id++) {
+				// logger.info("parsing report " + id);
 				String[] report = vals[id];
 				Report rep = parseReport(report, id, fact);
 				if (rep != emptyReport) {
@@ -258,18 +295,29 @@ public class H1N1DataReader implements GeoDataSource {
 
 	}
 
-	private void countHits(int[] hits, Point coord) {
+	private void countHits(int[] hits, Report element) {
 
 		for (int i = 0; i < theGeoms.length; i++) {
 			Geometry theGeom = theGeoms[i];
 
-			if (theGeom.contains(coord)) {
+			if (theGeom.contains(element.location)) {
+				element.tractName = geomNames.get(theGeom);
 				hits[i]++;
 				break;
 			}
 
 		}
 
+	}
+
+	private Geometry findGeom(Point coord) {
+		for (Geometry theGeom : theGeoms) {
+			if (theGeom.contains(coord)) {
+				return theGeom;
+			}
+
+		}
+		return null;
 	}
 
 	public int[] countAllHits() {
@@ -282,7 +330,7 @@ public class H1N1DataReader implements GeoDataSource {
 
 		for (Report element : reps) {
 
-			countHits(hitCount, element.location);
+			countHits(hitCount, element);
 		}
 		return hitCount;
 	}
@@ -307,6 +355,7 @@ public class H1N1DataReader implements GeoDataSource {
 				String ID = "";
 				while ((line = input.readLine()) != null) {
 					Scanner scan = new Scanner(line).useDelimiter(",");
+
 					ID = scan.next();
 
 					name = scan.next();
@@ -327,149 +376,126 @@ public class H1N1DataReader implements GeoDataSource {
 
 	}
 
-	public DataSetForApps makeDataSetForApps(String text) {
-		Object[] coords = locations.toArray();
-		int[] hits = countAllHits();
-		logger.info(Arrays.toString(hits));
-
-		HashMap<Integer, String> descs = descMap;
-		ArrayList<Integer> childHits = new ArrayList<Integer>();
-		for (Integer i : descs.keySet()) {
-			String desc = descs.get(i);
-			if (desc.contains(text)) {
-				childHits.add(i);
-			}
-		}
-
-		int[] childHitCounts = countCertainHits(getReports(childHits));
-
-		logger.info(Arrays.toString(childHitCounts));
-
-		double[] proportions = new double[childHitCounts.length];
-		for (int i = 0; i < proportions.length; i++) {
-			proportions[i] = (float) childHitCounts[i] / (float) hits[i];
-		}
-
-		logger.info(Arrays.toString(proportions));
-
-		dataSet = new DataSetForApps(dataSet, text, proportions);
-		return dataSet;
-	}
-
 	private DataSetForApps makeDataSetForApps() {
-
-		readStatesShapefile();
-		readRhizaContents();
-
-		Object[] coords = locations.toArray();
-		int[] hits = countAllHits();
-		logger.info(Arrays.toString(hits));
-
-		HashMap<Integer, String> descs = descMap;
-		ArrayList<Integer> childHits = new ArrayList<Integer>();
-		for (Integer i : descs.keySet()) {
-			String desc = descs.get(i);
-			if (desc.contains("children") || desc.contains("child")
-					|| desc.contains("student")) {
-				childHits.add(i);
-			}
-		}
-
-		int[] childHitCounts = countCertainHits(getReports(childHits));
-
-		logger.info(Arrays.toString(childHitCounts));
-
-		double[] proportions = new double[childHitCounts.length];
-		for (int i = 0; i < proportions.length; i++) {
-			proportions[i] = (float) childHitCounts[i] / (float) hits[i];
-		}
-
-		logger.info(Arrays.toString(proportions));
-
-		dataSet = new DataSetForApps(dataSet, "Child", proportions);
-		return dataSet;
-	}
-
-	private DataSetForApps makeDataSetForAppsOld() {
-
-		int nCounties = idName.size();
-		int periodicity = 30;
-		int minDay = 1;
-		int maxDay = 730;
-		if (nCases == null) {
+		logger.info("making dsa");
+		int nTracts = geomIDs.keySet().size();
+		if (nTracts == 0) {
 			logger.severe("data not loaded");
 			return null;
 		}
-		int numBins = (maxDay - minDay) / periodicity;
-		numBins++; // count from one
-		int varTypes = 1;
-		// cases, respetory cases
-		Object[] numericalArrays = new Object[(numBins * varTypes) + 1];
-		for (int i = 0; i < numBins * varTypes; i++) {
-			double[] data = new double[nCounties];
+		int numYears = 5;
+		Object[] numericalArrays = new Object[(numYears * 4) + 1];
+		for (int i = 0; i < numericalArrays.length; i++) {
+			double[] data = new double[nTracts];
 			numericalArrays[i] = data;
 		}
-		ArrayList<String> yearHeadings = makeYearHeadings(periodicity, minDay,
-				maxDay);
+		ArrayList<String> yearHeadings = makeYearHeadings(2006, 2010);
 
-		for (int i = 0; i < date.size(); i++) {
-			int day = this.day.get(i);
-			// logger.info(year);
-			// int day = minDay;
-			int bin = day / periodicity;
-			double[] killedYear = (double[]) numericalArrays[bin];
-			// double[] woundedYear = (double[]) numericalArrays[bin + numBins];
-
-			String name = this.name.get(i);
-			int rowID = idName.get(name);
-
-			if (rowID >= 0) {
-				Integer nCase = nCases.get(i);
-				if (nCase != null && nCase.equals(Integer.MIN_VALUE) == false) {
-					// logger.info(nKillInt.toString());
-					killedYear[rowID] = killedYear[rowID] + nCase;
+		for (Report rep : reports.values()) {
+			int year = rep.year;
+			if (year > 2010 || year < 2006) {
+				logger.info("wrong year " + year);
+			}
+			if (rep.tractName == null) {
+				continue;
+			}
+			int id = nameIDs.get(rep.tractName);
+			if (year == 2006) {
+				double[] data = (double[]) numericalArrays[0];
+				data[id] = data[id] + 1;
+				if (rep.offence.equals("ARSON")) {
+					double[] arsonData = (double[]) numericalArrays[5];
+					arsonData[id] = arsonData[id] + 1;
 				}
-				Integer nCaseResp = nRespCases.get(i);
-				if (nCaseResp != null
-						&& nCaseResp.equals(Integer.MIN_VALUE) == false) {
-					// woundedYear[rowID] = woundedYear[rowID] + nCaseResp;
+				if (rep.offence.equals("HOMICIDE")) {
+					double[] homicideData = (double[]) numericalArrays[10];
+					homicideData[id] = homicideData[id] + 1;
+				}
+				if (rep.method.equals("GUN")) {
+					double[] gunData = (double[]) numericalArrays[15];
+					gunData[id] = gunData[id] + 1;
 				}
 
+			}
+			if (year == 2007) {
+				double[] data = (double[]) numericalArrays[1];
+				data[id] = data[id] + 1;
+				if (rep.offence.equals("ARSON")) {
+					double[] arsonData = (double[]) numericalArrays[6];
+					arsonData[id] = arsonData[id] + 1;
+				}
+				if (rep.offence.equals("HOMICIDE")) {
+					double[] homicideData = (double[]) numericalArrays[11];
+					homicideData[id] = homicideData[id] + 1;
+				}
+				if (rep.method.equals("GUN")) {
+					double[] gunData = (double[]) numericalArrays[16];
+					gunData[id] = gunData[id] + 1;
+				}
+			}
+			if (year == 2008) {
+				double[] data = (double[]) numericalArrays[2];
+				data[id] = data[id] + 1;
+				if (rep.offence.equals("ARSON")) {
+					double[] arsonData = (double[]) numericalArrays[7];
+					arsonData[id] = arsonData[id] + 1;
+				}
+				if (rep.offence.equals("HOMICIDE")) {
+					double[] homicideData = (double[]) numericalArrays[12];
+					homicideData[id] = homicideData[id] + 1;
+				}
+				if (rep.method.equals("GUN")) {
+					double[] gunData = (double[]) numericalArrays[17];
+					gunData[id] = gunData[id] + 1;
+				}
+			}
+			if (year == 2009) {
+				double[] data = (double[]) numericalArrays[3];
+				data[id] = data[id] + 1;
+				if (rep.offence.equals("ARSON")) {
+					double[] arsonData = (double[]) numericalArrays[8];
+					arsonData[id] = arsonData[id] + 1;
+				}
+				if (rep.offence.equals("HOMICIDE")) {
+					double[] homicideData = (double[]) numericalArrays[13];
+					homicideData[id] = homicideData[id] + 1;
+				}
+				if (rep.method.equals("GUN")) {
+					double[] gunData = (double[]) numericalArrays[18];
+					gunData[id] = gunData[id] + 1;
+				}
+			}
+			if (year == 2010) {
+				double[] data = (double[]) numericalArrays[4];
+				data[id] = data[id] + 1;
+				if (rep.offence.equals("ARSON")) {
+					double[] arsonData = (double[]) numericalArrays[9];
+					arsonData[id] = arsonData[id] + 1;
+				}
+				if (rep.offence.equals("HOMICIDE")) {
+					double[] homicideData = (double[]) numericalArrays[14];
+					homicideData[id] = homicideData[id] + 1;
+				}
+				if (rep.method.equals("GUN")) {
+					double[] gunData = (double[]) numericalArrays[19];
+					gunData[id] = gunData[id] + 1;
+				}
 			}
 
 		}
 
 		String[] varNames = new String[numericalArrays.length];
 
-		String[] obsNames = makeObsNames(nCounties);
+		String[] obsNames = makeObsNames(nTracts);
 		numericalArrays[numericalArrays.length - 1] = obsNames;
-		for (int i = 0; i < numBins; i++) {
+		for (int i = 0; i < yearHeadings.size(); i++) {
 			varNames[i] = yearHeadings.get(i);
-			// varNames[i + numBins] = "nResp_" + yearHeadings.get(i);
 
 		}
 		varNames[varNames.length - 1] = "name";
-		FileInputStream shpStream = null;
-		try {
-			shpStream = new FileInputStream(
-					"C:\\data\\grants\\nevac\\purdue\\IN.shp");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Shape[] geoms = ShapeFileDataReader.getShapes(shpStream);
-		FileInputStream shpStream2 = null;
-		try {
-			shpStream2 = new FileInputStream(
-					"C:\\data\\grants\\nevac\\purdue\\IN.shp");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SpatialWeights weights = ShapeFileDataReader.getWeights(shpStream2);
+
 		DataSetForApps dataSet = new DataSetForApps(varNames, numericalArrays,
-				geoms, weights);
-		// transformStdDev(dataSet);
+				shapes, weights);
 
 		return dataSet;
 	}
@@ -490,41 +516,35 @@ public class H1N1DataReader implements GeoDataSource {
 
 	}
 
-	private ArrayList<String> makeYearHeadings(int periodicity, int minVal,
-			int maxVal) {
-		int numBins = (maxVal - minVal) / periodicity;
+	private ArrayList<String> makeYearHeadings(int minVal, int maxVal) {
+		int numBins = (maxVal - minVal) + 1;
 		ArrayList<String> headings = new ArrayList<String>();
-		Date firstDay = date.get(0);
-		DateFormat varNameformat = new SimpleDateFormat("yy-MM");
-		DateFormat baseFormat = new SimpleDateFormat("yyy-MM-ddd");
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(firstDay);
-		int originalDay = cal.get(Calendar.DAY_OF_MONTH);
-		int originalMonth = cal.get(Calendar.MONTH);
-		int originalYear = cal.get(Calendar.YEAR);
-		logger.info(varNameformat.format(firstDay));
-		for (int i = 0; i <= numBins; i++) {// note the <= in the loop
-			int binMin = (periodicity * i) + minVal;
-			int binMax = binMin + periodicity;
-			if (binMax > maxVal) {
-				binMax = maxVal;
-			}
-			int day = originalDay + binMax;
-			String dateString = originalYear + "-" + originalMonth + "-" + day;
-			Date newDate = null;
-			try {
-				newDate = baseFormat.parse(dateString);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			cal.setTime(newDate);
-			String label = varNameformat.format(cal.getTime());
-			logger.info(label);
+
+		for (int i = 0; i < numBins; i++) {
+			String label = Integer.toString(minVal + i);
+			label = "All_" + label;
 			headings.add(label);
 
 		}
 
+		for (int i = 0; i < numBins; i++) {
+			String label = Integer.toString(minVal + i);
+			label = "Arson_" + label;
+			headings.add(label);
+
+		}
+		for (int i = 0; i < numBins; i++) {
+			String label = Integer.toString(minVal + i);
+			label = "Homic_" + label;
+			headings.add(label);
+
+		}
+		for (int i = 0; i < numBins; i++) {
+			String label = Integer.toString(minVal + i);
+			label = "Gun_" + label;
+			headings.add(label);
+
+		}
 		return headings;
 
 	}
@@ -540,9 +560,10 @@ public class H1N1DataReader implements GeoDataSource {
 	}
 
 	public DataSetForApps getDataForApps() {
-		readIDCodes();
-		readRhizaContents();
-
+		logger.info("getDataForApps");
+		readDCShapefile();
+		readCrimeContents();
+		countAllHits();
 		return makeDataSetForApps();
 
 	}
@@ -574,32 +595,16 @@ public class H1N1DataReader implements GeoDataSource {
 
 	public static void main(String[] args) {
 
-		H1N1DataReader reader = new H1N1DataReader();
-		// H1N1DataReader.printMemory();
-		// reader.readIsoCodes();
-		// reader.findCountryCodes();
-		// reader.readIDCodes();
-		// reader.readWorldShapefile();
-		reader.readStatesShapefile();
-		reader.readRhizaContents();
-		// 
-		long startTime = System.nanoTime();
-		// reader.countAllHits();
-		long endTime = System.nanoTime();
-		// H1N1DataReader.printMemory();
-		// logger.info("finding hits took " + (endTime - startTime) /
-		// 1000000000f);
-		// DataSetForApps dataSet = reader.makeDataSetForApps();
-		startTime = System.nanoTime();
+		DCCrimeDataReader reader = new DCCrimeDataReader();
 
-		endTime = System.nanoTime();
-		Object[] coords = reader.locations.toArray();
-		// logger.info("finding quad hits took " + (endTime - startTime)
-		// / 1000000000f);
+		reader.getDataForApps();
+		logger.info("all done");
+		System.exit(0);
+		reader.readDCShapefile();
+		reader.readCrimeContents();
 
 		logger.info("starting hit count");
 
-		startTime = System.nanoTime();
 		int[] hits = reader.countAllHits();
 		logger.info(Arrays.toString(hits));
 
@@ -615,21 +620,15 @@ public class H1N1DataReader implements GeoDataSource {
 		int[] childHitCounts = reader.countCertainHits(reader
 				.getReports(childHits));
 
-		logger.info(Arrays.toString(childHitCounts));
+		// logger.info(Arrays.toString(childHitCounts));
 
 		float[] proportions = new float[childHitCounts.length];
 		for (int i = 0; i < proportions.length; i++) {
 			proportions[i] = (float) childHitCounts[i] / (float) hits[i];
 		}
 
-		logger.info(Arrays.toString(proportions));
+		// logger.info(Arrays.toString(proportions));
 
-		endTime = System.nanoTime();
-
-		// logger.info("hits = " + Arrays.toString(hits));
-		// logger
-		// .info("finding  hits took " + (endTime - startTime)
-		// / 1000000000f);
 		logger.info("All done!");
 
 	}

@@ -25,7 +25,9 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-import cern.colt.Arrays;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -36,15 +38,13 @@ import geovista.common.data.DataSetForApps;
 import geovista.common.data.DescriptiveStatistics;
 import geovista.common.data.GeoDataSource;
 import geovista.common.data.SpatialWeights;
-import geovista.readers.csv.ExcelCSVParser;
-import geovista.readers.example.GoogleFluDataReader;
+import geovista.readers.example.GeoDataGeneralizedStates;
 import geovista.readers.shapefile.ShapeFileDataReader;
-import geovista.readers.shapefile.ShapeFileProjection;
 
 @SuppressWarnings("unused")
-public class H1N1DataReader implements GeoDataSource {
+public class CDCH1N1DataReader implements GeoDataSource {
 
-	final static Logger logger = Logger.getLogger(H1N1DataReader.class
+	final static Logger logger = Logger.getLogger(CDCH1N1DataReader.class
 			.getName());
 
 	HashMap<Integer, Report> reports = new HashMap<Integer, Report>();
@@ -63,22 +63,12 @@ public class H1N1DataReader implements GeoDataSource {
 
 	Rectangle2D[] bounds;
 
-	HashMap<Integer, Coordinate> coordinateMap;
-	HashMap<Integer, String> descMap;
-
 	HashMap<Geometry, Integer> geomMap;
 	private static String resource_shapefile = "resources/countries.shp";
 	private static String resource_rhiza = "resources/h1n1_inc.csv";
-
-	DataSetForApps dataSet;
-
-	public H1N1DataReader() {
-		coordinateMap = new HashMap<Integer, Coordinate>();
-		descMap = new HashMap<Integer, String>();
-	}
+	private static String resource_cdc_h1n1 = "resources/cdc_h1n1_sample.xml";
 
 	public void readWorldShapefile() {
-
 		logger.info("reading world shapefile");
 		InputStream shpStream = this.getClass().getResourceAsStream(
 				resource_shapefile);
@@ -110,25 +100,8 @@ public class H1N1DataReader implements GeoDataSource {
 
 	public void readStatesShapefile() {
 		logger.info("getting states info");
-		GoogleFluDataReader states = null;
-		try {
-			states = new GoogleFluDataReader();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		Shape[] theShapes = states.getDataForApps().getShapeData();
-		theGeoms = ShapeFileDataReader.shapesToGeoms(theShapes);
-		geomMap = new HashMap<Geometry, Integer>();
-		for (int j = 0; j < theGeoms.length; j++) {
-			Geometry geom = theGeoms[j];
-			geomMap.put(geom, j);
-
-		}
-		ShapeFileProjection proj = new ShapeFileProjection();
-		proj.setInputDataSetForApps(states.getDataForApps());
-		dataSet = proj.getOutputDataSetForApps();
+		GeoDataGeneralizedStates states = new GeoDataGeneralizedStates();
+		theGeoms = states.getDataForApps().getGeomData();
 
 	}
 
@@ -216,46 +189,115 @@ public class H1N1DataReader implements GeoDataSource {
 		double longit = Double.valueOf(report[8]);
 
 		Coordinate coord = new Coordinate(longit, lat);
-		coordinateMap.put(id, coord);
-		descMap.put(id, desc);
 
 		rep.location = fact.createPoint(coord);
 		return rep;
 	}
 
-	public void readRhizaContents() {
+	public void readH1N1Contents() {
 		long startTime = System.currentTimeMillis();
 
 		try {
 			InputStream fis = this.getClass().getResourceAsStream(
-					resource_rhiza);
-			BufferedReader input = new BufferedReader(
-					new InputStreamReader(fis));
-			// input.readLine();
-			ExcelCSVParser parser = new ExcelCSVParser(fis);
-			String[][] vals = parser.getAllValues();
+					resource_cdc_h1n1);
 
-			String[] firstLine = vals[1];
-			// logger.info(Arrays.toString(firstLine));
-			int id = 0;
-			GeometryFactory fact = new GeometryFactory();
-			for (id = 1; id < vals.length; id++) {
-				String[] report = vals[id];
-				Report rep = parseReport(report, id, fact);
-				if (rep != emptyReport) {
-					reports.put(id, rep);
+			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+
+			XMLStreamReader xmlSR = inputFactory.createXMLStreamReader(fis);
+
+			while (true) {
+				int event = xmlSR.next();
+				if (event == XMLStreamConstants.START_DOCUMENT) {
+					logger.info("new doc");
+
 				}
-			}
+				if (event == XMLStreamConstants.END_DOCUMENT) {
+					xmlSR.close();
+					break;
 
-			long endTime = System.currentTimeMillis();
-			logger.info((endTime - startTime) / 1000 + " seconds");
-			logger.info(id + " reports ");
-			logger.info(reports.size() + " valid reports ");
+				}
+
+				if (event == XMLStreamConstants.START_ELEMENT) {
+					// logger.info("start element");
+					// logger.info("start " + xmlSR.getLocalName());
+					if (xmlSR.getLocalName().equals("summaryObservation")) {
+						extractSummaryObservation(xmlSR);
+
+					}
+				}
+
+				if (event == XMLStreamConstants.END_ELEMENT) {
+					// logger.info("end element");
+
+				}
+				if (event == XMLStreamConstants.ATTRIBUTE) {
+					logger.info("attribute");
+
+				}
+				if (event == XMLStreamConstants.CHARACTERS) {
+					// logger.info("chars");
+
+				}
+
+				if (event == XMLStreamConstants.CDATA) {
+					logger.info("cdata");
+
+				}
+				if (event == XMLStreamConstants.SPACE) {
+					logger.info("space");
+
+				}
+
+				if (event == XMLStreamConstants.COMMENT) {
+					logger.info("comment");
+
+				}
+
+				if (event == XMLStreamConstants.DTD) {
+					logger.info("dtd");
+
+				}
+				if (event == XMLStreamConstants.ENTITY_REFERENCE) {
+					logger.info("entity ref");
+
+				}
+				// logger.info("local name = " + xmlSR.getLocalName());
+				// logger.info("" + xmlSR.getElementText());
+			}
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 
+	}
+
+	private void extractSummaryObservation(XMLStreamReader xmlSR) {
+		String indicatorIdentifier = xmlSR.getAttributeValue(null,
+				"indicatorIdentifier");
+		// logger.info("indicatorIdentifier " + indicatorIdentifier);
+		String indicatorName = xmlSR.getAttributeValue(null, "indicatorName");
+		// logger.info("indicatorName " + indicatorName);
+
+		String startDateTime = xmlSR.getAttributeValue(null, "startDateTime");
+		// logger.info("startDateTime " + startDateTime);
+
+		String endDateTime = xmlSR.getAttributeValue(null, "endDateTime");
+		// logger.info("endDateTime " + endDateTime);
+
+		String summaryCount = xmlSR.getAttributeValue(null, "summaryCount");
+		logger.info("summaryCount " + summaryCount);
+
+		String patientClass = xmlSR.getAttributeValue(null, "patientClass");
+		// logger.info("patientClass " + patientClass);
+
+		String gender = xmlSR.getAttributeValue(null, "gender");
+		// logger.info("gender " + gender);
+
+		String ageStart = xmlSR.getAttributeValue(null, "ageStart");
+		// logger.info("ageStart " + ageStart);
+
+		String ageEnd = xmlSR.getAttributeValue(null, "ageEnd");
+		// logger.info("ageEnd " + ageEnd);
 	}
 
 	private void countHits(int[] hits, Point coord) {
@@ -273,18 +315,14 @@ public class H1N1DataReader implements GeoDataSource {
 	}
 
 	public int[] countAllHits() {
-		return countCertainHits(reports.values());
-
-	}
-
-	int[] countCertainHits(Collection<Report> reps) {
 		int[] hitCount = new int[theGeoms.length];
-
+		Collection<Report> reps = reports.values();
 		for (Report element : reps) {
 
 			countHits(hitCount, element.location);
 		}
 		return hitCount;
+
 	}
 
 	private void readIDCodes() {
@@ -327,70 +365,7 @@ public class H1N1DataReader implements GeoDataSource {
 
 	}
 
-	public DataSetForApps makeDataSetForApps(String text) {
-		Object[] coords = locations.toArray();
-		int[] hits = countAllHits();
-		logger.info(Arrays.toString(hits));
-
-		HashMap<Integer, String> descs = descMap;
-		ArrayList<Integer> childHits = new ArrayList<Integer>();
-		for (Integer i : descs.keySet()) {
-			String desc = descs.get(i);
-			if (desc.contains(text)) {
-				childHits.add(i);
-			}
-		}
-
-		int[] childHitCounts = countCertainHits(getReports(childHits));
-
-		logger.info(Arrays.toString(childHitCounts));
-
-		double[] proportions = new double[childHitCounts.length];
-		for (int i = 0; i < proportions.length; i++) {
-			proportions[i] = (float) childHitCounts[i] / (float) hits[i];
-		}
-
-		logger.info(Arrays.toString(proportions));
-
-		dataSet = new DataSetForApps(dataSet, text, proportions);
-		return dataSet;
-	}
-
 	private DataSetForApps makeDataSetForApps() {
-
-		readStatesShapefile();
-		readRhizaContents();
-
-		Object[] coords = locations.toArray();
-		int[] hits = countAllHits();
-		logger.info(Arrays.toString(hits));
-
-		HashMap<Integer, String> descs = descMap;
-		ArrayList<Integer> childHits = new ArrayList<Integer>();
-		for (Integer i : descs.keySet()) {
-			String desc = descs.get(i);
-			if (desc.contains("children") || desc.contains("child")
-					|| desc.contains("student")) {
-				childHits.add(i);
-			}
-		}
-
-		int[] childHitCounts = countCertainHits(getReports(childHits));
-
-		logger.info(Arrays.toString(childHitCounts));
-
-		double[] proportions = new double[childHitCounts.length];
-		for (int i = 0; i < proportions.length; i++) {
-			proportions[i] = (float) childHitCounts[i] / (float) hits[i];
-		}
-
-		logger.info(Arrays.toString(proportions));
-
-		dataSet = new DataSetForApps(dataSet, "Child", proportions);
-		return dataSet;
-	}
-
-	private DataSetForApps makeDataSetForAppsOld() {
 
 		int nCounties = idName.size();
 		int periodicity = 30;
@@ -541,7 +516,7 @@ public class H1N1DataReader implements GeoDataSource {
 
 	public DataSetForApps getDataForApps() {
 		readIDCodes();
-		readRhizaContents();
+		readH1N1Contents();
 
 		return makeDataSetForApps();
 
@@ -561,32 +536,21 @@ public class H1N1DataReader implements GeoDataSource {
 				+ (freeMemory + (maxMemory - allocatedMemory)) / 1024);
 	}
 
-	public Collection<Report> getReports(ArrayList<Integer> ids) {
-		Collection<Report> returnedReports = new ArrayList<Report>();
-		for (Integer i : ids) {
-			Report rep = reports.get(i);
-			returnedReports.add(rep);
-		}
-
-		return returnedReports;
-
-	}
-
 	public static void main(String[] args) {
 
-		H1N1DataReader reader = new H1N1DataReader();
-		// H1N1DataReader.printMemory();
+		CDCH1N1DataReader reader = new CDCH1N1DataReader();
+		CDCH1N1DataReader.printMemory();
 		// reader.readIsoCodes();
 		// reader.findCountryCodes();
 		// reader.readIDCodes();
 		// reader.readWorldShapefile();
-		reader.readStatesShapefile();
-		reader.readRhizaContents();
+		// reader.readStatesShapefile();
+		reader.readH1N1Contents();
 		// 
 		long startTime = System.nanoTime();
 		// reader.countAllHits();
 		long endTime = System.nanoTime();
-		// H1N1DataReader.printMemory();
+		// CDCH1N1DataReader.printMemory();
 		// logger.info("finding hits took " + (endTime - startTime) /
 		// 1000000000f);
 		// DataSetForApps dataSet = reader.makeDataSetForApps();
@@ -597,40 +561,17 @@ public class H1N1DataReader implements GeoDataSource {
 		// logger.info("finding quad hits took " + (endTime - startTime)
 		// / 1000000000f);
 
-		logger.info("starting hit count");
+		// logger.info("starting hit count");
 
 		startTime = System.nanoTime();
-		int[] hits = reader.countAllHits();
-		logger.info(Arrays.toString(hits));
-
-		HashMap<Integer, String> descs = reader.descMap;
-		ArrayList<Integer> childHits = new ArrayList<Integer>();
-		for (Integer i : descs.keySet()) {
-			String desc = descs.get(i);
-			if (desc.contains("children") || desc.contains("child")) {
-				childHits.add(i);
-			}
-		}
-
-		int[] childHitCounts = reader.countCertainHits(reader
-				.getReports(childHits));
-
-		logger.info(Arrays.toString(childHitCounts));
-
-		float[] proportions = new float[childHitCounts.length];
-		for (int i = 0; i < proportions.length; i++) {
-			proportions[i] = (float) childHitCounts[i] / (float) hits[i];
-		}
-
-		logger.info(Arrays.toString(proportions));
+		// int[] hits = reader.countAllHits();
 
 		endTime = System.nanoTime();
-
 		// logger.info("hits = " + Arrays.toString(hits));
-		// logger
-		// .info("finding  hits took " + (endTime - startTime)
-		// / 1000000000f);
-		logger.info("All done!");
+		// logger .info("finding  hits took " + (endTime - startTime) /
+		// 1000000000f);
+		// logger.info("All done!");
 
 	}
+
 }
