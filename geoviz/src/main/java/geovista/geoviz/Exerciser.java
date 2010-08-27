@@ -72,7 +72,7 @@ public class Exerciser {
 		String[] varNames = new String[howMany];
 		Object[] originalDataArrays = new Object[howMany];
 		for (int i = 0; i < howMany; i++) {
-			varNames[i] = dsa.getColumnName(i);
+			varNames[i] = dsa.getAttributeNamesOriginal()[i];
 			originalDataArrays[i] = dsa.getDataObjectOriginal()[i + 1];
 		}
 		Shape[] shapeData = dsa.getShapeData();
@@ -89,7 +89,7 @@ public class Exerciser {
 
 	}
 
-	public void testEvent(Event eventType, Object bean) {
+	public void testEvent(Event eventType) {
 		logger.finest("go around again! " + eventType);
 		switch (eventType) {
 		case Selection:
@@ -136,7 +136,7 @@ public class Exerciser {
 
 	public void testAllEvents() {
 		for (Event e : Event.values()) {
-			testEvent(e, beanIn);
+			testEvent(e);
 		}
 	}
 
