@@ -34,8 +34,6 @@ import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierPicker;
 import geovista.common.color.Palette;
 import geovista.common.data.DataSetForApps;
-import geovista.common.event.ColorArrayEvent;
-import geovista.common.event.ColorArrayListener;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.DataSetListener;
 import geovista.common.event.IndicationEvent;
@@ -235,8 +233,6 @@ public class SonicClassifier extends JPanel implements ActionListener,
 
 					fireActionPerformed(SonicClassifier.COMMAND_COLORS_CHANGED);
 
-					fireColorArrayChanged();
-
 				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
 
 					update = false;
@@ -249,8 +245,6 @@ public class SonicClassifier extends JPanel implements ActionListener,
 					makeColors();
 					fireActionPerformed(SonicClassifier.COMMAND_COLORS_CHANGED);
 
-					fireColorArrayChanged();
-
 				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
 					interpolate = false;
 					// hack alertXXX combine these next two lines
@@ -258,7 +252,6 @@ public class SonicClassifier extends JPanel implements ActionListener,
 					makeColors();
 					fireActionPerformed(SonicClassifier.COMMAND_COLORS_CHANGED);
 
-					fireColorArrayChanged();
 				}
 			}
 		}
@@ -280,9 +273,8 @@ public class SonicClassifier extends JPanel implements ActionListener,
 				makeColors();
 				fireActionPerformed(SonicClassifier.COMMAND_COLORS_CHANGED);
 
-				fireColorArrayChanged();
 			}
-			// }
+
 		}
 	}
 
@@ -381,7 +373,6 @@ public class SonicClassifier extends JPanel implements ActionListener,
 			makeColors();
 			fireActionPerformed(SonicClassifier.COMMAND_COLORS_CHANGED);
 
-			SonicClassifier.this.fireColorArrayChanged();
 		} else if (command == ClassifierPicker.COMMAND_CLASSES_CHANGED) {
 			int nClasses = classPick.getNClasses();
 			sonificationPanel.setNSwatches(nClasses);
@@ -391,19 +382,18 @@ public class SonicClassifier extends JPanel implements ActionListener,
 			makeColors();
 			fireActionPerformed(SonicClassifier.COMMAND_COLORS_CHANGED);
 
-			SonicClassifier.this.fireColorArrayChanged();
 		} else if (command == ClassifierPicker.COMMAND_SELECTED_VARIABLE_CHANGED) {
 
 			fireActionPerformed(ClassifierPicker.COMMAND_SELECTED_VARIABLE_CHANGED);
 			// hack alertXXX combine these next two lines
 			findDataColors();
-			fireColorArrayChanged();
+
 		} else if (command == ClassifierPicker.COMMAND_SELECTED_CLASSIFIER_CHANGED) {
 			// this.colorClasser.setColorer(this.colorerLinear);
 
 			// hack alertXXX combine these next two lines
 			SonicClassifier.this.findDataColors();
-			SonicClassifier.this.fireColorArrayChanged();
+
 		}
 
 		// need to pass this along, if we are a FoldupPanel
@@ -464,49 +454,6 @@ public class SonicClassifier extends JPanel implements ActionListener,
 			revalidate();
 		}
 
-	}
-
-	// /**
-	// * implements ColorArrayListener
-	// */
-	// public void addColorArrayListener(ColorArrayListener l) {
-	// listenerList.add(ColorArrayListener.class, l);
-	// //this.fireColorArrayChanged(); //so that if any class registers
-	//
-	// //it gets an event
-	// }
-	//
-	// /**
-	// * removes an ColorArrayListener from the component
-	// */
-	// public void removeColorArrayListener(ColorArrayListener l) {
-	// listenerList.remove(ColorArrayListener.class, l);
-	// }
-
-	/**
-	 * Notify all listeners that have registered interest for notification on
-	 * this event type. The event instance is lazily created using the
-	 * parameters passed into the fire method.
-	 * 
-	 * @see EventListenerList
-	 */
-	private void fireColorArrayChanged() {
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		ColorArrayEvent e = null;
-
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == ColorArrayListener.class) {
-				// Lazily create the event:
-				if (e == null) {
-					e = new ColorArrayEvent(this, findDataColors());
-				}
-
-				((ColorArrayListener) listeners[i + 1]).colorArrayChanged(e);
-			}
-		} // next i
 	}
 
 	/**
@@ -619,23 +566,11 @@ public class SonicClassifier extends JPanel implements ActionListener,
 		classPick.setCurrVariableIndex(index);
 	}
 
-	/**
-	 * @param dataIn
-	 * 
-	 *            This method is deprecated becuase it wants to create its very
-	 *            own pet DataSetForApps. This is no longer allowed. Please use
-	 *            setDataSet instead.
-	 */
-	@Deprecated
-	public void setData(Object[] data) {
-		// this.classPick.setData(data);
-	}
-
 	public void setDataSet(DataSetForApps data) {
 		classPick.setDataSet(data);
 		// hack alertXXX combine these next two lines
 		findDataColors();
-		fireColorArrayChanged();
+
 	}
 
 	public int getCurrVariableIndex() {
