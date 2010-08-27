@@ -151,7 +151,9 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+	 * @see
+	 * javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent
+	 * )
 	 */
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == timeSlider && !timeSlider.getValueIsAdjusting()) {
@@ -196,7 +198,8 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 * @see
+	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
 		if (data == null) {
@@ -294,7 +297,9 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see geovista.common.event.SubspaceListener#subspaceChanged(geovista.common.event.SubspaceEvent)
+	 * @see
+	 * geovista.common.event.SubspaceListener#subspaceChanged(geovista.common
+	 * .event.SubspaceEvent)
 	 */
 	public void subspaceChanged(SubspaceEvent e) {
 		subspace = e.getSubspace();
@@ -311,7 +316,9 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see geovista.common.event.DataSetListener#dataSetChanged(geovista.common.event.DataSetEvent)
+	 * @see
+	 * geovista.common.event.DataSetListener#dataSetChanged(geovista.common.
+	 * event.DataSetEvent)
 	 */
 	public void dataSetChanged(DataSetEvent e) {
 		data = e.getDataSetForApps();
@@ -428,9 +435,8 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 			if (Double.isNaN(e.value)) {
 				if (Double.isNaN(value)) {
 					return 0;
-				} else {
-					return 1;
 				}
+				return 1;
 			}// end if the other value is NaN
 
 			if (Double.isNaN(value)) {
