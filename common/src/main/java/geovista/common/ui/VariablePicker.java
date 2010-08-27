@@ -32,8 +32,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.DataSetEvent;
@@ -42,7 +40,7 @@ import geovista.common.event.SubspaceEvent;
 import geovista.common.event.SubspaceListener;
 
 public class VariablePicker extends JPanel implements DataSetListener,
-		SubspaceListener, ActionListener, TableModelListener {
+		SubspaceListener, ActionListener {
 
 	/**
 	 * 
@@ -79,7 +77,7 @@ public class VariablePicker extends JPanel implements DataSetListener,
 	// Adds Dataset Changed Component
 	public void dataSetChanged(DataSetEvent e) {
 		dataSet = e.getDataSetForApps();
-		dataSet.addTableModelListener(this);
+
 		DataSetForApps tempDApp = new DataSetForApps(e.getDataSet());
 		String[] newVarNames = tempDApp.getAttributeNamesNumeric();
 		varList.setListData(newVarNames);
@@ -129,7 +127,7 @@ public class VariablePicker extends JPanel implements DataSetListener,
 		listenerList.remove(SubspaceListener.class, l);
 	}
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		JFrame app = new JFrame();
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -139,7 +137,7 @@ public class VariablePicker extends JPanel implements DataSetListener,
 	}
 
 	// Adds Variable Picker to a JFrame
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		JFrame app = new JFrame();
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		FlowLayout flow = new FlowLayout();
@@ -164,12 +162,4 @@ public class VariablePicker extends JPanel implements DataSetListener,
 		app.setVisible(true);
 	}
 
-	public void tableChanged(TableModelEvent e) {
-		if (logger.isLoggable(Level.FINEST)) {
-			logger.finest("variablepicker, tableChanged");
-		}
-		String[] newVarNames = dataSet.getAttributeNamesNumeric();
-		varList.setListData(newVarNames);
-		varList.repaint();
-	}
 }

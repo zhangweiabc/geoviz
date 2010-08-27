@@ -28,9 +28,17 @@ public interface VisualSettingsPopupListener {
 
 	public boolean isSelectionBlur();
 
+	public void useSelectionOutline(boolean selOutline);
+
+	public boolean isSelectionOutline();
+
 	public void useMultiIndication(boolean useMultiIndic);
 
 	public void processCustomCheckBox(boolean value, String text);
+
+	public int getSelectionLineWidth();
+
+	public void setSelectionLineWidth(int width);
 
 	// public void setSelectionFadeAmount(float fadeAmount)
 	// public void setSelectionBlurAmount(float blurAmount)

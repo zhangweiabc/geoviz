@@ -51,12 +51,11 @@ public final class MtRandom extends Random {
 		if (flag_gaussian) {
 			flag_gaussian = false;
 			return std * k * Math.sin(q);
-		} else {
-			flag_gaussian = true;
-			k = Math.sqrt(-2D * Math.log(1.0D - Math.random()));
-			q = 6.2831853071795862D * Math.random();
-			return std * k * Math.cos(q);
 		}
+		flag_gaussian = true;
+		k = Math.sqrt(-2D * Math.log(1.0D - Math.random()));
+		q = 6.2831853071795862D * Math.random();
+		return std * k * Math.cos(q);
 	}
 
 	public static double gammaRandom(double p) {
@@ -219,10 +218,8 @@ public final class MtRandom extends Random {
 
 			}
 			return n;
-		} else {
-			return Math.ceil(Math.log(1.0D - Math.random())
-					/ Math.log(1.0D - p));
 		}
+		return Math.ceil(Math.log(1.0D - Math.random()) / Math.log(1.0D - p));
 	}
 
 	public static double cauchyRandom() {

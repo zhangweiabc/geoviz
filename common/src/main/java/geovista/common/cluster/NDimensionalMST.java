@@ -493,10 +493,6 @@ public class NDimensionalMST {
 		return dataBack;
 	}
 
-	public double[][] covarianceMatrix(Object[] doubles) {
-		return null;
-	}
-
 	/**
 	 * implements ActionListener
 	 */

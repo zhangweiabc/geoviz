@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class VisualSettingsMenuClientExample extends JPanel implements
@@ -82,6 +83,43 @@ public class VisualSettingsMenuClientExample extends JPanel implements
 		if (text.equals(textCheckBoxText)) {
 			logger.info("got custom box, value = " + value);
 		}
+
+	}
+
+	public static void main(String[] args) {
+		JFrame app = new JFrame();
+		app.add(new VisualSettingsMenuClientExample());
+		app.pack();
+		app.setVisible(true);
+	}
+
+	public boolean isSelectionOutline() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void useSimpleHighlighting(boolean simpleHighlighting) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public boolean isSimpleHighlighing() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public int getSelectionLineWidth() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void setSelectionLineWidth(int width) {
+		// TODO Auto-generated method stub
 
 	}
 

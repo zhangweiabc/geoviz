@@ -60,7 +60,7 @@ public class Java2DConverter {
 		this.pointConverter = pointConverter;
 	}
 
-	private Shape toShape(Polygon p) throws NoninvertibleTransformException {
+	private Shape toShape(Polygon p) {
 		ArrayList holeVertexCollection = new ArrayList();
 
 		for (int j = 0; j < p.getNumInteriorRing(); j++) {
@@ -72,8 +72,7 @@ public class Java2DConverter {
 				.getCoordinates()), holeVertexCollection);
 	}
 
-	private Coordinate[] toViewCoordinates(Coordinate[] modelCoordinates)
-			throws NoninvertibleTransformException {
+	private Coordinate[] toViewCoordinates(Coordinate[] modelCoordinates) {
 		Coordinate[] viewCoordinates = new Coordinate[modelCoordinates.length];
 
 		for (int i = 0; i < modelCoordinates.length; i++) {
@@ -126,7 +125,7 @@ public class Java2DConverter {
 	// return shape;
 	// }
 
-	private Shape toShape(Point point) throws NoninvertibleTransformException {
+	private Shape toShape(Point point) {
 		Rectangle2D.Double pointMarker = new Rectangle2D.Double(0.0, 0.0,
 				POINT_MARKER_SIZE, POINT_MARKER_SIZE);
 		Point2D viewPoint = toViewPoint(point.getCoordinate());
@@ -136,8 +135,7 @@ public class Java2DConverter {
 		return pointMarker;
 	}
 
-	private Point2D toViewPoint(Coordinate modelCoordinate)
-			throws NoninvertibleTransformException {
+	private Point2D toViewPoint(Coordinate modelCoordinate) {
 		// Do the rounding now; don't rely on Java 2D rounding, because it
 		// seems to do it differently for drawing and filling, resulting in the
 		// draw

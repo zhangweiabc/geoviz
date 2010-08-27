@@ -1047,6 +1047,11 @@ public abstract class DescriptiveStatistics {
 
 		Arrays.sort(values);
 
+		return percentAbovePresort(values, value);
+	}
+
+	public static double percentAbovePresort(double[] values, double value) {
+
 		int place = Arrays.binarySearch(values, value);
 		double along = (double) (place + 1) / (double) values.length;
 		return 1 - (Math.abs(along));

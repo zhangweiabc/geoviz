@@ -314,8 +314,8 @@ public class MultiSlider extends JSlider {
 				accessibleContext.firePropertyChange(
 						AccessibleContext.ACCESSIBLE_VALUE_PROPERTY,
 						(oldModel == null ? null : new Integer(oldModel
-								.getValue())), (newModel == null ? null
-								: new Integer(newModel.getValue())));
+								.getValue())),
+						(new Integer(newModel.getValue())));
 			}
 		}
 

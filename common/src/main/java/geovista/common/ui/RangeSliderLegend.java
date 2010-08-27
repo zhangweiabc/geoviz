@@ -385,7 +385,7 @@ public class RangeSliderLegend extends JPanel implements ChangeListener {
 	 * and maxvalue. At this point you can just ignore the precision (I'll tell
 	 * you how to use it when we meet)
 	 */
-	public double[] getAttributeRange(String attributeName) {
+	public double[] getAttributeRange() {
 		double[] attributeRange = slider.getValueDoubles();
 		return attributeRange;
 	}

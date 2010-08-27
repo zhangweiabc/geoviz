@@ -111,7 +111,7 @@ public class WholeNumberField extends JTextField implements FocusListener,
 	 * implements ActionListener
 	 */
 	@Override
-	public void addActionListener(ActionListener l) {
+	public synchronized void addActionListener(ActionListener l) {
 		listenerList.add(ActionListener.class, l);
 	}
 
@@ -119,7 +119,7 @@ public class WholeNumberField extends JTextField implements FocusListener,
 	 * removes an ActionListener from the component
 	 */
 	@Override
-	public void removeActionListener(ActionListener l) {
+	public synchronized void removeActionListener(ActionListener l) {
 		listenerList.remove(ActionListener.class, l);
 	}
 

@@ -464,6 +464,7 @@ public class ClassifierCustomGUI extends JPanel implements ActionListener,
 	}
 
 	// XXX need to flesh this out.
+	@SuppressWarnings("unused")
 	public ClassifierCustom showClassifierDialog(double[] data,
 			Classifier currClassifier) {
 		return customClasser;

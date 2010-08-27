@@ -176,9 +176,8 @@ public class ClassifierJenks implements DescribedClassifier {
 		for (double breaker : breaks) {
 			if (breaker >= obs) {
 				return classNum;
-			} else {
-				classNum++;
 			}
+			classNum++;
 		}
 		return classNum;
 	}

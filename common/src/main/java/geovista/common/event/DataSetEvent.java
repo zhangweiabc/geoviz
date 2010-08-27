@@ -42,7 +42,7 @@ public class DataSetEvent extends EventObject {
 	}
 
 	public DataSetForApps getDataSetForApps() {
-		// let's be lazy
+		// lazily initialize
 		if (dataSetForApps == null) {
 			dataSetForApps = new DataSetForApps(dataSet);
 		}

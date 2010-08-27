@@ -87,9 +87,8 @@ public class MSTEdge implements Comparable {
 		if (Double.isNaN(e.weight)) {
 			if (Double.isNaN(weight)) {
 				return 0;
-			} else {
-				return 1;
 			}
+			return 1;
 		}// end if the other value is NaN
 
 		if (Double.isNaN(weight)) {

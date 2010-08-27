@@ -13,7 +13,7 @@ import geovista.common.data.DataSetForApps;
 public class VisualSettings {
 
 	public enum SelectionSettings {
-		FADE, BLUR
+		FADE, BLUR, OUTLINE
 	}
 
 	public static boolean FADE_ENABLED_DEFAULT = true;

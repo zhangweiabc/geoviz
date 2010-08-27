@@ -14,8 +14,9 @@ public class BasicCategory implements CategoryItf {
 	private int index = -1;// index of the categoy in the categoryList
 	private VisualInfo visualInfo;
 	private String variableName; // the name of the variable based on which
-									// the classification is made and the
-									// category is generated
+
+	// the classification is made and the
+	// category is generated
 
 	public BasicCategory(Object ID, Set memberIds, String name, Range range) {
 		this.ID = ID;
@@ -51,9 +52,8 @@ public class BasicCategory implements CategoryItf {
 	public int getMemberIdSize() {
 		if (getMemberIds() != null) {
 			return getMemberIds().size();
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 	public String getName() {

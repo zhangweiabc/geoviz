@@ -7,7 +7,8 @@ package geovista.common.data;
 
 public class DataSetForAppsFactory {
 
-	public static DataSetForApps makeDataSetForApps(Object[] data) {
+	public static DataSetForApps makeDataSetForApps(
+			@SuppressWarnings("unused") Object[] data) {
 		return null;
 	}
 

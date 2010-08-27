@@ -80,9 +80,8 @@ public class IndicationEvent extends EventObject {
 		if (neighbors == null) {
 			int[] emptyArray = {};
 			return emptyArray;
-		} else {
-			return neighbors;
 		}
+		return neighbors;
 	}
 	// end accessors
 

@@ -10,7 +10,6 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
@@ -34,7 +33,7 @@ import javax.swing.event.EventListenerList;
 /**
  * put your documentation comment here
  */
-public class RangeSlider extends JPanel implements ChangeListener, Serializable {
+public class RangeSlider extends JPanel implements ChangeListener {
 	protected final static Logger logger = Logger.getLogger(RangeSlider.class
 			.getName());
 	private static final String DEFAULT_TITLE = "No Title";

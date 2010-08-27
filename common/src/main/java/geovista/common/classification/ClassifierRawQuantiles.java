@@ -4,6 +4,8 @@
 
 package geovista.common.classification;
 
+import java.util.logging.Logger;
+
 import geovista.common.data.ArraySort2D;
 
 public class ClassifierRawQuantiles implements DescribedClassifier,
@@ -14,6 +16,8 @@ public class ClassifierRawQuantiles implements DescribedClassifier,
 	transient private int[] classification;
 	transient private double[][] dataWithIndex;
 	transient private int nObs;
+	final static Logger logger = Logger.getLogger(ClassifierRawQuantiles.class
+			.getName());
 
 	public ClassifierRawQuantiles() {
 
@@ -60,7 +64,14 @@ public class ClassifierRawQuantiles implements DescribedClassifier,
 	}
 
 	public int[] classify(double[] data, int numClasses) {
-
+		Throwable t = new Throwable();
+		StackTraceElement[] es = t.getStackTrace();
+		for (StackTraceElement e : es) {
+			System.out.println(" in class:" + e.getClassName()
+					+ " in source file:" + e.getFileName() + " in method:"
+					+ e.getMethodName() + " at line:" + e.getLineNumber() + " "
+					+ (e.isNativeMethod() ? "native" : ""));
+		}
 		if (data == null) {
 			throw new IllegalArgumentException(
 					"Can't pass null into classify method");

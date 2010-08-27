@@ -131,7 +131,7 @@ public class ClassifierMLParameters extends JPanel implements
 			 */
 			public void actionPerformed(ActionEvent e) {
 				logger.finest("about to press button Select");
-				seNoneButton_actionPerformed(e);
+				seNoneButton_actionPerformed();
 				logger.finest("after pressed button Select");
 			}
 		});
@@ -144,7 +144,7 @@ public class ClassifierMLParameters extends JPanel implements
 			 * @param e
 			 */
 			public void actionPerformed(ActionEvent e) {
-				seAllButton_actionPerformed(e);
+				seAllButton_actionPerformed();
 			}
 		});
 		JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
@@ -159,11 +159,11 @@ public class ClassifierMLParameters extends JPanel implements
 		selectedAttIdx = attList.getSelectedIndices();
 	}
 
-	private void seNoneButton_actionPerformed(ActionEvent e) {
+	private void seNoneButton_actionPerformed() {
 		attList.clearSelection();
 	}
 
-	private void seAllButton_actionPerformed(ActionEvent e) {
+	private void seAllButton_actionPerformed() {
 		selectedAttIdx = new int[attributeNames.length];
 		for (int i = 0; i < attributeNames.length; i++) {
 			selectedAttIdx[i] = i;
@@ -178,9 +178,8 @@ public class ClassifierMLParameters extends JPanel implements
 		JList theList = (JList) e.getSource();
 		if (theList.isSelectionEmpty()) {
 			return;
-		} else {
-			selectedAttIdx = attList.getSelectedIndices();
 		}
+		selectedAttIdx = attList.getSelectedIndices();
 	}
 
 	private void classifierParaPanel() {
@@ -244,7 +243,7 @@ public class ClassifierMLParameters extends JPanel implements
 			 * @param e
 			 */
 			public void actionPerformed(ActionEvent e) {
-				applyButton_actionPerformed(e);
+				applyButton_actionPerformed();
 			}
 		});
 		JButton cancelButton = new JButton("Cancel");
@@ -256,7 +255,7 @@ public class ClassifierMLParameters extends JPanel implements
 			 * @param e
 			 */
 			public void actionPerformed(ActionEvent e) {
-				cancelButton_actionPerformed(e);
+				cancelButton_actionPerformed();
 			}
 		});
 		concludePane.add(applyButton);
@@ -267,21 +266,21 @@ public class ClassifierMLParameters extends JPanel implements
 
 	}
 
-	private void applyButton_actionPerformed(ActionEvent e) {
+	private void applyButton_actionPerformed() {
 
-		fireActionPerformed(e);
+		fireActionPerformed();
 	}
 
 	// Cancel, means using default parameter sets, all of attributes are
 	// considered and non initial points are specified.
-	private void cancelButton_actionPerformed(ActionEvent e) {
+	private void cancelButton_actionPerformed() {
 		selectedAttIdx = new int[attributeNames.length];
 		for (int i = 0; i < attributeNames.length; i++) {
 			selectedAttIdx[i] = i;
 		}
 		attList.setSelectedIndices(selectedAttIdx);
 
-		fireActionPerformed(e);
+		fireActionPerformed();
 	}
 
 	/**
@@ -305,7 +304,7 @@ public class ClassifierMLParameters extends JPanel implements
 	 * 
 	 * @see EventListenerList
 	 */
-	public void fireActionPerformed(ActionEvent e) {
+	public void fireActionPerformed() {
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerListAction.getListenerList();
 		// Process the listeners last to first, notifying

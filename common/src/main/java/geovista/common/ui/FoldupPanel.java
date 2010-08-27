@@ -116,9 +116,8 @@ public class FoldupPanel extends JPanel implements ActionListener {
 		if (initFinished) {
 			throw new IllegalArgumentException(
 					"Can't add components to FoldupPanel. Please use foldup.getContentPanel() instead");
-		} else {
-			super.add(c);
 		}
+		super.add(c);
 		return c;
 	}
 
@@ -127,9 +126,8 @@ public class FoldupPanel extends JPanel implements ActionListener {
 		if (initFinished) {
 			throw new IllegalArgumentException(
 					"Can't add components to FoldupPanel. Please use foldup.getContentPanel() instead");
-		} else {
-			super.add(c, constraints);
 		}
+		super.add(c, constraints);
 	}
 
 	@Override
@@ -137,9 +135,8 @@ public class FoldupPanel extends JPanel implements ActionListener {
 		if (initFinished) {
 			throw new IllegalArgumentException(
 					"Can't set layout in FoldupPanel. Please use foldup.getContentPanel() instead");
-		} else {
-			super.setLayout(lm);
 		}
+		super.setLayout(lm);
 	}
 
 }

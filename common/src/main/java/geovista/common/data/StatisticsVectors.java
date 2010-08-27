@@ -371,16 +371,15 @@ public class StatisticsVectors {
 					{
 						iDF = 0;
 						break outahere;
-					} else {
-						for (int c = 0; c < tms; c++) {
-							temp = m[col][c];
-							m[col][c] = m[col + v][c]; // switch rows
-							m[col + v][c] = temp;
-						}
-						v++; // count row switchs
-						iDF = iDF * -1; // each switch changes determinant
-						// factor
 					}
+					for (int c = 0; c < tms; c++) {
+						temp = m[col][c];
+						m[col][c] = m[col + v][c]; // switch rows
+						m[col + v][c] = temp;
+					}
+					v++; // count row switchs
+					iDF = iDF * -1; // each switch changes determinant
+					// factor
 				}
 
 				if (m[col][col] != 0) {
