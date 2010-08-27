@@ -7,7 +7,7 @@ package geovista.common.data;
 public class WeightedNeighbor {
 	private int from;
 	private int to;
-	private float weight;
+	private double weight;
 
 	WeightedNeighbor(int from, int to, float weight) {
 		this.from = from;
@@ -31,7 +31,7 @@ public class WeightedNeighbor {
 		this.to = to;
 	}
 
-	public float getWeight() {
+	public double getWeight() {
 		return weight;
 	}
 

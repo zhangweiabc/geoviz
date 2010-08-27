@@ -5,6 +5,8 @@
 package geovista.common.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,9 +38,9 @@ public class SpatialWeights {
 		return borIds;
 	}
 
-	public List<Float> getWeights(int obs) {
+	public List<Double> getWeights(int obs) {
 		ArrayList<WeightedNeighbor> bors = neighbors.get(obs);
-		ArrayList<Float> weights = new ArrayList(bors.size());
+		ArrayList<Double> weights = new ArrayList(bors.size());
 		for (WeightedNeighbor bor : bors) {
 			weights.add(bor.getWeight());
 		}
@@ -66,6 +68,17 @@ public class SpatialWeights {
 		id1Neighbors.add(one);
 		id2Neighbors.add(two);
 
+	}
+
+	public Collection<ArrayList<WeightedNeighbor>> findUniqueTopologies() {
+
+		// current (simplest) case: single neighbors
+		HashMap<Integer, ArrayList<WeightedNeighbor>> results = new HashMap<Integer, ArrayList<WeightedNeighbor>>();
+		for (ArrayList<WeightedNeighbor> weights : neighbors) {
+			results.put(weights.size(), weights);
+
+		}
+		return results.values();
 	}
 
 	public void findNeighbors(List<Geometry> geoms) {
