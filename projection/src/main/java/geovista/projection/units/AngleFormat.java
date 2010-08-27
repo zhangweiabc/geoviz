@@ -36,7 +36,7 @@ public class AngleFormat extends NumberFormat {
 
 	private final DecimalFormat format;
 	private final String pattern;
-	private boolean isDegrees;
+	private final boolean isDegrees;
 
 	public AngleFormat() {
 		this(ddmmssPattern);
@@ -146,6 +146,7 @@ public class AngleFormat extends NumberFormat {
 			case 'S':
 				negate = true;
 				// Fall into...
+				//$FALL-THROUGH$
 			case 'E':
 			case 'N':
 				text = text.substring(0, length - 1);

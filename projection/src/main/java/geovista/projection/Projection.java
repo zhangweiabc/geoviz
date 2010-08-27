@@ -260,7 +260,7 @@ public class Projection implements Cloneable {
 	public Rectangle2D inverseTransform(Rectangle2D r) {
 		Point2D.Double in = new Point2D.Double();
 		Point2D.Double out = new Point2D.Double();
-		Rectangle2D bounds = null;
+		Rectangle2D bounds = new Rectangle2D.Double(out.x, out.y, 0, 0);
 		if (isRectilinear()) {
 			for (int ix = 0; ix < 2; ix++) {
 				double x = r.getX() + r.getWidth() * ix;
@@ -301,7 +301,7 @@ public class Projection implements Cloneable {
 	public Rectangle2D transform(Rectangle2D r) {
 		Point2D.Double in = new Point2D.Double();
 		Point2D.Double out = new Point2D.Double();
-		Rectangle2D bounds = null;
+		Rectangle2D bounds = new Rectangle2D.Double(out.x, out.y, 0, 0);
 		if (isRectilinear()) {
 			for (int ix = 0; ix < 2; ix++) {
 				double x = r.getX() + r.getWidth() * ix;

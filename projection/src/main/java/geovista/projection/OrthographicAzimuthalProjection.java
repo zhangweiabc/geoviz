@@ -58,6 +58,7 @@ public class OrthographicAzimuthalProjection extends AzimuthalProjection {
 			break;
 		case NORTH_POLE:
 			coslam = -coslam;
+			//$FALL-THROUGH$
 		case SOUTH_POLE:
 			// if (Math.abs(phi - projectionLatitude) - EPS10 > MapMath.HALFPI)
 			// throw new ProjectionException();

@@ -102,10 +102,9 @@ public class MapMath {
 		if (x < y) {
 			x /= y;
 			return y * Math.sqrt(1.0 + x * x);
-		} else {
-			y /= x;
-			return x * Math.sqrt(1.0 + y * y);
 		}
+		y /= x;
+		return x * Math.sqrt(1.0 + y * y);
 	}
 
 	public static double atan2(double y, double x) {
@@ -186,9 +185,9 @@ public class MapMath {
 	}
 
 	/*
-	 * public static void latLongToXYZ(Point2D.Double ll, Point3D xyz) { double c =
-	 * Math.cos(ll.y); xyz.x = c * Math.cos(ll.x); xyz.y = c * Math.sin(ll.x); xyz.z =
-	 * Math.sin(ll.y); }
+	 * public static void latLongToXYZ(Point2D.Double ll, Point3D xyz) { double
+	 * c = Math.cos(ll.y); xyz.x = c * Math.cos(ll.x); xyz.y = c *
+	 * Math.sin(ll.x); xyz.z = Math.sin(ll.y); }
 	 * 
 	 * public static void xyzToLatLong(Point3D xyz, Point2D.Double ll) { ll.y =
 	 * MapMath.asin(xyz.z); ll.x = MapMath.atan2(xyz.y, xyz.x); }
@@ -452,9 +451,8 @@ public class MapMath {
 			con = e * sinphi;
 			return (one_es * (sinphi / (1. - con * con) - (.5 / e)
 					* Math.log((1. - con) / (1. + con))));
-		} else {
-			return (sinphi + sinphi);
 		}
+		return (sinphi + sinphi);
 	}
 
 	/*

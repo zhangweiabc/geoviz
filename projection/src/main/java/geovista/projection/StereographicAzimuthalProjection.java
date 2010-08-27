@@ -100,6 +100,7 @@ public class StereographicAzimuthalProjection extends AzimuthalProjection {
 			case OBLIQUE:
 				sinphi0 = Math.sin(projectionLatitude);
 				cosphi0 = Math.cos(projectionLatitude);
+				//$FALL-THROUGH$
 			case EQUATOR:
 				akm1 = 2. * scaleFactor;
 				break;
@@ -143,6 +144,7 @@ public class StereographicAzimuthalProjection extends AzimuthalProjection {
 			case NORTH_POLE:
 				coslam = -coslam;
 				phi = -phi;
+				//$FALL-THROUGH$
 			case SOUTH_POLE:
 				if (Math.abs(phi - MapMath.HALFPI) < TOL) {
 					throw new ProjectionException();
@@ -177,6 +179,7 @@ public class StereographicAzimuthalProjection extends AzimuthalProjection {
 				phi = -phi;
 				coslam = -coslam;
 				sinphi = -sinphi;
+				//$FALL-THROUGH$
 			case NORTH_POLE:
 				xy.x = akm1 * MapMath.tsfn(phi, sinphi, e);
 				xy.y = -xy.x * coslam;
@@ -219,6 +222,7 @@ public class StereographicAzimuthalProjection extends AzimuthalProjection {
 				break;
 			case NORTH_POLE:
 				y = -y;
+				//$FALL-THROUGH$
 			case SOUTH_POLE:
 				if (Math.abs(rh) <= EPS10) {
 					lp.y = projectionLatitude;
@@ -249,6 +253,7 @@ public class StereographicAzimuthalProjection extends AzimuthalProjection {
 				break;
 			case NORTH_POLE:
 				y = -y;
+				//$FALL-THROUGH$
 			case SOUTH_POLE:
 				phi_l = MapMath.HALFPI - 2. * Math.atan(tp = -rho / akm1);
 				halfpi = -MapMath.HALFPI;

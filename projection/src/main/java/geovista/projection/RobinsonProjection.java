@@ -100,10 +100,9 @@ public class RobinsonProjection extends PseudoCylindricalProjection {
 		if (lp.y >= 1.0) {
 			if (lp.y > 1.000001) {
 				throw new ProjectionException();
-			} else {
-				lp.y = y < 0. ? -MapMath.HALFPI : MapMath.HALFPI;
-				lp.x /= X[4 * NODES];
 			}
+			lp.y = y < 0. ? -MapMath.HALFPI : MapMath.HALFPI;
+			lp.x /= X[4 * NODES];
 		} else {
 			for (i = 4 * (int) Math.floor(lp.y * NODES);;) {
 				if (Y[i] > lp.y) {

@@ -113,9 +113,8 @@ public class EquidistantAzimuthalProjection extends AzimuthalProjection {
 				if (Math.abs(Math.abs(xy.y) - 1.) < TOL) {
 					if (xy.y < 0.) {
 						throw new ProjectionException();
-					} else {
-						xy.x = xy.y = 0.;
 					}
+					xy.x = xy.y = 0.;
 				} else {
 					xy.y = Math.acos(xy.y);
 					xy.y /= Math.sin(xy.y);
@@ -127,6 +126,7 @@ public class EquidistantAzimuthalProjection extends AzimuthalProjection {
 			case NORTH_POLE:
 				phi = -phi;
 				coslam = -coslam;
+				//$FALL-THROUGH$
 			case SOUTH_POLE:
 				if (Math.abs(phi - MapMath.HALFPI) < EPS10) {
 					throw new ProjectionException();
@@ -144,6 +144,7 @@ public class EquidistantAzimuthalProjection extends AzimuthalProjection {
 			switch (mode) {
 			case NORTH_POLE:
 				coslam = -coslam;
+				//$FALL-THROUGH$
 			case SOUTH_POLE:
 				xy.x = (rho = Math.abs(Mp
 						- MapMath.mlfn(phi, sinphi, cosphi, en)))
