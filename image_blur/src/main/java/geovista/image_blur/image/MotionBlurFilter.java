@@ -130,10 +130,10 @@ public class MotionBlurFilter extends AbstractBufferedImageOp {
 				if (count == 0) {
 					outPixels[index] = inPixels[index];
 				} else {
-					a = PixelUtils.clamp((int)(a/count));
-					r = PixelUtils.clamp((int)(r/count));
-					g = PixelUtils.clamp((int)(g/count));
-					b = PixelUtils.clamp((int)(b/count));
+					a = PixelUtils.clamp((a/count));
+					r = PixelUtils.clamp((r/count));
+					g = PixelUtils.clamp((g/count));
+					b = PixelUtils.clamp((b/count));
 					outPixels[index] = (a << 24) | (r << 16) | (g << 8) | b;
 				}
 				index++;
