@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
+import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
@@ -65,7 +66,8 @@ public class GeoMapUni extends JPanel
 	transient private JToolBar mapTools;
 	private final JPanel topContent;
 	private final GeoCursors cursors;
-	private JPanel vcPanel = new JPanel();
+	private final JPanel vcPanel;
+	JPanel legendPanel;
 	transient private DataSetForApps dataSet;
 
 	public GeoMapUni() {
@@ -88,7 +90,7 @@ public class GeoMapUni extends JPanel
 		vcPanel.add(visClassOne);
 		// vcPanel.add(visClassTwo);
 
-		JPanel legendPanel = new JPanel();
+		legendPanel = new JPanel();
 		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.X_AXIS));
 		legendPanel.add(vcPanel);
 		legendPanel.add(Box.createRigidArea(new Dimension(4, 2)));
@@ -117,7 +119,11 @@ public class GeoMapUni extends JPanel
 		this.add(topContent, BorderLayout.NORTH);
 		mapCan = new MapCanvas();
 		this.add(mapCan, BorderLayout.CENTER);
+
 		mapCan.addIndicationListener(this);
+
+		mapCan.addSelectionListener(this);
+
 		addIndicationListener(histo);
 		addSelectionListener(histo);
 		histo.addSelectionListener(this);
@@ -126,6 +132,11 @@ public class GeoMapUni extends JPanel
 
 		// this.colorClassifierChanged(new
 		// ColorClassifierEvent(visClassTwo,visClassTwo.getColorSymbolClassification()));
+	}
+
+	public void removeLegendPanel() {
+		this.remove(topContent);
+		revalidate();
 	}
 
 	public JPanel makeAnimationPanel() {
@@ -164,12 +175,12 @@ public class GeoMapUni extends JPanel
 		// first button
 		try {
 			urlGif = cl.getResource("resources/select16.gif");
-			button = new JButton(new ImageIcon(urlGif));
-			button.setPreferredSize(buttDim);
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
+		button = new JButton(new ImageIcon(urlGif));
+		button.setPreferredSize(buttDim);
 		button.setToolTipText("Enter selection mode");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -291,7 +302,12 @@ public class GeoMapUni extends JPanel
 	}
 
 	public void selectionChanged(SelectionEvent e) {
-		mapCan.selectionChanged(e);
+		if (e.getSource() == mapCan) {
+
+			fireSelectionChanged(e.getSelection());
+		} else {
+			mapCan.selectionChanged(e);
+		}
 	}
 
 	public SelectionEvent getSelectionEvent() {
@@ -335,7 +351,7 @@ public class GeoMapUni extends JPanel
 		// mapCan.dataSetChanged(e);
 		setDataSet(e.getDataSetForApps());
 		dataSet = e.getDataSetForApps();
-		dataSet.addTableModelListener(this);
+
 		histo.dataSetChanged(e);
 	}
 
@@ -406,10 +422,10 @@ public class GeoMapUni extends JPanel
 	/**
 	 * @param data
 	 * 
-	 * This method is deprecated becuase it wants to create its very own pet
-	 * DataSetForApps. This is no longer allowed, to allow for a mutable, common
-	 * data set. Use of this method may lead to unexpected program behavoir.
-	 * Please use setDataSet instead.
+	 *            This method is deprecated becuase it wants to create its very
+	 *            own pet DataSetForApps. This is no longer allowed, to allow
+	 *            for a mutable, common data set. Use of this method may lead to
+	 *            unexpected program behavoir. Please use setDataSet instead.
 	 */
 	@Deprecated
 	public void setData(Object[] data) {
@@ -470,7 +486,7 @@ public class GeoMapUni extends JPanel
 	/**
 	 * adds an SelectionListener
 	 */
-	public void addSelectionListener(SelectionListener l) {
+	public void addSelectionListenerOld(SelectionListener l) {
 		mapCan.addSelectionListener(l);
 		histo.addSelectionListener(l);
 	}
@@ -478,8 +494,50 @@ public class GeoMapUni extends JPanel
 	/**
 	 * removes an SelectionListener from the component
 	 */
-	public void removeSelectionListener(SelectionListener l) {
+	public void removeSelectionListenerOld(SelectionListener l) {
 		mapCan.removeSelectionListener(l);
+	}
+
+	/**
+	 * adds an SelectionListener
+	 */
+	public void addSelectionListener(SelectionListener l) {
+		listenerList.add(SelectionListener.class, l);
+	}
+
+	/**
+	 * removes an SelectionListener from the component
+	 */
+	public void removeSelectionListener(SelectionListener l) {
+		listenerList.remove(SelectionListener.class, l);
+	}
+
+	/**
+	 * Notify all listeners that have registered interest for notification on
+	 * this event type. The event instance is lazily created using the
+	 * parameters passed into the fire method.
+	 * 
+	 * @see EventListenerList
+	 */
+	private void fireSelectionChanged(int[] newSelection) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		SelectionEvent e = null;
+
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == SelectionListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new SelectionEvent(this, newSelection);
+				}
+
+				((SelectionListener) listeners[i + 1]).selectionChanged(e);
+			}
+		}
+
+		// next i
 	}
 
 	/**

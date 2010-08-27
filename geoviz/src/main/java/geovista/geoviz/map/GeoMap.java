@@ -241,12 +241,12 @@ public class GeoMap extends JPanel
 		// first button
 		try {
 			urlGif = cl.getResource("resources/select16.gif");
-			button = new JButton(new ImageIcon(urlGif));
-			button.setPreferredSize(buttDim);
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
+		button = new JButton(new ImageIcon(urlGif));
+		button.setPreferredSize(buttDim);
 		button.setToolTipText("Enter selection mode");
 		button.addActionListener(new ActionListener() {
 
@@ -556,7 +556,7 @@ public class GeoMap extends JPanel
 			logger.warning("null data sent to map");
 			return;
 		}
-		dataSet.addTableModelListener(this);
+
 		this.dataSet = dataSet;
 		mapCan.setDataSet(dataSet);
 		visClassOne.setDataSet(dataSet);
@@ -889,6 +889,25 @@ public class GeoMap extends JPanel
 
 	public void processCustomCheckBox(boolean value, String text) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public boolean isSelectionOutline() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void useSelectionOutline(boolean selOutline) {
+		mapCan.useSelectionOutline(selOutline);
+
+	}
+
+	public int getSelectionLineWidth() {
+		return mapCan.getSelectionLineWidth();
+	}
+
+	public void setSelectionLineWidth(int width) {
+		mapCan.setSelectionLineWidth(width);
 
 	}
 
