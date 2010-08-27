@@ -78,7 +78,7 @@ public class FileTools {
 			in = new BufferedReader(new FileReader(fileName));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			in = null;
+
 		}
 		return in;
 	}
@@ -88,7 +88,7 @@ public class FileTools {
 		try {
 			out = new BufferedWriter(new FileWriter(fileName));
 		} catch (IOException e) {
-			out = null;
+			e.printStackTrace();
 		}
 		return out;
 	}

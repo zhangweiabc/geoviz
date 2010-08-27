@@ -146,7 +146,6 @@ public class GeoMapCartogram extends GeoMapUni {
 		if (currentVar < 0) {
 			return;
 		}
-		Preferences gvPrefs = Preferences.userNodeForPackage(this.getClass());
 
 		int mapVar = super.getCurrentVariable();
 		trans = new TransformsMain(false);
@@ -154,7 +153,7 @@ public class GeoMapCartogram extends GeoMapUni {
 
 		JProgressBar pBar = cgramPicker.getProgressBar();
 		DataSetForApps newData = MapGenFile.createCartogram(pBar, dataSet,
-				gvPrefs, currentVar, trans);
+				currentVar, trans);
 
 		setCartogramDataSet(newData);
 		super.getVisClassOne().setCurrVariableIndex(mapVar);
@@ -163,10 +162,10 @@ public class GeoMapCartogram extends GeoMapUni {
 	/**
 	 * @param data
 	 * 
-	 * This method is deprecated becuase it wants to create its very own pet
-	 * DataSetForApps. This is no longer allowed, to allow for a mutable, common
-	 * data set. Use of this method may lead to unexpected program behavoir.
-	 * Please use setDataSet instead.
+	 *            This method is deprecated becuase it wants to create its very
+	 *            own pet DataSetForApps. This is no longer allowed, to allow
+	 *            for a mutable, common data set. Use of this method may lead to
+	 *            unexpected program behavoir. Please use setDataSet instead.
 	 */
 	@Override
 	@Deprecated

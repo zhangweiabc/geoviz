@@ -417,8 +417,8 @@ public class MapGenFile {
 		 * header.setBoundingBox(theBox); shapeFile.setFileHeader(header);
 		 * 
 		 * Vector theShapes = new Vector(); if (shapeType ==
-		 * ShapeFile.SHAPE_TYPE_POLYGON) { makePolygonRecord(paths, theShapes); }
-		 * else if (shapeType == ShapeFile.SHAPE_TYPE_POLYLINE) {
+		 * ShapeFile.SHAPE_TYPE_POLYGON) { makePolygonRecord(paths, theShapes);
+		 * } else if (shapeType == ShapeFile.SHAPE_TYPE_POLYLINE) {
 		 * makePolylineRecord(paths, theShapes); } shapeFile.setData(theShapes);
 		 * try { shapeFile.write(fileName, baseName); } catch (Exception ex) {
 		 * ex.printStackTrace(); }
@@ -509,8 +509,7 @@ public class MapGenFile {
 	 * TransformsMain to do the work.
 	 */
 	public static DataSetForApps createCartogram(JProgressBar progressBar,
-			DataSetForApps dataSet, Preferences gvPrefs, int currentVar,
-			TransformsMain trans) {
+			DataSetForApps dataSet, int currentVar, TransformsMain trans) {
 
 		GeneralPath[] shapes = createTempFilesAndCartogram(progressBar,
 				dataSet, currentVar, trans);
@@ -631,7 +630,8 @@ public class MapGenFile {
 	 */
 	public static DataSetForApps createAuxCartogram(JProgressBar progressBar,
 			DataSetForApps dataSet, Preferences gvPrefs, String newShapeFile,
-			String shapeFile, int currentVar, TransformsMain trans) {
+			String shapeFile, @SuppressWarnings("unused") int currentVar,
+			TransformsMain trans) {
 
 		if (trans == null) {
 			logger.finest("Cannot createAuxCartogram on a null TransformsMain");

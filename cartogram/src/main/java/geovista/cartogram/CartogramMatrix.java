@@ -16,9 +16,7 @@ import geovista.readers.example.GeoDataGeneralizedStates;
  * 
  */
 public class CartogramMatrix extends BiPlotMatrix
-// implements DataSetListener, ColumnAppendedListener,
-// IndicationListener, SubspaceListener,
-// ColorArrayListener
+
 {
 
 	public CartogramMatrix() {

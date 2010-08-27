@@ -85,9 +85,9 @@ public class CartogramMatrixElement extends MapMatrixElement {
 		int colorVar = elementPosition[1] - 1;
 
 		super.dataColorY = dataSet.getNumericDataAsDouble(colorVar);// y
-																	// position
+		// position
 		super.dataColorX = dataColorY;// y position, having same data objects
-										// triggers univariate coloring
+		// triggers univariate coloring
 		super.sendColorsToLayers(dataColorX.length);
 		if (dataSet != null
 				&& dataSet.getSpatialType() == DataSetForApps.SPATIAL_TYPE_POLYGON) {
@@ -102,7 +102,6 @@ public class CartogramMatrixElement extends MapMatrixElement {
 	 * TransformsMain to do the work.
 	 */
 	public void createCartogram() {
-		Preferences gvPrefs = Preferences.userNodeForPackage(this.getClass());
 
 		trans = new TransformsMain(false);
 		preferencesFrame.setTransformParams(trans);
@@ -116,8 +115,8 @@ public class CartogramMatrixElement extends MapMatrixElement {
 		ComparableCartogram previousOne = cache.findCartogram(compare);
 		DataSetForApps newData = null;
 		if (previousOne == null) {
-			newData = MapGenFile.createCartogram(pBar, dataSet, gvPrefs,
-					currentVar, trans);
+			newData = MapGenFile.createCartogram(pBar, dataSet, currentVar,
+					trans);
 			compare.setCartogramShapes(newData.getShapeData());
 			cache.addComparableCartogram(compare);
 		} else {
