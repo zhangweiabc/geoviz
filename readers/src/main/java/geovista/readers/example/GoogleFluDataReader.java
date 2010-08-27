@@ -67,12 +67,12 @@ public class GoogleFluDataReader implements GeoDataSource {
 			subString = sc.next();// pop08
 			Integer popVal = new Integer(subString);
 			populationData.put(stateName, popVal);
-			logger.finest("pop: " + popVal);
+			// logger.finest("pop: " + popVal);
 			subString = sc.next();// admissions
 			Double doubleVal = new Double(subString);
 			Long longVal = Math.round(doubleVal);
 			Integer intVal = longVal.intValue();
-			logger.finest("admissions: " + intVal);
+			// logger.finest("admissions: " + intVal);
 			admissionsData.put(stateName, intVal);
 		}
 
@@ -107,15 +107,28 @@ public class GoogleFluDataReader implements GeoDataSource {
 			dates.add(d);
 			int counter = 0;
 			while (sc.hasNext()) {
-				Double num = Double.valueOf(sc.next());
+				Double num = 0d;
+				String str = "";
+				try {
+					str = sc.next();
+					if (str.equals("")) {
+						num = 0d;
+					} else {
+						num = Double.valueOf(str);
+					}
+				} catch (Exception ex) {
+					logger.info("problem = " + str);
+					ex.printStackTrace();
+				}
 				String place = names.get(counter);
 				counter++;
 				ArrayList<Double> placeData = iLIData.get(place);
 				Integer admits = admissionsData.get(place);
 				if (admits == null) {
-					logger.info(place);
+					// logger.info(place);
 				} else {
-					placeData.add(num * admits);
+					// placeData.add(num * admits);
+					placeData.add(num);
 				}
 			}
 
@@ -160,8 +173,8 @@ public class GoogleFluDataReader implements GeoDataSource {
 							try {
 								sumData.add(originalData.get(i));
 							} catch (IndexOutOfBoundsException e) {
-								logger.severe(placeName);
-								logger.severe(sumData.toString());
+								// logger.severe(placeName);
+								// logger.severe(sumData.toString());
 								continue;
 								// e.printStackTrace();
 							}
@@ -172,8 +185,8 @@ public class GoogleFluDataReader implements GeoDataSource {
 								sum = sum + originalData.get(i);
 								sumData.set(monthCounter, sum);
 							} catch (IndexOutOfBoundsException e) {
-								logger.severe(placeName);
-								logger.severe(sumData.toString());
+								// logger.severe(placeName);
+								// logger.severe(sumData.toString());
 								continue;
 								// e.printStackTrace();
 							}
@@ -191,7 +204,7 @@ public class GoogleFluDataReader implements GeoDataSource {
 					try {
 						avg = sumData.get(monthCounter);
 					} catch (IndexOutOfBoundsException e) {
-						logger.severe(monthCounter + "");
+						// logger.severe(monthCounter + "");
 
 						continue;
 						// e.printStackTrace();

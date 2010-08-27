@@ -148,9 +148,8 @@ public final class Reader extends java.io.Reader {
 		}
 		if (!flag) {
 			return null;
-		} else {
-			return sbuf.toString();
 		}
+		return sbuf.toString();
 	}
 
 	/**
@@ -204,9 +203,8 @@ public final class Reader extends java.io.Reader {
 		}
 		if (!flag) {
 			return null;
-		} else {
-			return sbuf.toString();
 		}
+		return sbuf.toString();
 	}
 
 	/** Check to make sure that the stream has not been closed */

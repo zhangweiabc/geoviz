@@ -31,7 +31,9 @@ import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.shapefile.shp.ShapefileReader;
 
+import com.vividsolutions.jts.awt.ShapeReader;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 
 import geovista.common.data.DataSetForApps;
@@ -151,9 +153,7 @@ public class ShapeFileDataReader implements Serializable {
 				Geometry geom = (Geometry) shpReader.nextRecord().shape();
 				// this helps ensure valid topology
 				// geom = geom.buffer(0);
-
 				shapes.add(geom);
-
 			}
 			Geometry[] geomArray = new Geometry[shapes.size()];
 			for (int i = 0; i < geomArray.length; i++) {
@@ -163,6 +163,7 @@ public class ShapeFileDataReader implements Serializable {
 
 			return geomArray;
 		} catch (IOException ex) {
+			System.err.println("couldn't read shapestream ");
 			ex.printStackTrace();
 		}
 		return null;
@@ -328,6 +329,7 @@ public class ShapeFileDataReader implements Serializable {
 		// this.getDataSetForAppsSpatialType(shpFile.getFileHeader().getShapeType
 		// ());
 		DataSetForApps dataForApps = new DataSetForApps(allData);
+
 		// this.dataForApps.setSpatialType(type);
 		return dataForApps;
 	}
@@ -359,9 +361,13 @@ public class ShapeFileDataReader implements Serializable {
 		// }
 
 		try {
-			SpatialWeights weights = findSpatialWeights(geoms);
+			if ((geoms[0] instanceof com.vividsolutions.jts.geom.Point) == false) {
+				logger.info(geoms[0].getClass().toString());
+				// XXX should do by distance or similar
+				SpatialWeights weights = findSpatialWeights(geoms);
 
-			allData[dbColumnData.length + 1] = weights;
+				allData[dbColumnData.length + 1] = weights;
+			}
 		} catch (Exception ex) {
 			logger.severe("ack ack topology problem!");
 			ex.printStackTrace();
@@ -393,7 +399,6 @@ public class ShapeFileDataReader implements Serializable {
 
 	public static Shape[] geomsToShapes(Geometry[] simplerGeoms) {
 		Java2DConverter converter = new Java2DConverter(new AffineTransform());
-
 		Shape[] shapes = new Shape[simplerGeoms.length];
 		long pointCount = 0;
 		for (int i = 0; i < shapes.length; i++) {
@@ -409,6 +414,22 @@ public class ShapeFileDataReader implements Serializable {
 		}
 		logger.info("n points = " + pointCount);
 		return shapes;
+	}
+
+	public static Geometry[] shapesToGeoms(Shape[] simplerGeoms) {
+		GeometryFactory fact = new GeometryFactory();
+		ShapeReader reader = new ShapeReader(fact);
+		Geometry[] geoms = new Geometry[simplerGeoms.length];
+		long pointCount = 0;
+		for (int i = 0; i < geoms.length; i++) {
+			Shape shp = simplerGeoms[i];
+
+			Geometry g = reader.read(shp.getPathIterator(null));
+			geoms[i] = g;
+
+		}
+		logger.info("n points = " + pointCount);
+		return geoms;
 	}
 
 	public static Geometry[] makeSimplerGeoms(Geometry[] geoms,
@@ -510,7 +531,13 @@ public class ShapeFileDataReader implements Serializable {
 					} else if (dBaseHeader.getFieldClass(fieldNum).equals(
 							java.lang.Integer.class)) {
 						int[] intCol = (int[]) dbColumnData[fieldNum + 1];
-						intCol[recordNum] = (Integer) rowData[fieldNum];
+						if (rowData[fieldNum] instanceof Double) {
+							Double dNum = (Double) rowData[fieldNum];
+							intCol[recordNum] = (int) Math.round(dNum);
+						} else {
+
+							intCol[recordNum] = (Integer) rowData[fieldNum];
+						}
 					} else if (dBaseHeader.getFieldClass(fieldNum).equals(
 							java.lang.Boolean.class)) {
 						boolean[] boolCol = (boolean[]) dbColumnData[fieldNum + 1];
@@ -522,8 +549,15 @@ public class ShapeFileDataReader implements Serializable {
 					} else if (dBaseHeader.getFieldClass(fieldNum).equals(
 							Long.class)) {
 						int[] intCol = (int[]) dbColumnData[fieldNum + 1];
-						Long lng = (Long) rowData[fieldNum];
-						intCol[recordNum] = lng.intValue();
+						Object datum = rowData[fieldNum];
+						Long longDatum = null;
+						if (datum instanceof Double) {
+							longDatum = ((Double) datum).longValue();
+						} else {
+							longDatum = (Long) rowData[fieldNum];
+						}
+
+						intCol[recordNum] = longDatum.intValue();
 					}
 
 				}
@@ -625,16 +659,30 @@ public class ShapeFileDataReader implements Serializable {
 			GeogCSVReader csv = new GeogCSVReader();
 			FileInputStream inStream = new FileInputStream(dbFileName);
 			Object[] dbData = csv.readFile(inStream);
-			shpData = new Object[dbData.length + 2];
-			for (int i = 0; i < dbData.length; i++) {
-				shpData[i] = dbData[i];
+
+			String shapeFileName = fileName + ".shp";
+			File shpFile = new File(shapeFileName);
+			if (shpFile.exists()) {
+
+				shpData = new Object[dbData.length + 2];
+				for (int i = 0; i < dbData.length; i++) {
+					shpData[i] = dbData[i];
+				}
+
+				shpData[dbData.length] = ShapeFileDataReader.getGeoms(fileName);
+
+				AttributeDescriptionFile desc = new AttributeDescriptionFile(
+						fileName + ".desc");
+				shpData[dbData.length + 1] = desc.getAttributeDescriptions();
+			} else {
+				shpData = new Object[dbData.length + 1];
+				for (int i = 0; i < dbData.length; i++) {
+					shpData[i] = dbData[i];
+				}
+				if (dataForApps == null) {
+					dataForApps = new DataSetForApps(shpData);
+				}
 			}
-
-			shpData[dbData.length] = ShapeFileDataReader.getGeoms(fileName);
-
-			AttributeDescriptionFile desc = new AttributeDescriptionFile(
-					fileName + ".desc");
-			shpData[dbData.length + 1] = desc.getAttributeDescriptions();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

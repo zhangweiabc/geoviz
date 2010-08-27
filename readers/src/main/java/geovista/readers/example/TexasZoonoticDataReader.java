@@ -47,6 +47,7 @@ public class TexasZoonoticDataReader implements GeoDataSource {
 
 	public TexasZoonoticDataReader() throws IOException {
 		// basePath = "C:\\temp\\data\\";
+		// basePath = System.getProperty("user.dir");
 		readLymeContents();
 		readWestNileContents();
 	}
@@ -176,7 +177,7 @@ public class TexasZoonoticDataReader implements GeoDataSource {
 	}
 
 	public DataSetForApps getDataForApps() {
-		String fileName = "C:\\data\\grants\\nevac\\zoonotic\\tx.shp";
+		String fileName = basePath + "tx.shp";
 		ShapeFileDataReader reader = new ShapeFileDataReader();
 		reader.setFileName(fileName);
 

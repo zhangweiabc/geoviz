@@ -499,10 +499,9 @@ class ExcelCSVLexer {
 			int c = zzReader.read();
 			if (c == -1) {
 				return true;
-			} else {
-				zzBuffer[zzEndRead++] = (char) c;
-				return false;
 			}
+			zzBuffer[zzEndRead++] = (char) c;
+			return false;
 		}
 
 		// numRead < 0
@@ -684,9 +683,8 @@ class ExcelCSVLexer {
 						if (eof) {
 							zzInput = YYEOF;
 							break zzForAction;
-						} else {
-							zzInput = zzBufferL[zzCurrentPosL++];
 						}
+						zzInput = zzBufferL[zzCurrentPosL++];
 					}
 					int zzNext = zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
 					if (zzNext == -1) {
@@ -717,10 +715,10 @@ class ExcelCSVLexer {
 				if (commentDelims.indexOf(text.charAt(0)) == -1) {
 					yybegin(AFTER);
 					return (text);
-				} else {
-					yybegin(COMMENT);
 				}
+				yybegin(COMMENT);
 			}
+				//$FALL-THROUGH$
 			case 13:
 				break;
 			case 8: {
@@ -733,6 +731,7 @@ class ExcelCSVLexer {
 				addLine++;
 				yybegin(YYINITIAL);
 			}
+				//$FALL-THROUGH$
 			case 15:
 				break;
 			case 4: {
@@ -775,6 +774,7 @@ class ExcelCSVLexer {
 			case 10: {
 				yybegin(BEFORE);
 			}
+				//$FALL-THROUGH$
 			case 21:
 				break;
 			case 12: {
@@ -791,6 +791,7 @@ class ExcelCSVLexer {
 				break;
 			case 1: {
 			}
+				//$FALL-THROUGH$
 			case 24:
 				break;
 			default:

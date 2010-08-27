@@ -75,13 +75,8 @@ public class ShapeFileProjection {
 
 			shpNew = projectPolygons(shpFile);
 
-		} else if (shpFile instanceof Shape[]) {
+		} else {
 			shpNew = projectPolygons(shpFile);
-		}
-
-		else {
-			throw new IllegalArgumentException("ShapeFileProjection.project,"
-					+ " unknown file type");
 		}
 
 		return shpNew;
@@ -237,7 +232,8 @@ public class ShapeFileProjection {
 			int place = inputAuxSpatialData.getShapeDataPlace();
 			newData[place] = project(spatialData);
 			outputAuxSpatialData.setDataObject(newData);
-			fireChangePerformed("projected aux data");
+
+			fireChangePerformed();
 
 			// this.fireActionPerformed("projected aux data");
 		}
@@ -333,7 +329,7 @@ public class ShapeFileProjection {
 	 * 
 	 * @see EventListenerList
 	 */
-	protected void fireChangePerformed(String command) {
+	protected void fireChangePerformed() {
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerList.getListenerList();
 		ChangeEvent e = null;

@@ -5,16 +5,15 @@
 package geovista.readers.shapefile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.Lock;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileWriter;
+import org.geotools.data.shapefile.shp.JTSUtilities;
 import org.geotools.data.shapefile.shp.ShapeType;
 import org.geotools.data.shapefile.shp.ShapefileWriter;
 
@@ -36,24 +35,27 @@ public class ShapeFileDataWriter {
 			.getLogger(ShapeFileDataWriter.class.getName());
 
 	public static void writeShapefile(Geometry[] paths, String fileNameRoot) {
-
+		if (paths == null) {
+			logger.severe("can't write null paths!");
+			return;
+		}
 		try {
 			GeometryFactory geomFact = new GeometryFactory();
 			GeometryCollection geoms = null;
 			geoms = new GeometryCollection(paths, geomFact);
 			File shp = new File(fileNameRoot + ".shp");
 			File shx = new File(fileNameRoot + ".shx");
-			FileInputStream shpStream = new FileInputStream(shp);
-			FileInputStream shxStream = new FileInputStream(shx);
+			FileOutputStream shpStream = new FileOutputStream(shp);
+			FileOutputStream shxStream = new FileOutputStream(shx);
 
-			FileChannel shpChan = (FileChannel) Channels.newChannel(shpStream);
-			FileChannel shxChan = (FileChannel) Channels.newChannel(shxStream);
+			FileChannel shpChan = shpStream.getChannel();
+			FileChannel shxChan = shxStream.getChannel();
 
 			ShapefileWriter writer = new ShapefileWriter(shpChan, shxChan,
 					new Lock());
-
-			writer.write(geoms, ShapeType.ARC);
-
+			ShapeType bestType = JTSUtilities.getShapeType(paths[0], 2);
+			writer.write(geoms, bestType);
+			writer.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,10 +88,11 @@ public class ShapeFileDataWriter {
 	}
 
 	public static void writeDBFile(String[] columnNames, Object[] data,
-			String fileNameRoot) {
+			int nRecords, String fileNameRoot) {
 
 		try {
 			DbaseFileHeader header = new DbaseFileHeader();
+			header.setNumRecords(nRecords);
 			for (int i = 0; i < columnNames.length; i++) {
 				Object array = data[i];
 				String name = columnNames[i];
@@ -109,9 +112,29 @@ public class ShapeFileDataWriter {
 			FileOutputStream dbfStream = new FileOutputStream(dbf);
 			FileChannel dbfChan = dbfStream.getChannel();
 			DbaseFileWriter writer = new DbaseFileWriter(header, dbfChan);
-			writer.write(data);
+			Object[] record = new Object[columnNames.length];
+			for (int i = 0; i < nRecords; i++) {
+				for (int j = 0; j < record.length; j++) {
+					Object array = data[j];
+
+					if (array instanceof double[]) {
+						record[j] = new Double(((double[]) array)[i]);
+					} else if (array instanceof String[]) {
+						record[j] = ((String[]) array)[i];
+					} else if (array instanceof int[]) {
+						record[j] = new Integer(((int[]) array)[i]);
+					} else {
+						logger.severe("hit unknown array type, "
+								+ array.getClass().getName());
+					}
+
+				}
+				writer.write(record);
+			}
+			writer.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
@@ -120,8 +143,8 @@ public class ShapeFileDataWriter {
 	public static void writeDataSetForApps(DataSetForApps dsa, String fileName) {
 		String[] varNames = dsa.getAttributeNamesOriginal();
 		Object[] data = dsa.getNamedArrays();
-		writeDBFile(varNames, data, fileName);
-
+		writeDBFile(varNames, data, dsa.getNumObservations(), fileName);
+		ShapeFileDataWriter.writeShapefile(dsa.getGeomData(), fileName);
 	}
 
 	public static void main(String[] args) {
