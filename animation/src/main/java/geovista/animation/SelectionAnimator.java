@@ -319,9 +319,8 @@ public class SelectionAnimator extends JPanel implements ActionListener,
 			if (Double.isNaN(e.classed)) {
 				if (Double.isNaN(classed)) {
 					return 0;
-				} else {
-					return 1;
 				}
+				return 1;
 			} // end if the other classed is NaN
 
 			if (Double.isNaN(classed)) {

@@ -209,9 +209,8 @@ public class VariableSequenceAnimator extends JPanel implements ActionListener,
 			if (Double.isNaN(e.value)) {
 				if (Double.isNaN(value)) {
 					return 0;
-				} else {
-					return 1;
 				}
+				return 1;
 			}// end if the other value is NaN
 
 			if (Double.isNaN(value)) {
