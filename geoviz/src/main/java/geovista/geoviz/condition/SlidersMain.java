@@ -47,10 +47,10 @@ public class SlidersMain {
 			"Population", "Age", "Income"
 		};
 
-		dataObject[0] = (Object) attributes;
-		dataObject[1] = (Object) dataValue[0];
-		dataObject[2] = (Object) dataValue[1];
-		dataObject[3] = (Object) dataValue[2];
+		dataObject[0] = attributes;
+		dataObject[1] = dataValue[0];
+		dataObject[2] = dataValue[1];
+		dataObject[3] = dataValue[2];
 
 		JFrame frame = new JFrame("Scatter Plot Matrix");
 
