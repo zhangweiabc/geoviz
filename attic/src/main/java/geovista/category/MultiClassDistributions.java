@@ -552,10 +552,8 @@ public class MultiClassDistributions extends JPanel implements MouseListener, Co
                                 detailSP.setGaussOn(true);
                                 detailSP.setDisplayVariableIndex(this.displayVarIdx);
                                 detailSP.setDataVector(this.dataVector);
-                                //detailSP.setElementPosition(dataIndices);
-                                //detailSP.setColorArrayForObs(this.colorArrayForObs);
-                                //detailSP.setSelectedObservations(selRecords);
-                                //detailSP.setSelections(this.selections);
+
+
                                 JFrame dlgSP = new JFrame("Detailed Distributions");
                                 //JDialog dlgSP = new JDialog(dummyFrame, "Detailed Distributions", true);
                                 dlgSP.setLocation(300, 300);

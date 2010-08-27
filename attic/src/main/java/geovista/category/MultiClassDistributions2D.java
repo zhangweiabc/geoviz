@@ -546,45 +546,14 @@ public class MultiClassDistributions2D extends JPanel implements MouseListener, 
 				detailSP.setDisplayXVariableIndex(this.displayXVarIdx);
 				detailSP.setDisplayYVariableIndex(this.displayYVarIdx);
 				detailSP.setDataVector(this.dataVector);
-				//detailSP.setElementPosition(dataIndices);
-				//detailSP.setColorArrayForObs(this.colorArrayForObs);
-				//detailSP.setSelectedObservations(selRecords);
-				//detailSP.setSelections(this.selections);
+
 				JFrame dlgSP = new JFrame();
 				//JDialog dlgSP = new JDialog(dummyFrame, "Detailed Distributions", true);
 				dlgSP.setLocation(300, 300);
 				dlgSP.setSize(300, 300);
 				dlgSP.getContentPane().setLayout(new BorderLayout());
 				dlgSP.getContentPane().add(detailSP, BorderLayout.CENTER);
-				/*detailSP.addActionListener(new ActionListener() {
 
-					/**
-					 * put your documentation comment here
-					 * @param e
-					 */
-					/*public void actionPerformed (ActionEvent e) {
-						logger.finest("something came from detailed one.");
-						ScatterPlot detailSP = (ScatterPlot)e.getSource();
-						String command = e.getActionCommand();
-						if (command.compareTo(ScatterPlot.COMMAND_POINT_SELECTED) == 0) {
-							logger.finest("SPMC.plotUnitPanel.actionPerformed(), point selected");
-							//Vector selRecords = detailSP.getSelectedObservations();
-							int[] selections = detailSP.getSelections();
-							// Don't recall the scatterplot which generated the original event
-							//ScatterPlot.this.setSelectedObservations(selRecords);
-							ScatterPlot.this.setSelections(selections);
-							ScatterPlot.this.fireActionPerformed(COMMAND_POINT_SELECTED);
-						}
-						else if(command.compareTo(ScatterPlot.COMMAND_DATARANGE_SET)==0){
-							double[] dataArrayX = detailSP.getXAxisExtents();
-							double[] dataArrayY = detailSP.getYAxisExtents();
-							ScatterPlot.this.setXAxisExtents(dataArrayX);
-							ScatterPlot.this.setYAxisExtents(dataArrayY);
-							fireActionPerformed(COMMAND_DATARANGE_SET);
-						}
-							//System.err.println("Unknown command! = " + command);
-					}
-				});*/
 				dlgSP.setVisible(true);
 		 }
 	}
