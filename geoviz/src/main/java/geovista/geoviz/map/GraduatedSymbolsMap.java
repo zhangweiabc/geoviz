@@ -16,11 +16,9 @@ import javax.swing.JPanel;
 
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.ColorArrayEvent;
-import geovista.common.event.ColumnAppendedEvent;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.IndicationEvent;
 import geovista.common.event.SubspaceEvent;
-import geovista.common.event.SubspaceListener;
 import geovista.geoviz.visclass.VisualClassifier;
 import geovista.readers.example.GeoDataGeneralizedStates;
 import geovista.symbolization.glyph.Glyph;
@@ -36,8 +34,7 @@ import geovista.symbolization.glyph.GlyphSizePicker;
  * @author Frank Hardisty
  * 
  */
-public class GraduatedSymbolsMap extends GeoMap implements GlyphListener,
-		SubspaceListener {
+public class GraduatedSymbolsMap extends GeoMap implements GlyphListener {
 
 	NGonGroup ngonLayer;
 
@@ -142,10 +139,6 @@ public class GraduatedSymbolsMap extends GeoMap implements GlyphListener,
 		Color[] starColors = ngonColorer.findDataColors();
 		ngonLayer.setStarFillColors(starColors);
 		return ngonLayer.findGlyphs();
-	}
-
-	public void dataSetModified(ColumnAppendedEvent e) {
-
 	}
 
 	@Override
