@@ -28,114 +28,105 @@ package geovista.treemap.tm;
 
 import java.awt.Paint;
 
-
 /**
- * The TMComputeDrawAdapter class implements a 
- * adapter for the TMComputeDraw interface for users
- * of the TMModelNode interface.
- *
+ * The TMComputeDrawAdapter class implements a adapter for the TMComputeDraw
+ * interface for users of the TMModelNode interface.
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public abstract class TMComputeDrawAdapter 
-    implements TMComputeDraw {
+public abstract class TMComputeDrawAdapter implements TMComputeDraw {
 
-    /**
-     * DO NOT OVERLOAD.
-     */
-    public final boolean isCompatibleWith(TMNode node) {
-        if (node instanceof TMNodeEncapsulator) {
-            TMNodeEncapsulator n = (TMNodeEncapsulator) node;
-            return isCompatibleWithObject(n.getNode());
-        } else {
-            return false;
-        }
-    }
+	/**
+	 * DO NOT OVERLOAD.
+	 */
+	public final boolean isCompatibleWith(TMNode node) {
+		if (node instanceof TMNodeEncapsulator) {
+			TMNodeEncapsulator n = (TMNodeEncapsulator) node;
+			return isCompatibleWithObject(n.getNode());
+		}
+		return false;
+	}
 
-    /**
-     * DO NOT OVERLOAD.
-     */
-    public final Paint getFilling(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
-        
-        TMNode node = nodeAdapter.getNode();      
+	/**
+	 * DO NOT OVERLOAD.
+	 */
+	public final Paint getFilling(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-        if (isCompatibleWith(node)) {
-           TMNodeEncapsulator n = (TMNodeEncapsulator) node;
-           return getFillingOfObject(n.getNode());             
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+		TMNode node = nodeAdapter.getNode();
 
-    /**
-     * DO NOT OVERLOAD.
-     */
-    public final String getTooltip(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
-      
-        TMNode node = nodeAdapter.getNode();      
-        if (isCompatibleWith(node)) {
-           TMNodeEncapsulator n = (TMNodeEncapsulator) node;
-           return getTooltipOfObject(n.getNode());             
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+		if (isCompatibleWith(node)) {
+			TMNodeEncapsulator n = (TMNodeEncapsulator) node;
+			return getFillingOfObject(n.getNode());
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
-    /**
-     * DO NOT OVERLOAD.
-     */
-    public final String getTitle(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
+	/**
+	 * DO NOT OVERLOAD.
+	 */
+	public final String getTooltip(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-        TMNode node = nodeAdapter.getNode();
-        if (isCompatibleWith(node)) {
-           TMNodeEncapsulator n = (TMNodeEncapsulator) node;
-           return getTitleOfObject(n.getNode());             
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+		TMNode node = nodeAdapter.getNode();
+		if (isCompatibleWith(node)) {
+			TMNodeEncapsulator n = (TMNodeEncapsulator) node;
+			return getTooltipOfObject(n.getNode());
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
-    /**
-     * DO NOT OVERLOAD.
-     */
-    public final Paint getTitleColor(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
+	/**
+	 * DO NOT OVERLOAD.
+	 */
+	public final String getTitle(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-        TMNode node = nodeAdapter.getNode();
-        if (isCompatibleWith(node)) {
-           TMNodeEncapsulator n = (TMNodeEncapsulator) node;
-           return getColorTitleOfObject(n.getNode());             
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+		TMNode node = nodeAdapter.getNode();
+		if (isCompatibleWith(node)) {
+			TMNodeEncapsulator n = (TMNodeEncapsulator) node;
+			return getTitleOfObject(n.getNode());
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
-    /**
-     * TO BE IMPLEMENTED.
-     */
-    public abstract boolean isCompatibleWithObject(Object node);
-    
-    /**
-     * TO BE IMPLEMENTED.
-     */
-    public abstract Paint getFillingOfObject(Object node);  
+	/**
+	 * DO NOT OVERLOAD.
+	 */
+	public final Paint getTitleColor(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-    /**
-     * TO BE IMPLEMENTED.
-     */
-    public abstract String getTooltipOfObject(Object node);  
-  
-    /**
-     * TO BE IMPLEMENTED.
-     */
-    public abstract String getTitleOfObject(Object node);  
+		TMNode node = nodeAdapter.getNode();
+		if (isCompatibleWith(node)) {
+			TMNodeEncapsulator n = (TMNodeEncapsulator) node;
+			return getColorTitleOfObject(n.getNode());
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
-    /**
-     * TO BE IMPLEMENTED.
-     */
-    public abstract Paint getColorTitleOfObject(Object node);  
+	/**
+	 * TO BE IMPLEMENTED.
+	 */
+	public abstract boolean isCompatibleWithObject(Object node);
+
+	/**
+	 * TO BE IMPLEMENTED.
+	 */
+	public abstract Paint getFillingOfObject(Object node);
+
+	/**
+	 * TO BE IMPLEMENTED.
+	 */
+	public abstract String getTooltipOfObject(Object node);
+
+	/**
+	 * TO BE IMPLEMENTED.
+	 */
+	public abstract String getTitleOfObject(Object node);
+
+	/**
+	 * TO BE IMPLEMENTED.
+	 */
+	public abstract Paint getColorTitleOfObject(Object node);
 }
-

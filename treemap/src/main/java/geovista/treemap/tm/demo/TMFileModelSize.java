@@ -30,38 +30,34 @@ import java.io.File;
 
 import geovista.treemap.tm.TMComputeSizeAdapter;
 
-
-
 /**
- * The TMFileModelSize class implements an example of a TMComputeSizeAdapter
- * for a TMFileModelNode.
- *
+ * The TMFileModelSize class implements an example of a TMComputeSizeAdapter for
+ * a TMFileModelNode.
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public class TMFileModelSize
-    extends TMComputeSizeAdapter {
+public class TMFileModelSize extends TMComputeSizeAdapter {
 
-    
-  /* --- TMComputeSizeAdapter -- */
+	/* --- TMComputeSizeAdapter -- */
 
-    public boolean isCompatibleWithObject(Object node) {
-        if (node instanceof File) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	@Override
+	public boolean isCompatibleWithObject(Object node) {
+		if (node instanceof File) {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * Returns the size of the node.
-     */ 
-    public float getSizeOfObject(Object node) { 
-        if (node instanceof File) {
-            File file = (File) node;
-            return file.length();
-        }
-        return 0.0f;
-    }
+	/**
+	 * Returns the size of the node.
+	 */
+	@Override
+	public float getSizeOfObject(Object node) {
+		if (node instanceof File) {
+			File file = (File) node;
+			return file.length();
+		}
+		return 0.0f;
+	}
 }
-

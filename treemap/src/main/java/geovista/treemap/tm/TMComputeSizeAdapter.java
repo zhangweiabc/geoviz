@@ -26,53 +26,46 @@
 
 package geovista.treemap.tm;
 
-
 /**
- * The TMComputeSizeAdapter class implements a 
- * adapter for the TMComputeSize interface for users
- * of the TMModelNode interface.
- *
+ * The TMComputeSizeAdapter class implements a adapter for the TMComputeSize
+ * interface for users of the TMModelNode interface.
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public abstract class TMComputeSizeAdapter 
-    implements TMComputeSize {
+public abstract class TMComputeSizeAdapter implements TMComputeSize {
 
-    /**
-     * DO NOT OVERLOAD.
-     */
-    public final boolean isCompatibleWith(TMNode node) {
-        if (node instanceof TMNodeEncapsulator) {
-            TMNodeEncapsulator n = (TMNodeEncapsulator) node;
-            return isCompatibleWithObject(n.getNode());
-        } else {
-            return false;
-        }
-    }
+	/**
+	 * DO NOT OVERLOAD.
+	 */
+	public final boolean isCompatibleWith(TMNode node) {
+		if (node instanceof TMNodeEncapsulator) {
+			TMNodeEncapsulator n = (TMNodeEncapsulator) node;
+			return isCompatibleWithObject(n.getNode());
+		}
+		return false;
+	}
 
-    /**
-     * DO NOT OVERLOAD.
-     */
-    public final float getSize(TMNode node)
-        throws TMExceptionBadTMNodeKind {
-     
-         if (isCompatibleWith(node)) {
-            TMNodeEncapsulator n = (TMNodeEncapsulator) node;
-            return getSizeOfObject(n.getNode());             
-         } else {
-             throw new TMExceptionBadTMNodeKind(this, node);
-         }
-    }
-  
-    /**
-     * TO BE IMPLEMENTED.
-     */
-    public abstract boolean isCompatibleWithObject(Object node);
-    
-    /**
-     * TO BE IMPLEMENTED.
-     */
-    public abstract float getSizeOfObject(Object node);  
-  
+	/**
+	 * DO NOT OVERLOAD.
+	 */
+	public final float getSize(TMNode node) throws TMExceptionBadTMNodeKind {
+
+		if (isCompatibleWith(node)) {
+			TMNodeEncapsulator n = (TMNodeEncapsulator) node;
+			return getSizeOfObject(n.getNode());
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
+
+	/**
+	 * TO BE IMPLEMENTED.
+	 */
+	public abstract boolean isCompatibleWithObject(Object node);
+
+	/**
+	 * TO BE IMPLEMENTED.
+	 */
+	public abstract float getSizeOfObject(Object node);
+
 }
-

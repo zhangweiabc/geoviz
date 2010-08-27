@@ -34,94 +34,90 @@ import java.util.Date;
 
 import geovista.treemap.tm.TMComputeDrawAdapter;
 
-
-
 /**
- * The TMFileModelDraw class implements an example of a TMComputeDrawAdapter
- * for a TMFileModelNode.
- * It use the date of last modification as color,
- * and the name of the file as tooltip.
+ * The TMFileModelDraw class implements an example of a TMComputeDrawAdapter for
+ * a TMFileModelNode. It use the date of last modification as color, and the
+ * name of the file as tooltip.
  * <P>
  * The color legend is :
  * <UL>
- *   <IL> white  for files less than a hour old
- *   <IL> green  for files less than a day old
- *   <IL> yellow for files less than a week old
- *   <IL> orange for files less than a month old
- *   <IL> red    for files less than a year old
- *   <IL> blue   for files more than a year old
+ * <IL> white for files less than a hour old <IL> green for files less than a
+ * day old <IL> yellow for files less than a week old <IL> orange for files less
+ * than a month old <IL> red for files less than a year old <IL> blue for files
+ * more than a year old
  * </UL>
- *
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public class TMFileModelDraw
-    extends TMComputeDrawAdapter {
+public class TMFileModelDraw extends TMComputeDrawAdapter {
 
-  /* --- TMComputeSizeAdapter -- */
+	/* --- TMComputeSizeAdapter -- */
 
-    public boolean isCompatibleWithObject(Object node) {
-        if (node instanceof File) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    public Paint getFillingOfObject(Object node) {
-        if (node instanceof File) {
-        	File file = (File) node;
-            long time = file.lastModified();
-            long diff = (new Date()).getTime() - time;
-            if (diff <= 3600000L) {             // less than an hour
-                return Color.white;
-            } else if (diff <= 86400000L) {     // less than a day
-                return Color.green;
-            } else if (diff <= 604800000L) {    // less than a week
-                return Color.yellow;
-            } else if (diff <= 2592000000L) {   // less than a month
-                return Color.orange;
-            } else if (diff <= 31536000000L) {  // less than a year
-                return Color.red;
-            } else {                           // more than a year
-                return Color.blue;
-            }
-        } 
-        return Color.black;
-    }
+	@Override
+	public boolean isCompatibleWithObject(Object node) {
+		if (node instanceof File) {
+			return true;
+		}
+		return false;
+	}
 
-    public String getTooltipOfObject(Object node) {
-        if (node instanceof File) {
-            File file = (File) node;
-            String name = file.getName();
-            long modTime = file.lastModified();
-            DateFormat df = DateFormat.getDateInstance(DateFormat.LONG);
-            DateFormat tf = DateFormat.getTimeInstance(DateFormat.SHORT);
-            String date = df.format(new Date(modTime));
-            String time = tf.format(new Date(modTime));
+	@Override
+	public Paint getFillingOfObject(Object node) {
+		if (node instanceof File) {
+			File file = (File) node;
+			long time = file.lastModified();
+			long diff = (new Date()).getTime() - time;
+			if (diff <= 3600000L) { // less than an hour
+				return Color.white;
+			} else if (diff <= 86400000L) { // less than a day
+				return Color.green;
+			} else if (diff <= 604800000L) { // less than a week
+				return Color.yellow;
+			} else if (diff <= 2592000000L) { // less than a month
+				return Color.orange;
+			} else if (diff <= 31536000000L) { // less than a year
+				return Color.red;
+			} else { // more than a year
+				return Color.blue;
+			}
+		}
+		return Color.black;
+	}
 
-            String tooltip = "<html>" + name +
-                             "<p>" + date + " : " + time;
-            return tooltip;
-        }
-        return "";
-    }
+	@Override
+	public String getTooltipOfObject(Object node) {
+		if (node instanceof File) {
+			File file = (File) node;
+			String name = file.getName();
+			long modTime = file.lastModified();
+			DateFormat df = DateFormat.getDateInstance(DateFormat.LONG);
+			DateFormat tf = DateFormat.getTimeInstance(DateFormat.SHORT);
+			String date = df.format(new Date(modTime));
+			String time = tf.format(new Date(modTime));
 
-    public String getTitleOfObject(Object node) {
-        if (node instanceof File) {
-            File file = (File) node;
-            return file.getName();
-        }
-        return "";
-    }
+			String tooltip = "<html>" + name + "<p>" + date + " : " + time;
+			return tooltip;
+		}
+		return "";
+	}
 
-    public Paint getColorTitleOfObject(Object node) {
-        if (node instanceof File) {
+	@Override
+	public String getTitleOfObject(Object node) {
+		if (node instanceof File) {
+			File file = (File) node;
+			return file.getName();
+		}
+		return "";
+	}
 
-            return Color.black;
-        }
-        return Color.black;
-    }
+	@Override
+	public Paint getColorTitleOfObject(Object node) {
+		if (node instanceof File) {
+
+			return Color.black;
+		}
+		return Color.black;
+	}
 
 }
-

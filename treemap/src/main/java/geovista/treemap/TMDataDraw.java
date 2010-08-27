@@ -34,126 +34,121 @@ import geovista.treemap.tm.TMExceptionBadTMNodeKind;
 import geovista.treemap.tm.TMNode;
 import geovista.treemap.tm.TMNodeAdapter;
 
-
-
-
 /**
- * The TMDataDraw class implements an example of a TMComputeDraw
- * for a TMDataNode.
- * It uses the color property of each node as its color.
- *
+ * The TMDataDraw class implements an example of a TMComputeDraw for a
+ * TMDataNode. It uses the color property of each node as its color.
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public class TMDataDraw
-    implements TMComputeDraw {
+public class TMDataDraw implements TMComputeDraw {
 
-    /**
-     * Test if this TMComputeDraw could be used
-     * with the kind of TMNode passed in parameter.
-     *
-     * @param node    the TMNode to test the compatibility with
-     * @return        <CODE>true</CODE> if this kind of node is compatible;
-     *                <CODE>false</CODE> otherwise
-     */
-    public boolean isCompatibleWith(TMNode node) {
-        if (node instanceof TMDataNode) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	/**
+	 * Test if this TMComputeDraw could be used with the kind of TMNode passed
+	 * in parameter.
+	 * 
+	 * @param node
+	 *            the TMNode to test the compatibility with
+	 * @return <CODE>true</CODE> if this kind of node is compatible;
+	 *         <CODE>false</CODE> otherwise
+	 */
+	public boolean isCompatibleWith(TMNode node) {
+		if (node instanceof TMDataNode) {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * Returns the filling of the node.
-     * The nodeAdapter should return an instance of TMDataNode.
-     *
-     * @param nodeAdapter               we compute the filling of this node;
-     *                                  should return an instance of TMDataNode
-     * @return                          the filling of the node
-     * @throws TMExceptionBadTMNodeKind If the node does not return an
-     *                                  instance of TMDataNode
-     */
-    public Paint getFilling(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
+	/**
+	 * Returns the filling of the node. The nodeAdapter should return an
+	 * instance of TMDataNode.
+	 * 
+	 * @param nodeAdapter
+	 *            we compute the filling of this node; should return an instance
+	 *            of TMDataNode
+	 * @return the filling of the node
+	 * @throws TMExceptionBadTMNodeKind
+	 *             If the node does not return an instance of TMDataNode
+	 */
+	public Paint getFilling(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-        TMNode node = nodeAdapter.getNode();
-        if (node instanceof TMDataNode) {
-            TMDataNode fNode = (TMDataNode) node;
-            return fNode.getColor();
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+		TMNode node = nodeAdapter.getNode();
+		if (node instanceof TMDataNode) {
+			TMDataNode fNode = (TMDataNode) node;
+			return fNode.getColor();
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
-    /**
-     * Returns the tooltip of the node.
-     * The nodeAdapter should return an instance of TMDataNode.
-     *
-     * @param nodeAdapter               we compute the tooltip of this node;
-     *                                  should return an instance of TMDataNode
-     * @return                          the tooltip of the node
-     * @throws TMExceptionBadTMNodeKind If the node does not return an
-     *                                  instance of TMDataNode
-     */
-    public String getTooltip(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
+	/**
+	 * Returns the tooltip of the node. The nodeAdapter should return an
+	 * instance of TMDataNode.
+	 * 
+	 * @param nodeAdapter
+	 *            we compute the tooltip of this node; should return an instance
+	 *            of TMDataNode
+	 * @return the tooltip of the node
+	 * @throws TMExceptionBadTMNodeKind
+	 *             If the node does not return an instance of TMDataNode
+	 */
+	public String getTooltip(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-        TMNode node = nodeAdapter.getNode();
-        if (node instanceof TMDataNode) {
-            TMDataNode fNode = (TMDataNode) node;
+		TMNode node = nodeAdapter.getNode();
+		if (node instanceof TMDataNode) {
+			TMDataNode fNode = (TMDataNode) node;
 
-            String name = fNode.getName();
+			String name = fNode.getName();
 
-            double value = fNode.getValue();
+			double value = fNode.getValue();
 
-            String tooltip = "<html>" + name +
-                             "<p>" + value;
-            return tooltip;
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+			String tooltip = "<html>" + name + "<p>" + value;
+			return tooltip;
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
-    /**
-     * Returns the color of the title of the node.
-     *
-     * @param nodeAdapter               the node for which we want the title
-     * @return                          the title of the node
-     * @throws TMExceptionBadTMNodeKind if the kind of TMNode returned is
-     *                                  incompatible with this TMComputeDraw.
-     */
-    public Paint getTitleColor(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
+	/**
+	 * Returns the color of the title of the node.
+	 * 
+	 * @param nodeAdapter
+	 *            the node for which we want the title
+	 * @return the title of the node
+	 * @throws TMExceptionBadTMNodeKind
+	 *             if the kind of TMNode returned is incompatible with this
+	 *             TMComputeDraw.
+	 */
+	public Paint getTitleColor(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-        TMNode node = nodeAdapter.getNode();
-        if (node instanceof TMDataNode) {
-            return Color.black;
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+		TMNode node = nodeAdapter.getNode();
+		if (node instanceof TMDataNode) {
+			return Color.black;
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
-    /**
-     * Returns the title of the node.
-     *
-     * @param nodeAdapter               the node for which we want the title
-     * @return                          the title of the node
-     * @throws TMExceptionBadTMNodeKind if the kind of TMNode returned is
-     *                                  incompatible with this TMComputeDraw.
-     */
-    public String getTitle(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
+	/**
+	 * Returns the title of the node.
+	 * 
+	 * @param nodeAdapter
+	 *            the node for which we want the title
+	 * @return the title of the node
+	 * @throws TMExceptionBadTMNodeKind
+	 *             if the kind of TMNode returned is incompatible with this
+	 *             TMComputeDraw.
+	 */
+	public String getTitle(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-        TMNode node = nodeAdapter.getNode();
-        if (node instanceof TMDataNode) {
-            TMDataNode fNode = (TMDataNode) node;
+		TMNode node = nodeAdapter.getNode();
+		if (node instanceof TMDataNode) {
+			TMDataNode fNode = (TMDataNode) node;
 
-            return fNode.getName();
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+			return fNode.getName();
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
 }
-

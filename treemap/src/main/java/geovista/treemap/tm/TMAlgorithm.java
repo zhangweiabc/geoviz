@@ -298,9 +298,8 @@ public abstract class TMAlgorithm extends Observable {
 		// Axis : Bold as love
 		if (axis == HORIZONTAL) {
 			return VERTICAL;
-		} else {
-			return HORIZONTAL;
 		}
+		return HORIZONTAL;
 	}
 
 	/**
@@ -424,7 +423,8 @@ public abstract class TMAlgorithm extends Observable {
 
 			addObserver(this);
 
-			bSize = new JSlider(SwingConstants.HORIZONTAL, 0, 50, getBorderSize());
+			bSize = new JSlider(SwingConstants.HORIZONTAL, 0, 50,
+					getBorderSize());
 			bSize.setMajorTickSpacing(10);
 			bSize.setMinorTickSpacing(1);
 			bSize.setPaintTicks(true);

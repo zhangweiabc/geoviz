@@ -32,70 +32,61 @@ import geovista.treemap.tm.TMComputeSize;
 import geovista.treemap.tm.TMExceptionBadTMNodeKind;
 import geovista.treemap.tm.TMNode;
 
-
-
 /**
- * The TMFileSizeDate class implements an example of a TMComputeSize
- * for a TMFileNode.
- * It use the date of the file as a size.
- *
+ * The TMFileSizeDate class implements an example of a TMComputeSize for a
+ * TMFileNode. It use the date of the file as a size.
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public class TMFileSizeDate
-    implements TMComputeSize {
+public class TMFileSizeDate implements TMComputeSize {
 
-    private long myDate = 0L; // the instant date
+	private long myDate = 0L; // the instant date
 
+	/**
+	 * Constructor.
+	 */
+	public TMFileSizeDate() {
+		Date date = new Date();
+		myDate = date.getTime();
+	}
 
-    /**
-     * Constructor.
-     */
-    public TMFileSizeDate() {
-        Date date = new Date();
-        myDate = date.getTime();
-    }
+	/**
+	 * Test if this TMComputeSize could be used with the kind of TMNode passed
+	 * in parameter.
+	 * 
+	 * @param node
+	 *            the TMNode to test the compatibility with
+	 * @return <CODE>true</CODE> if this kind of node is compatible;
+	 *         <CODE>false</CODE> otherwise
+	 */
+	public boolean isCompatibleWith(TMNode node) {
+		if (node instanceof TMFileNode) {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * Test if this TMComputeSize could be used
-     * with the kind of TMNode passed in parameter.
-     *
-     * @param node    the TMNode to test the compatibility with
-     * @return        <CODE>true</CODE> if this kind of node is compatible;
-     *                <CODE>false</CODE> otherwise
-     */
-    public boolean isCompatibleWith(TMNode node) {
-        if (node instanceof TMFileNode) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	/**
+	 * Returns the size of the node. The node should be an instance of
+	 * TMFileNode. Returns <CODE>0</CODE> for a folder, and the date of the
+	 * file, for a file.
+	 * 
+	 * @param node
+	 *            we compute the size of this node; should be an instance of
+	 *            TMFileNode
+	 * @return the size of the node; <CODE>0</CODE> for a folder; the date of
+	 *         the file for a file
+	 * @throws TMExceptionBadTMNodeKind
+	 *             If the node is not an instance of TMFileNode
+	 */
+	public float getSize(TMNode node) throws TMExceptionBadTMNodeKind {
 
-    /**
-     * Returns the size of the node.
-     * The node should be an instance of TMFileNode.
-     * Returns <CODE>0</CODE> for a folder, and the date
-     * of the file, for a file.
-     *
-     * @param node                      we compute the size of this node;
-     *                                  should be an instance of TMFileNode
-     * @return                          the size of the node;
-     *                                  <CODE>0</CODE> for a folder;
-     *                                  the date of the file for a file
-     * @throws TMExceptionBadTMNodeKind If the node is not an
-     *                                  instance of TMFileNode
-     */ 
-    public float getSize(TMNode node)
-        throws TMExceptionBadTMNodeKind {
-        
-        if (node instanceof TMFileNode) {
-            TMFileNode fNode = (TMFileNode) node;
-            return (float) (myDate - fNode.getDate());
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+		if (node instanceof TMFileNode) {
+			TMFileNode fNode = (TMFileNode) node;
+			return (myDate - fNode.getDate());
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
 }
-

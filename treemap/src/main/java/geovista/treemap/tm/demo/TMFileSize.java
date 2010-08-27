@@ -30,57 +30,51 @@ import geovista.treemap.tm.TMComputeSize;
 import geovista.treemap.tm.TMExceptionBadTMNodeKind;
 import geovista.treemap.tm.TMNode;
 
-
 /**
- * The TMFileSize class implements an example of a TMComputeSize
- * for a TMFileNode.
- *
+ * The TMFileSize class implements an example of a TMComputeSize for a
+ * TMFileNode.
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public class TMFileSize
-    implements TMComputeSize {
+public class TMFileSize implements TMComputeSize {
 
-    /**
-     * Test if this TMComputeSize could be used
-     * with the kind of TMNode passed in parameter.
-     *
-     * @param node    the TMNode to test the compatibility with
-     * @return        <CODE>true</CODE> if this kind of node is compatible;
-     *                <CODE>false</CODE> otherwise
-     */
-    public boolean isCompatibleWith(TMNode node) {
-        if (node instanceof TMFileNode) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	/**
+	 * Test if this TMComputeSize could be used with the kind of TMNode passed
+	 * in parameter.
+	 * 
+	 * @param node
+	 *            the TMNode to test the compatibility with
+	 * @return <CODE>true</CODE> if this kind of node is compatible;
+	 *         <CODE>false</CODE> otherwise
+	 */
+	public boolean isCompatibleWith(TMNode node) {
+		if (node instanceof TMFileNode) {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * Returns the size of the node.
-     * The node should be an instance of TMFileNode.
-     * Returns <CODE>0</CODE> for a folder, and the size
-     * of the file, in byte, for a file.
-     *
-     * @param node                      we compute the size of this node;
-     *                                  should be an instance of TMFileNode
-     * @return                          the size of the node;
-     *                                  <CODE>0</CODE> for a folder;
-     *                                  the size of the file in byte for a file
-     * @throws TMExceptionBadTMNodeKind If the node is not an
-     *                                  instance of TMFileNode
-     */ 
-    public float getSize(TMNode node)
-        throws TMExceptionBadTMNodeKind {
-        
-        if (node instanceof TMFileNode) {
-            TMFileNode fNode = (TMFileNode) node;
-            return (float) fNode.getSize();
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    }
+	/**
+	 * Returns the size of the node. The node should be an instance of
+	 * TMFileNode. Returns <CODE>0</CODE> for a folder, and the size of the
+	 * file, in byte, for a file.
+	 * 
+	 * @param node
+	 *            we compute the size of this node; should be an instance of
+	 *            TMFileNode
+	 * @return the size of the node; <CODE>0</CODE> for a folder; the size of
+	 *         the file in byte for a file
+	 * @throws TMExceptionBadTMNodeKind
+	 *             If the node is not an instance of TMFileNode
+	 */
+	public float getSize(TMNode node) throws TMExceptionBadTMNodeKind {
+
+		if (node instanceof TMFileNode) {
+			TMFileNode fNode = (TMFileNode) node;
+			return fNode.getSize();
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
 }
-

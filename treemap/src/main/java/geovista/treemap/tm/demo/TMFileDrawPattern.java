@@ -34,87 +34,82 @@ import geovista.treemap.tm.TMNode;
 import geovista.treemap.tm.TMNodeAdapter;
 import geovista.treemap.tm.TMPatternFactory;
 
-
-
 /**
- * The TMFileDrawPattern implements a example of renderer for TMFileNode.
- * It use the date of last modification as color,
- * and patterns instead of color for filling rects.
+ * The TMFileDrawPattern implements a example of renderer for TMFileNode. It use
+ * the date of last modification as color, and patterns instead of color for
+ * filling rects.
  * <P>
  * The color legend is :
  * <UL>
- *   <IL> PATTERN_WHITE      for files less than a hour old
- *   <IL> PATTERN_DIAG1      for files less than a day old
- *   <IL> PATTERN_DIAG2      for files less than a week old
- *   <IL> PATTERN_DOTS       for files less than a month old
- *   <IL> PATTERN_LIGHT_GRAY for files less than a year old
- *   <IL> PATTERN_DARK_GRAY  for files more than a year old
+ * <IL> PATTERN_WHITE for files less than a hour old <IL> PATTERN_DIAG1 for
+ * files less than a day old <IL> PATTERN_DIAG2 for files less than a week old
+ * <IL> PATTERN_DOTS for files less than a month old <IL> PATTERN_LIGHT_GRAY for
+ * files less than a year old <IL> PATTERN_DARK_GRAY for files more than a year
+ * old
  * </UL>
- *
+ * 
  * @author Christophe Bouthier [bouthier@loria.fr]
  * 
  */
-public class TMFileDrawPattern
-    extends TMFileDraw {
+public class TMFileDrawPattern extends TMFileDraw {
 
-    private Paint      patternHour  = null; // pattern for less than an hour  
-    private Paint      patternDay   = null; // pattern for less than an day  
-    private Paint      patternWeek  = null; // pattern for less than an week  
-    private Paint      patternMonth = null; // pattern for less than an month  
-    private Paint      patternYear  = null; // pattern for less than an year 
-    private Paint      patternEons  = null; // pattern for more than an year  
+	private Paint patternHour = null; // pattern for less than an hour
+	private Paint patternDay = null; // pattern for less than an day
+	private Paint patternWeek = null; // pattern for less than an week
+	private Paint patternMonth = null; // pattern for less than an month
+	private Paint patternYear = null; // pattern for less than an year
+	private Paint patternEons = null; // pattern for more than an year
 
+	/* --- Constructor --- */
 
-  /* --- Constructor --- */
+	/**
+	 * Constructor.
+	 */
+	public TMFileDrawPattern() {
+		// loading patterns
+		patternHour = TMPatternFactory.getInstance().get("PATTERN_WHITE");
+		patternDay = TMPatternFactory.getInstance().get("PATTERN_DIAG1");
+		patternWeek = TMPatternFactory.getInstance().get("PATTERN_DIAG2");
+		patternMonth = TMPatternFactory.getInstance().get("PATTERN_DOTS");
+		patternYear = TMPatternFactory.getInstance().get("PATTERN_LIGHT_GRAY");
+		patternEons = TMPatternFactory.getInstance().get("PATTERN_DARK_GRAY");
+	}
 
-    /**
-     * Constructor.
-     */
-    public TMFileDrawPattern() {
-        // loading patterns
-        patternHour  = TMPatternFactory.getInstance().get("PATTERN_WHITE");
-        patternDay   = TMPatternFactory.getInstance().get("PATTERN_DIAG1");
-        patternWeek  = TMPatternFactory.getInstance().get("PATTERN_DIAG2");
-        patternMonth = TMPatternFactory.getInstance().get("PATTERN_DOTS");
-        patternYear  = TMPatternFactory.getInstance().get("PATTERN_LIGHT_GRAY");
-        patternEons  = TMPatternFactory.getInstance().get("PATTERN_DARK_GRAY");
-    }
+	/**
+	 * Returns the filling of the node. The nodeAdapter should return an
+	 * instance of TMFileNode.
+	 * 
+	 * @param nodeAdapter
+	 *            we compute the filling of this node; should return an instance
+	 *            of TMFileNode
+	 * @return the filling of the node
+	 * @throws TMExceptionBadTMNodeKind
+	 *             If the node does not return an instance of TMFileNode
+	 */
+	@Override
+	public Paint getFilling(TMNodeAdapter nodeAdapter)
+			throws TMExceptionBadTMNodeKind {
 
-    /**
-     * Returns the filling of the node.
-     * The nodeAdapter should return an instance of TMFileNode.
-     *
-     * @param nodeAdapter               we compute the filling of this node;
-     *                                  should return an instance of TMFileNode
-     * @return                          the filling of the node
-     * @throws TMExceptionBadTMNodeKind If the node does not return an
-     *                                  instance of TMFileNode
-     */
-    public Paint getFilling(TMNodeAdapter nodeAdapter)
-        throws TMExceptionBadTMNodeKind {
-        
-        TMNode node = nodeAdapter.getNode();
-        if (node instanceof TMFileNode) {
-            TMFileNode fNode = (TMFileNode) node;
-            long time = fNode.getDate();
-            long diff = (new Date()).getTime() - time;
-            if (diff <= 3600000L) {             // less than an hour
-                return patternHour;
-            } else if (diff <= 86400000L) {     // less than a day
-                return patternDay;
-            } else if (diff <= 604800000L) {    // less than a week
-                return patternWeek;
-            } else if (diff <= 2592000000L) {   // less than a month
-                return patternMonth;
-            } else if (diff <= 31536000000L) {  // less than a year
-                return patternYear;
-            } else {                           // more than a year
-                return patternEons;
-            }
-        } else {
-            throw new TMExceptionBadTMNodeKind(this, node);
-        }
-    } 
+		TMNode node = nodeAdapter.getNode();
+		if (node instanceof TMFileNode) {
+			TMFileNode fNode = (TMFileNode) node;
+			long time = fNode.getDate();
+			long diff = (new Date()).getTime() - time;
+			if (diff <= 3600000L) { // less than an hour
+				return patternHour;
+			} else if (diff <= 86400000L) { // less than a day
+				return patternDay;
+			} else if (diff <= 604800000L) { // less than a week
+				return patternWeek;
+			} else if (diff <= 2592000000L) { // less than a month
+				return patternMonth;
+			} else if (diff <= 31536000000L) { // less than a year
+				return patternYear;
+			} else { // more than a year
+				return patternEons;
+			}
+		}
+		throw new TMExceptionBadTMNodeKind(this, node);
+	}
 
 }
-
