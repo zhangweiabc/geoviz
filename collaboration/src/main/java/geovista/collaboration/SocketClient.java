@@ -39,12 +39,12 @@ class SocketClient {
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(
 				System.in));
 
-		Socket clientSocket = null;
+		Socket clientSocket = new Socket(host, 80);
 		DataOutputStream outToServer = null;
 		BufferedInputStream inFromServer = null;
 
 		try {
-			clientSocket = new Socket(host, 80);
+
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			inFromServer = new BufferedInputStream(clientSocket
 					.getInputStream());
