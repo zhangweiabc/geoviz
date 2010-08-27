@@ -25,7 +25,7 @@ import geovista.geoviz.parvis.ParallelPlot;
 public class TestSJava {
 
 	JPanel pan = null;
-	private transient EventListenerList listenerList;
+	private transient final EventListenerList listenerList;
 
 	// ListenerList listener;
 	CoordinationManager cm;
@@ -37,7 +37,9 @@ public class TestSJava {
 	String[] varNames;
 	boolean showGUI = true;
 	int[] selection;
-	protected final static Logger logger = Logger.getLogger(TestSJava.class.getName());
+	protected final static Logger logger = Logger.getLogger(TestSJava.class
+			.getName());
+
 	public TestSJava() {
 		listenerList = new EventListenerList();
 		cm = new CoordinationManager();
@@ -69,8 +71,8 @@ public class TestSJava {
 			return "ClassCastException thrown " + cce.getMessage();
 		}
 		String returnString = "";
-		for (int i = 0; i < strings.length; i++) {
-			returnString = returnString + "," + strings[i];
+		for (String string : strings) {
+			returnString = returnString + "," + string;
 		}
 		return returnString;
 	}
@@ -104,8 +106,8 @@ public class TestSJava {
 
 	public String echoIntArray(int[] ints) {
 		String returnString = "";
-		for (int i = 0; i < ints.length; i++) {
-			returnString = returnString + ints[i];
+		for (int j : ints) {
+			returnString = returnString + j;
 		}
 		return returnString;
 	}
@@ -117,7 +119,7 @@ public class TestSJava {
 	}
 
 	public int[] getNewSelection() {
-		return this.selection;
+		return selection;
 	}
 
 	public String getIntArrayLen(int[] ints) {
@@ -129,11 +131,12 @@ public class TestSJava {
 	public String dataFrameToDataSet(Object dataFrame) {
 		// can't do the following line, crashes jvm when called from SJava
 		// return dataFrame.getClass().getName();
+		logger.info(dataFrame.getClass().getName());
 		return "wha happen?";
 	}
 
 	public String coordinateObject(Object obj) {
-		this.cm.addBean(obj);
+		cm.addBean(obj);
 		return "TRUE";
 	}
 
@@ -144,8 +147,8 @@ public class TestSJava {
 	}
 
 	public String setVariableNames(String[] varNames) {
-		if (this.rawData == null) {
-			this.rawData = new Object[varNames.length];
+		if (rawData == null) {
+			rawData = new Object[varNames.length];
 		}
 		this.varNames = varNames;
 		String message = "TestSJava, setVariableNames, number of names = "
@@ -159,7 +162,7 @@ public class TestSJava {
 	// this.varNames = varNames;
 	// String message = "TestSJava, setRowNames, number of rows = " +
 	// rowNames.length;
-	
+
 	// rawData[0] = varNames;
 	// return "TRUE";
 	//
@@ -168,7 +171,7 @@ public class TestSJava {
 	public String addData(Object data, int index) {
 
 		try {
-			this.rawData[index] = data;
+			rawData[index] = data;
 		} catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();
 			return "index out of bounds thrown";
@@ -183,7 +186,7 @@ public class TestSJava {
 
 	public String fireDataSetChanged() {
 		logger.finest("entering fireDataSetChanged()");
-		if (this.rawData == null) {
+		if (rawData == null) {
 			String message = "TestSJava, fireDataSetChanged called while data is null";
 			logger.finest(message);
 			return message;
@@ -199,7 +202,7 @@ public class TestSJava {
 	 * adds an DataSetListener
 	 */
 	public void addDataSetListener(DataSetListener l) {
-		this.listenerList.add(DataSetListener.class, l);
+		listenerList.add(DataSetListener.class, l);
 	}
 
 	/**
@@ -248,7 +251,6 @@ public class TestSJava {
 
 		TestSJava sjav = new TestSJava();
 
-		
 		logger.finest(sjav.sayHi());
 
 	}

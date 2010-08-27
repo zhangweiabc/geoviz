@@ -174,12 +174,6 @@ public class DataSetModifiedBroadcaster implements DataSetListener {
 		for (int i = listeners.length - 2; i >= 0; i -= 2) {
 			if (listeners[i] == DataSetModifiedListener.class) {
 				// Lazily create the event:
-				if (e == null) {
-					// oi oi this is a problem, are we supposed to pass an
-					// Object[] or a double[], certainly not null
-					// e = new ColumnAppendedEvent(this, this.newData, null);
-
-				}
 				((DataSetModifiedListener) listeners[i + 1]).dataSetModified(e);
 			}
 		}
