@@ -967,9 +967,8 @@ public class DataSetForApps {
 			boolean[] booleanArray = (boolean[]) dataArray;
 			datum = new Boolean(booleanArray[rowIndex]);
 		} else {
-			logger
-					.severe("datasetforaps, getcolumnclass, hit unknown array type, type = "
-							+ dataArray.getClass());
+			logger.severe("datasetforaps, getcolumnclass, hit unknown array type, type = "
+					+ dataArray.getClass());
 		}
 
 		return datum;
@@ -1013,6 +1012,14 @@ public class DataSetForApps {
 
 	public void setDataSourceName(String dataSourceName) {
 		this.dataSourceName = dataSourceName;
+	}
+
+	public int getColumnCount() {
+		return getNamedArrays().length;
+	}
+
+	public Object getColumnName(int i) {
+		return getAttributeNamesOriginal()[i];
 	}
 
 }
