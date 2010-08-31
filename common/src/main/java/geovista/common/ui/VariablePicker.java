@@ -23,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,6 +54,10 @@ public class VariablePicker extends JPanel implements DataSetListener,
 	final static Logger logger = Logger.getLogger(VariablePicker.class
 			.getName());
 	DataSetForApps dataSet;
+	
+	// added by Peter Foley to allow specific variables types in the variable picker
+	// by default all (numeric types) are allowed replicating previous behaviour
+	private static int NUMERIC_TYPE = DataSetForApps.NULL_INT_VALUE;
 
 	// Creates Variable Picker
 	public VariablePicker() {
@@ -73,15 +79,65 @@ public class VariablePicker extends JPanel implements DataSetListener,
 			logger.finest("the first attribute is " + varNames[0]);
 		}
 	}
+	
+	/*
+	 * Additional Constructor added by Peter Foley to allow specific variable types
+	 *  to be specified for the Variable Picker to display
+	 */
+	
+	public VariablePicker(int varNumericType ) {
+		
+		// call the default no argument constructor
+		this();
+		
+		// check to make sure that the variable type is supported by the DataSetForApps class
+		if ( varNumericType == DataSetForApps.TYPE_BOOLEAN || 
+				varNumericType == DataSetForApps.TYPE_INTEGER || 
+				varNumericType == DataSetForApps.TYPE_DOUBLE) {
+			NUMERIC_TYPE = varNumericType;
+		}
+	}
 
 	// Adds Dataset Changed Component
 	public void dataSetChanged(DataSetEvent e) {
 		dataSet = e.getDataSetForApps();
 
+		
+		// extract the numeric variable names
 		DataSetForApps tempDApp = new DataSetForApps(e.getDataSet());
-		String[] newVarNames = tempDApp.getAttributeNamesNumeric();
+		String[] newVarNames = setVariableNames(tempDApp);
+				
 		varList.setListData(newVarNames);
 		varList.repaint();
+	}
+	
+	/*
+	 * Extract the numeric variable names from the input DataSetForApps instance
+	 * By default, this method returns a list of numeric variable names (double,int,boolean)
+	 * If NUMERIC_TYPE is specified then it will return a list of numeric variable names corresponding
+	 * to that type
+	 */
+	private String[] setVariableNames(DataSetForApps data) {
+		
+		String[] newVarNames = null;
+		
+		if (NUMERIC_TYPE != DataSetForApps.NULL_INT_VALUE) {
+			
+			int [] dataTypes = data.getDataTypeArray();
+			List<String> tempNewVarNames= new ArrayList<String>();
+			for ( int i = 0; i < dataTypes.length; i++ ) {
+				if ( dataTypes[i] == NUMERIC_TYPE ) {
+					tempNewVarNames.add(data.getColumnName(i));
+				}
+			}
+			newVarNames = new String[tempNewVarNames.size()];
+			tempNewVarNames.toArray(newVarNames);
+			
+		} else {
+			newVarNames = data.getAttributeNamesNumeric();
+		}
+				
+		return newVarNames;
 	}
 
 	// Adds Action Perfromed Event
