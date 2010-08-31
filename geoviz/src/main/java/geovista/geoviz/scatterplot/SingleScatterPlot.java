@@ -7,7 +7,7 @@ package geovista.geoviz.scatterplot;
  * <p>Company: </p>
  * @author unascribed
  * @author
- * 
+ *
  */
 
 import java.awt.BorderLayout;
@@ -92,7 +92,7 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 
 		vcPanel.add(visClassY);
 		vcPanel.add(visClassX);
-
+		visClassY.setPalette("Greens");
 		JPanel legendPanel = new JPanel();
 		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.X_AXIS));
 		biViz = new BivariateColorSchemeVisualizer();
@@ -114,7 +114,8 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 		visClassY.addColorClassifierListener(this);
 
 		visClassY.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_GREEN); // green
-
+		visClassX.getClassPick().setNClasses(4);
+		visClassY.getClassPick().setNClasses(4);
 	}
 
 	/**

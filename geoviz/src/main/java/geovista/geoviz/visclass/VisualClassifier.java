@@ -144,6 +144,11 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		makeTexPaint();
 	}
 
+	public void setPalette(String name) {
+		symbolizationPanel.setPalette(name);
+		makeColors();
+	}
+
 	private void makeTexPaint() {
 
 		int texSize = 4;
@@ -569,11 +574,9 @@ public class VisualClassifier extends JPanel implements ActionListener,
 								getColorSymbolClassification());
 					}
 					if (orientationInParentIsX == true) {
-						e
-								.setOrientation(ColorClassifierEvent.SOURCE_ORIENTATION_X);
+						e.setOrientation(ColorClassifierEvent.SOURCE_ORIENTATION_X);
 					} else {
-						e
-								.setOrientation(ColorClassifierEvent.SOURCE_ORIENTATION_Y);
+						e.setOrientation(ColorClassifierEvent.SOURCE_ORIENTATION_Y);
 					}
 					((ColorClassifierListener) listeners[i + 1])
 							.colorClassifierChanged(e);

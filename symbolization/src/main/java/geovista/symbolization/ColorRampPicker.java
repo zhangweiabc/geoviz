@@ -55,8 +55,12 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 		init();
 	}
 
+	public static UnivariatePalette getPalette(String name) {
+		return palettes.get(name);
+	}
+
 	private void init() {
-		pal = ColorRampPicker.palettes.get("Accent");
+		pal = ColorRampPicker.palettes.get("Blues");
 		// this.setBorder(BorderFactory.createLineBorder(Color.black));
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		ramp = new ColorRamp();
@@ -79,6 +83,11 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 		// this.setMinimumSize(new Dimension(200,20));
 		// this.setMaximumSize(new Dimension(1000,60));
 		addComponentListener(this);
+	}
+
+	public void setPalette(String name) {
+		pal = ColorRampPicker.palettes.get(name);
+		colors = pal.getColors(colors.length);
 	}
 
 	public void makeRamp(int nSwatches) {

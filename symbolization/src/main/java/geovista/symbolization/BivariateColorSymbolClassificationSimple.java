@@ -21,6 +21,7 @@ package geovista.symbolization;
 
 import java.awt.Color;
 
+import geovista.colorbrewer.UnivariatePalette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierQuantiles;
 
@@ -50,7 +51,10 @@ public class BivariateColorSymbolClassificationSimple implements
 		Color[][] currColors = new Color[numClassesX][numClassesY];
 		Color[] xColors = colorerX.symbolize(numClassesX);
 		Color[] yColors = colorerY.symbolize(numClassesY);
-
+		UnivariatePalette xPal = ColorRampPicker.getPalette("Blues");
+		UnivariatePalette yPal = ColorRampPicker.getPalette("Greens");
+		xColors = xPal.getColors(numClassesX);
+		yColors = yPal.getColors(numClassesY);
 		for (int x = 0; x < currColors.length; x++) {
 			for (int y = 0; y < currColors[0].length; y++) {
 				Color colorX = xColors[x];

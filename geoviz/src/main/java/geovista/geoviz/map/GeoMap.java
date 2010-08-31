@@ -194,11 +194,13 @@ public class GeoMap extends JPanel
 		visClassTwo.addColorClassifierListener(this);
 		addIndicationListener(biViz);
 
+		visClassTwo.setPalette("Greens");
 		visClassTwo.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_GREEN); // green
 		currSize = new Dimension(this.getSize());
 		fisheyes = new Fisheyes();
 		fisheyes.setLensType(Fisheyes.LENS_HEMISPHERE);
-
+		visClassOne.getClassPick().setNClasses(4);
+		visClassTwo.getClassPick().setNClasses(4);
 		// this.colorClassifierChanged(new
 		// ColorClassifierEvent(visClassTwo,visClassTwo.
 		// getColorSymbolClassification()));
@@ -236,11 +238,11 @@ public class GeoMap extends JPanel
 		JButton button = null;
 		Class cl = GeoMap.class;
 		URL urlGif = null;
-		Dimension buttDim = new Dimension(20, 20);
+		Dimension buttDim = new Dimension(24, 24);
 
 		// first button
 		try {
-			urlGif = cl.getResource("resources/select16.gif");
+			urlGif = cl.getResource("resources/select24.gif");
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -262,7 +264,7 @@ public class GeoMap extends JPanel
 
 		// second button
 		try {
-			urlGif = cl.getResource("resources/ZoomIn16.gif");
+			urlGif = cl.getResource("resources/ZoomIn24.gif");
 			button = new JButton(new ImageIcon(urlGif));
 			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
@@ -284,7 +286,7 @@ public class GeoMap extends JPanel
 
 		// third button
 		try {
-			urlGif = cl.getResource("resources/ZoomOut16.gif");
+			urlGif = cl.getResource("resources/ZoomOut24.gif");
 			button = new JButton(new ImageIcon(urlGif));
 			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
@@ -304,7 +306,7 @@ public class GeoMap extends JPanel
 
 		// fourth button
 		try {
-			urlGif = cl.getResource("resources/Home16.gif");
+			urlGif = cl.getResource("resources/Home24.gif");
 			button = new JButton(new ImageIcon(urlGif));
 			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
@@ -322,7 +324,7 @@ public class GeoMap extends JPanel
 
 		// fifth button
 		try {
-			urlGif = cl.getResource("resources/pan16.gif");
+			urlGif = cl.getResource("resources/pan24.gif");
 			button = new JButton(new ImageIcon(urlGif));
 			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
@@ -341,7 +343,7 @@ public class GeoMap extends JPanel
 		mapTools.add(button);
 		// sixth button
 		try {
-			urlGif = cl.getResource("resources/excentric16.gif");
+			urlGif = cl.getResource("resources/excentric24.gif");
 			button = new JButton(new ImageIcon(urlGif));
 			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
@@ -361,7 +363,7 @@ public class GeoMap extends JPanel
 
 		// seventh button
 		try {
-			urlGif = cl.getResource("resources/fisheye16.gif");
+			urlGif = cl.getResource("resources/fisheye24.gif");
 			button = new JButton(new ImageIcon(urlGif));
 			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
@@ -380,7 +382,7 @@ public class GeoMap extends JPanel
 		mapTools.add(button);
 		// eighth button
 		try {
-			urlGif = cl.getResource("resources/magnifying16.gif");
+			urlGif = cl.getResource("resources/magnifying24.gif");
 			button = new JButton(new ImageIcon(urlGif));
 			button.setPreferredSize(buttDim);
 		} catch (Exception ex) {
@@ -498,7 +500,7 @@ public class GeoMap extends JPanel
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void setTextures(TexturePaint[] textures) {
 		mapCan.setTextures(textures);
@@ -818,7 +820,7 @@ public class GeoMap extends JPanel
 		// //this.visClassTwo.tableChanged(e);
 		// this.visClassOne.setUpdate(true);
 		// this.visClassTwo.setUpdate(true);
-		//		
+		//
 		// so, what do we do?
 		// add the new column to the picker, I suppose
 

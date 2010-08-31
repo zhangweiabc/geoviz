@@ -27,8 +27,8 @@ public class ColorRampSwatch extends JPanel implements MouseListener {
 	protected Color swatchColor;
 	protected transient ColorRampPicker parent;
 	protected transient boolean isEnd;
-	protected transient ImageIcon iconBlack;
-	protected transient ImageIcon iconWhite;
+	protected static ImageIcon iconBlack;
+	protected static ImageIcon iconWhite;
 	protected transient TexturePaint texPaint;
 	protected final static Logger logger = Logger
 			.getLogger(ColorRampSwatch.class.getName());
@@ -43,8 +43,8 @@ public class ColorRampSwatch extends JPanel implements MouseListener {
 		isEnd = end;
 	}
 
-	public void makeImage() {
-		Class cl = this.getClass();
+	public static void makeImage() {
+		Class cl = ColorRampSwatch.class;
 		URL urlGif = cl.getResource("resources/anchorBlack.gif");
 		ImageIcon icon = new ImageIcon(urlGif, "Anchors the color in a ramp");
 		iconBlack = icon;
@@ -94,7 +94,7 @@ public class ColorRampSwatch extends JPanel implements MouseListener {
 
 	public void mouseClicked(MouseEvent e) {
 		if (e.getClickCount() > 1) { // double or more clicks
-			//this.swatch.setBorder(BorderFactory.createLineBorder(Color.black))
+			// this.swatch.setBorder(BorderFactory.createLineBorder(Color.black))
 			// ;
 			logger.finest("Mouse clicked (# of clicks: " + e.getClickCount()
 					+ ")");
@@ -154,7 +154,7 @@ public class ColorRampSwatch extends JPanel implements MouseListener {
 			}
 			midX = midX - (ico.getWidth(this) / 2);
 			midY = midY - (ico.getHeight(this) / 2);
-			g.drawImage(ico, midX, midY, this);
+			// g.drawImage(ico, midX, midY, this);
 		}
 	}
 
