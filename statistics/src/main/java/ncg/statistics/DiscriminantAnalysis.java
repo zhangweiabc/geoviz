@@ -54,10 +54,90 @@ public class DiscriminantAnalysis {
 	public DiscriminantAnalysis(){
 	}
 	
+	
+	/*
+	 * various methods to check whether certain class attributes required to classify and output
+	 * by the classification process have been set
+	 * if they are not set then a DiscriminantAnalysisException object is thrown
+	 */
+	
+	// check to see if the classification attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validateClassification() throws DiscriminantAnalysisException {		
+		if ( classification == null ) {
+			throw new DiscriminantAnalysisException("input classification variable not set");
+		}
+	}
+	
+	// check to see if the uniqueClasses attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validateUniqueClasses() throws DiscriminantAnalysisException {
+			
+		if ( uniqueClasses == null ) {
+			throw new DiscriminantAnalysisException("unique classes not computed (set input classification variable)");
+		}
+	}
+	
+	// check to see if the classFrequencies attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validateClassFrequencies() throws DiscriminantAnalysisException {		
+		if ( classFrequencies == null ) {
+			throw new DiscriminantAnalysisException("class frequencies not computed (set input classification variable)");
+		}
+	}
+	
+	// check to see if the predictorVariables attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validatePredictorVariables() throws DiscriminantAnalysisException {	
+		if ( predictorVariables == null ) {
+			throw new DiscriminantAnalysisException("input predictor variables not set");
+		}
+	}
+	
+	// check to see if the priorProbabilities attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validatePriorProbabilities() throws DiscriminantAnalysisException {
+		if ( priorProbabilities== null ) {
+			throw new DiscriminantAnalysisException("input prior probabilities not set");
+		}
+	}
+	
+	// check to see if the uniqueClasses attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validateClassified() throws DiscriminantAnalysisException {
+		if ( classified == null ) {
+			throw new DiscriminantAnalysisException("output classification not set");
+		}
+	}
+	
+	// check to see if the posteriorProbabilities attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validatePosteriorProbabilities() throws DiscriminantAnalysisException {
+		if ( posteriorProbabilities == null ) {
+			throw new DiscriminantAnalysisException("output posterior probabilities not set");
+		}
+	}
+	
+	// check to see if the parameters attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validateParameters() throws DiscriminantAnalysisException {
+		if ( parameters == null ) {
+			throw new DiscriminantAnalysisException("output parameters not set");
+		}
+	}
+	
+	// check to see if the mahalanobisDistance2 attribute has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validateMahalanobisDistance2() throws DiscriminantAnalysisException {
+		if ( mahalanobisDistance2 == null ) {
+			throw new DiscriminantAnalysisException("output mahalanobis distance squared not set");
+		}
+	}
+	
 	// set the predictor variables
 	// rowOrder is set to true if the first dimension of the input array
 	// contains the rows (observations). If rowOrder is set to false
-	// the first dimension of the input array refers to columns (attributes
+	// the first dimension of the input array refers to columns (attributes)
 	public void setPredictorVariables(double[][] predictorVariables,
 					boolean rowOrder) {
 		try {
@@ -70,89 +150,40 @@ public class DiscriminantAnalysis {
 			}
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();		
+			e.printStackTrace();
+			this.predictorVariables = null;
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			this.predictorVariables = null;
 		}
 		
 	}
 
 	// get the predictor variables 
-	// return zero length 2d array of doubles if not set
-	public double[][] getPredictorVariables() {
-		
-		if ( predictorVariables != null ) {
-			return predictorVariables.getData();
-		} else {
-			return new double[0][0];
-		}
-		
+	// throws a DiscriminantAnalysisException object if not set
+	public double[][] getPredictorVariables() throws DiscriminantAnalysisException {		
+		validatePredictorVariables();
+		return predictorVariables.getData();		
 	}
-	
+
 	// return the number of independent variables (attributes)
-	public int getNumAttributes() {
-		if ( predictorVariables != null ) {
-			return predictorVariables.getColumnDimension();
-		} else {
-			return 0;
-		}
+	// throws a DiscriminantAnalysisException object if not set
+	public int getNumAttributes() throws DiscriminantAnalysisException {
+		validatePredictorVariables();
+		return predictorVariables.getColumnDimension();
 	}
 	
 	// return the number of observations (rows)
-	public int getNumObservations() {
-		if ( predictorVariables != null ) {
-			return predictorVariables.getRowDimension();
-		} else {
-			return 0;
-		}
+	// throws a DiscriminantAnalysisException object if not set
+	public int getNumObservations() throws DiscriminantAnalysisException {
+		validatePredictorVariables();
+		return predictorVariables.getRowDimension();
 	}
 	
-	// return parameters (coefficients) of classification functions
-	// return zero length 2d array of doubles if not set
-	public double[][] getParameters() {
-		if (parameters != null) {
-			return parameters.getData();
-		} else {
-			return new double[0][0];
-		}
-	}
-	
-	// return posterior probabilities for class 'classIndex'
-	// return zero length array of doubles if not set
-	public double[] getPosteriorProbabilities(int classIndex) {
-	
-		double[] col = null;
-		
-		if ( posteriorProbabilities != null) {
-			
-			try {
-				col = posteriorProbabilities.getColumn(classIndex);
-			} catch (MatrixIndexException e) {
-				logger.severe(e.toString() + " : " + e.getMessage());
-				e.printStackTrace();
-				col = new double[0];
-			}
-			
-		} else {
-			col = new double[0];
-		}
-		
-		return col;
-	}
-	
-	// get full 2d array of posterior probabilities
-	public double[][] getPosteriorProbabilities() {
-		
-		if (posteriorProbabilities != null) {
-			return posteriorProbabilities.getData();
-		} else {
-			return new double[0][0];
-		}
-	}
-		
 	// set the classification
-	public void setClassification(int[] classification) {
+	// throws a DiscriminantAnalysisException if not set
+	public void setClassification(int[] classification) throws DiscriminantAnalysisException {
 		
 		this.classification = classification;
 		
@@ -163,18 +194,14 @@ public class DiscriminantAnalysis {
 		setClassFrequencies();
 		
 	}
-
-	// get the classification
-	// return zero length array of ints if not set
-	public int[] getClassification() {
-
-		if (classification != null) {
-			return classification;
-		} else {
-			return new int[0];
-		}
+	
+	// get the (input) classification 
+	// throws a DiscriminantAnalysisException if not set
+	public int[] getClassification() throws DiscriminantAnalysisException {
+		validateClassification();
+		return classification;
 	}
-
+	
 	// set prior probabilities
 	public void setPriorProbabilities(double[] priorProbabilities) {
 		try{
@@ -182,69 +209,125 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			this.priorProbabilities = null;
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			this.priorProbabilities = null;
 		}
 	}
-
-	// get prior probabilites
-	// returns zero length array of doubles if not set
-	public double[] getPriorProbabilities() {
 	
-		if ( priorProbabilities != null ) {
-			return priorProbabilities.getData();
-		} else {
-			return new double[0];
+	// set the prior probabilities to be equal by default
+	// this relies on the uniqueClasses attributes having been set
+	// if this is not set then a DiscriminantAnalysisException object is thrown
+	public void setPriorProbabilities() throws DiscriminantAnalysisException {
+		
+		validateUniqueClasses();
+		int numClasses = uniqueClasses.length;
+		
+		try{
+			this.priorProbabilities = new ArrayRealVector(numClasses, (1.0 / (double)numClasses));
+		} catch (NullPointerException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			this.priorProbabilities = null;
+		} catch (IllegalArgumentException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			this.priorProbabilities = null;
 		}
 	}
 
-	// get classication 
-	// returns zero length array of ints if not set
-	public int[] getClassified() {
-		if (classified != null) {
-			return classified;
-		} else {
-			return new int[0];
-		}
+	// get prior probabilities
+	// throws a DiscriminantAnalysisException object if not set
+	public double[] getPriorProbabilities() throws DiscriminantAnalysisException {
+		validatePriorProbabilities();
+		return priorProbabilities.getData();
 	}
-
-	// get mahalanobis distance squared for class 'classIndex'
-	// return zero 2d length array of double if not set
-	public double[] getMahalanobisDistance2(int classIndex) {
+	
+	// return posterior probabilities for class 'classIndex'
+	// throws a DiscriminantAnalysisException object if not set
+	// if 'classIndex' is out of range then return a zero length array of doubles
+	public double[] getPosteriorProbabilities(int classIndex) throws DiscriminantAnalysisException {
+	
+		validatePosteriorProbabilities();
 		
 		double[] col = null;
-		
-		if ( mahalanobisDistance2 != null) {
 			
-			try {
-				col = mahalanobisDistance2.getColumn(classIndex);
-			} catch (MatrixIndexException e) {
-				logger.severe(e.toString() + " : " + e.getMessage());
-				e.printStackTrace();
-				col = new double[0];
-			}
-			
-		} else {
+		try {
+			col = posteriorProbabilities.getColumn(classIndex);
+		} catch (MatrixIndexException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
 			col = new double[0];
 		}
-		
+				
+		return col;
+	}
+	
+	/*
+	 * get methods for output of classification : classified, posteriorProbabilities, parameters
+	 * and mahalanobisDistance2
+	 */
+	
+	// get classification output 
+	// throws a DiscriminantAnalysisException object if not set
+	public int[] getClassified() throws DiscriminantAnalysisException {
+		validateClassified();
+		return classified;
+	}
+	
+	// get full 2d array of posterior probabilities
+	// throws a DiscriminantAnalysisException object if not set
+	public double[][] getPosteriorProbabilities() throws DiscriminantAnalysisException {
+		validatePosteriorProbabilities();
+		return posteriorProbabilities.getData();
+	}
+	
+	// return parameters (coefficients) of classification functions
+	// throws a DiscriminantAnalysisException object if not set
+	public double[][] getParameters() throws DiscriminantAnalysisException {
+		validateParameters();
+		return parameters.getData();
+	}
+	
+	// return full 2d array of mahalanobis distance
+	// throws a DiscriminantAnalysisException object if not set
+	public double[][] getMahalanobisDistance2() throws DiscriminantAnalysisException {		
+		validateMahalanobisDistance2();
+		return mahalanobisDistance2.getData();
+	}
+	
+	// get mahalanobis distance squared for class 'classIndex'
+	// throws a DiscriminantAnalysisException object if not set 
+	// if 'classIndex' is out of range return a zero length array of doubles
+	public double[] getMahalanobisDistance2(int classIndex) throws DiscriminantAnalysisException {
+			
+		validateMahalanobisDistance2();
+		double[] col = null;
+				
+		try {
+			col = mahalanobisDistance2.getColumn(classIndex);
+		} catch (MatrixIndexException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			col = new double[0];
+		}
+					
 		return col;
 		
 	}
-	// return full 2d array of mahalanobis distance
-	public double[][] getMahalanobisDistance2() {
-		
-		if (mahalanobisDistance2 != null) {
-			return mahalanobisDistance2.getData();
-		} else {
-			return new double[0][0];
-		}
-	}
-
+	
+	/*
+	 * get and set methods for internal variables - uniqueClasses and classFrequencies	
+	 */
 	
 	//compute unique classes labels from classification array
-	private void setUniqueClasses() {
+	private void setUniqueClasses() throws DiscriminantAnalysisException {
+		
+		// check to see if the classification attribute has been set
+		// cannot execute this method until it has been set
+		validateClassification();
 		
 		try {
 			
@@ -267,11 +350,24 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			uniqueClasses = null;
 		}
 	}
 	
+	// get unique class labels 
+	// throws a DiscriminantAnalysisException object if not set
+	public int[] getUniqueClasses() throws DiscriminantAnalysisException {	
+		validateUniqueClasses();
+		return uniqueClasses;
+	}
+	
 	// compute class frequencies
-	private void setClassFrequencies() {
+	private void setClassFrequencies() throws DiscriminantAnalysisException {
+		
+		// check to see if the classification and uniqueClasses attributes have been set
+		// cannot continue if these are not set
+		validateClassification();
+		validateUniqueClasses();
 		
 		try {
 			
@@ -291,40 +387,38 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			classFrequencies = null;
+			
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			classFrequencies = null;
 		}
 	}
 
-	// get unique class labels 
-	// return zero length array of ints if not set
-	public int[] getUniqueClasses() {
-		if (uniqueClasses != null) {
-			return uniqueClasses;
-		} else {
-			return new int[0];
-		}
-	}
+	
 	// get class frequencies 
-	// return zero length array of ints if not set
-	public int[] getClassFrequencies() {
-		if (classFrequencies != null) {
-			return classFrequencies;
-		} else {
-			return new int[0];
-		}
+	// throws a DiscriminantAnalysisException object  if not set
+	public int[] getClassFrequencies() throws DiscriminantAnalysisException {
+		validateClassFrequencies();
+		return classFrequencies;
 	}
 
 	// return integer array of row indices for the classIndex th class
 	// classIndex is the index of the classIndex th class in the 
 	// integer array returned by uniqueClasses
-	// return null in case of an error
-	private int[] computeClassIndices(int classIndex){
+	// throws a DiscriminantAnalysisException object or returns a zero length array of ints in case of an error
+	private int[] computeClassIndices(int classIndex) throws DiscriminantAnalysisException {
+		
+		// check to see if the classification, uniqueClasses & classFrequencies attributes have been set
+		// cannot continue until they are set
+		validateClassification();
+		validateUniqueClasses();
+		validateClassFrequencies();
 		
 		// array to hold indices for class with index 'classIndex'
 		int[] classRowIndices = null;
-		
+				
 		try {
 			
 			classRowIndices = new int[classFrequencies[classIndex]];
@@ -340,17 +434,24 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			classRowIndices = new int[0];
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			classRowIndices = new int[0];
 		} 
 		
 		return classRowIndices;
 	}	
 	
 	// return integer array of column (field) indices
-	// return null in case of an error
-	private int[] computeFieldIndices() {
+	// throws DiscriminantAnalysisException object or returns zero length array
+	// in case of an error
+	private int[] computeFieldIndices() throws DiscriminantAnalysisException {
+		
+		// check to see if predictorVariables have been set
+		// cannot continue unti this has been set
+		validatePredictorVariables();
 		
 		int[] colIndices = null;
 		
@@ -365,6 +466,7 @@ public class DiscriminantAnalysis {
 		} catch ( NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			colIndices = new int[0];
 		}
 	
 		return colIndices;
@@ -373,7 +475,11 @@ public class DiscriminantAnalysis {
 	// compute group means for class with index classIndex in the
 	// array uniqueClasses
 	// return null in case of an error
-	private RealVector getClassMean(int classIndex) {
+	private RealVector getClassMean(int classIndex) throws DiscriminantAnalysisException {
+		
+		// check to see if predictorVariables have been set
+		// cannot continue unti this has been set
+		validatePredictorVariables();
 		
 		// vector reference to hold class means
 		RealVector classMeansVector = null;
@@ -393,8 +499,7 @@ public class DiscriminantAnalysis {
 			// assign memory for group means
 			double[] groupMeans = new double[predC.getColumnDimension()];
 				
-			for ( int j = 0; j < groupMeans.length; j++ ) {
-	
+			for ( int j = 0; j < groupMeans.length; j++ ) {	
 					groupMeans[j] = StatUtils.mean(predC.getColumn(j));
 			}
 			
@@ -403,12 +508,15 @@ public class DiscriminantAnalysis {
 		} catch (MatrixIndexException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			classMeansVector = null;
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			classMeansVector = null;
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			classMeansVector = null;
 		}
 	
 		return classMeansVector;
@@ -418,16 +526,30 @@ public class DiscriminantAnalysis {
 	// compute covariance matrix for the class with index classIndex
 	// in the array uniqueClases
 	// return null in case of an error
-	private RealMatrix getCovarianceMatrix(int classIndex) {
+	private RealMatrix getCovarianceMatrix(int classIndex) throws DiscriminantAnalysisException {
 		
-		// reference to covariance matrix
-		RealMatrix covMatrix = null;
-		
+		// check to see if predictorVariables have been set
+		// cannot continue unti this has been set
+		validatePredictorVariables();
+				
 		// compute field indices
 		int[] fieldIndices = computeFieldIndices();
+		
+		// check to make sure that there are least two fields
+		if ( fieldIndices.length < 2 ) {
+			throw new DiscriminantAnalysisException("cannot compute covariance matrix for less than two fields");
+		}
 
 		// compute row indices for class 'classIndex'
 		int[] classRowIndices = computeClassIndices(classIndex);
+		
+		// check to make sure that there are least two observations
+		if ( classRowIndices.length < 2 ) {
+			throw new DiscriminantAnalysisException("cannot compute covariance matrix for less than two observations");
+		}
+		
+		// reference to covariance matrix
+		RealMatrix covMatrix = null;
 		
 		try {
 				
@@ -442,13 +564,16 @@ public class DiscriminantAnalysis {
 			
 		} catch (MatrixIndexException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();	
+			e.printStackTrace();
+			covMatrix = null;
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			covMatrix = null;
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			covMatrix = null;
 		}
 				
 		return covMatrix;
@@ -457,7 +582,13 @@ public class DiscriminantAnalysis {
 
 	// compute the pooled class covariance matrix
 	// return null in case of an error
-	private RealMatrix getPooledCovMatrix() {
+	private RealMatrix getPooledCovMatrix() throws DiscriminantAnalysisException {
+		
+		// check to see if predictorVariables, uniqueClasses & classFrequencies have been set
+		// cannot continue until these have been set
+		validatePredictorVariables();
+		validateUniqueClasses();
+		validateClassFrequencies();
 		
 		// reference to pooled class covariance matrix
 		RealMatrix pooledCovMatrix = null;
@@ -540,9 +671,16 @@ public class DiscriminantAnalysis {
 
 	// compute confusion matrix
 	// return 2d array of zeros in case of an error
-	public int[][] confusionMatrix() {
+	public int[][] confusionMatrix() throws DiscriminantAnalysisException {
 		
-		int[][] cMatrix = new int[0][0];
+		
+		// check to see if classification, classified and uniqueClasses have been set
+		// cannot continue until these have been set
+		validateClassification();
+		validateUniqueClasses();
+		validateClassified();
+		
+		int[][] cMatrix = null;
 		
 		try{
 			
@@ -572,16 +710,25 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			cMatrix = new int[0][0];
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			cMatrix = new int[0][0];
 		}
 
 		return cMatrix;
 	}
 	
+	
 	// do the classification
-	public void classify() {
+	public void classify() throws DiscriminantAnalysisException {
+		
+		// check to see if predictorVariables, priorProbabilites and uniqueClasses have been set
+		// cannot continue until these have been set
+		validatePredictorVariables();
+		validateUniqueClasses();
+		validatePriorProbabilities();
 		
 		try {
 			
@@ -589,13 +736,8 @@ public class DiscriminantAnalysis {
 			int numFields = predictorVariables.getColumnDimension();
 			int numClasses = uniqueClasses.length;
 			
-			// compute the log of the prior probabilities (if set)
-			RealVector logPriorProbabilities = null;
-			if (priorProbabilities != null) {
-				logPriorProbabilities = priorProbabilities.mapLog();
-			} else {
-				logPriorProbabilities = new ArrayRealVector(numClasses, (1.0 / (double)numClasses)).mapLog();
-			}
+			// compute the log of the prior probabilities
+			RealVector logPriorProbabilities = priorProbabilities.mapLog();
 			
 			// create pooled group covariance matrix (maximum likelihood version)
 			RealMatrix pooledCovMatrix = getPooledCovMatrix();
@@ -606,6 +748,7 @@ public class DiscriminantAnalysis {
 			DecompositionSolver solver = inv.getSolver();
 			
 			if ( solver.isNonSingular() ) {
+				
 				RealMatrix pooledCovMatrixInv = inv.getSolver().getInverse();
 
 				
@@ -651,12 +794,8 @@ public class DiscriminantAnalysis {
 					// compute the pdf values for the observations in row i
 					// covariance matrix C is positive semi-definite so x'C' >= 0
 					// pdf is therefore constrained to lie in range[0,1]
-					RealVector mvnD = mahalanobisDistance2.getRowVector(i).mapDivide(-2.0).mapExp();
-					
-					if (priorProbabilities != null) {
-						mvnD = mvnD.ebeMultiply(priorProbabilities);
-					}
-					
+					RealVector mvnD = mahalanobisDistance2.getRowVector(i).mapDivide(-2.0).mapExp().ebeMultiply(priorProbabilities);
+										
 					// since pdf values are in the range [0,1] computing
 					// the l1 norm (sum of absolute values) is equivalent to
 					// summing the vector item values
@@ -684,7 +823,9 @@ public class DiscriminantAnalysis {
 					classified[i] = uniqueClasses[classIndex];
 				}
 			} else {
-				logger.severe("Singular pooled covariance matrix - unable to classify");
+				String message = "Singular pooled covariance matrix - unable to classify";
+				logger.severe(message);
+				throw new DiscriminantAnalysisException(message);
 			}
 			
 		} catch (NullPointerException e) {
@@ -702,6 +843,6 @@ public class DiscriminantAnalysis {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-		}
+		} 
 	}
 }
