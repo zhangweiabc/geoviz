@@ -79,7 +79,7 @@ public class DiscriminantAnalysisTest {
 			
 			// get confusion matrix
 			int[][] confMatrix = da.confusionMatrix();
-			
+		
 			// get the classification
 			int[] classified = da.getClassified();
 			
@@ -126,6 +126,9 @@ public class DiscriminantAnalysisTest {
 			logger.severe(e.getMessage());
 			e.printStackTrace();
 		} catch (AssertionError e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		} catch (DiscriminantAnalysisException e) {
 			logger.severe(e.getMessage());
 			e.printStackTrace();
 		}
