@@ -1018,7 +1018,7 @@ public class DataSetForApps {
 		return getNamedArrays().length;
 	}
 
-	public Object getColumnName(int i) {
+	public String getColumnName(int i) {
 		return getAttributeNamesOriginal()[i];
 	}
 
