@@ -56,27 +56,31 @@ public class DiscriminantAnalysisGUI extends JPanel
 	 
 
 	// backend components
-	DiscriminantAnalysis da = null;
-	DataSetForApps dataSet = null;
+	transient DiscriminantAnalysis da = null;
+	transient DataSetForApps dataSet = null;
 
 	// gui components
-	JButton goButton = null;
-	JLabel category = null;
-	JComboBox categoryCombo = null;
-	VariablePicker indVarPicker = null;
-	JPanel outputInfo = null;
-	GeoMap map = null;
+	transient JButton goButton = null;
+	transient JLabel category = null;
+	transient JComboBox categoryCombo = null;
+	transient VariablePicker indVarPicker = null;
+	transient JPanel outputInfo = null;
+	transient GeoMap map = null;
 
 	// arrays to hold indices for independent and dependent variables
 	// in the dataSet object
-	int[] indVarIndices = new int[0];
-	int categoryIndex = -1;
-	int numClassifications = 0;
+	transient int [] indVarIndices = new int[0];
+	transient int categoryIndex = -1;
+	transient int numClassifications = 0;
+	
+	// holds the number of numeric attributes in the initial dataset
+	// need this so we don't keep adding new attributes with each classification
+	transient int numOrgNumAttributes = 0;
 	
 	// categoryIndexMap maps the indices of variables
 	// in the categoryCombo Box to indices of variables
 	// in dataSet
-	Map<Integer,Integer> categoryIndexMap = null;
+	transient Map<Integer,Integer> categoryIndexMap = null;
 	
 	// logger object
 	protected final static Logger logger = Logger
@@ -209,6 +213,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 
 		// get the dataset
 		dataSet = e.getDataSetForApps();
+		
+		// save the number of numeric attributes in the original dataset
+		numOrgNumAttributes  = dataSet.getNumberNumericAttributes();
 
 		// identify the variables of type 'int'
 		// and add them to the 'category' combo box
@@ -462,6 +469,36 @@ public class DiscriminantAnalysisGUI extends JPanel
 				dataCaster.setAndFireDataSet(dataSetChanged);
 				map.repaint();
 				
+				///////////////////////////////////////////////////
+				// now send the data to all other listening beans
+				//////////////////////////////////////////////////
+				
+				String[] orgFieldNames = dataSet.getAttributeNamesOriginal();
+				Object[] orgData = dataSet.getDataSetNumeric();
+				
+				Object[] newData = new Object[numOrgNumAttributes + (1 + (numClasses*2))];
+				String[] newFieldNames = new String[numOrgNumAttributes + (1 + (numClasses*2))];
+				
+				for ( int i = 0; i < numOrgNumAttributes; i++) {
+					newData[i] = orgData[i];
+					newFieldNames[i] = orgFieldNames[i];
+				}
+				
+				newFieldNames[numOrgNumAttributes] = "Classified";
+				newData[numOrgNumAttributes] = da.getClassified();
+				
+				for ( int i = 0; i < numClasses; i++) {
+					newFieldNames[i+(numOrgNumAttributes+1)] = "MhDist2_" + String.valueOf(i);
+					newData[i+(numOrgNumAttributes+1)] = da.getMahalanobisDistance2(i);
+				}
+				for ( int i = 0; i < numClasses; i++) {
+					newFieldNames[i+(numOrgNumAttributes+numClasses+1)] = "PostProb_" + String.valueOf(i);
+					newData[i+(numOrgNumAttributes+numClasses+1)] = da.getPosteriorProbabilities(i);
+				}
+				
+				DataSetForApps newDataSet = new DataSetForApps(newFieldNames, newData, dataSet.getShapeData());
+				fireDataSetChanged(newDataSet);
+				
 			} catch (DiscriminantAnalysisException e ){
 				String message = "Unable to classify : " + e.getMessage();
 				JOptionPane.showMessageDialog(this, message, "WARNING", JOptionPane.WARNING_MESSAGE);
@@ -534,6 +571,46 @@ public class DiscriminantAnalysisGUI extends JPanel
 				}
 
 				indVarIndices = indVarIndicesNew;
+			}
+		}
+	}
+	
+	/**
+	 * adds a DataSetListener
+	 */
+	public void addDataSetListener(DataSetListener l) {
+		listenerList.add(DataSetListener.class, l);
+	}
+
+	/**
+	 * removes a DataSetListener
+	 */
+	public void removeDataSetListener(DataSetListener l) {
+		listenerList.remove(DataSetListener.class, l);
+	}
+
+	/**
+	 * Notify all listeners that have registered interest for notification on
+	 * this event type. The event instance is lazily created using the
+	 * parameters passed into the fire method.
+	 *
+	 * @see EventListenerList
+	 */
+	protected void fireDataSetChanged(DataSetForApps data) {
+		logger.finest("ShpToShp.fireDataSetChanged, Hi!!");
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		DataSetEvent e = null;
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == DataSetListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new DataSetEvent(data, this);
+
+				}
+				((DataSetListener) listeners[i + 1]).dataSetChanged(e);
 			}
 		}
 	}
