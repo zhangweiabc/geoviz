@@ -317,8 +317,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		initMembers();
 		desktop.setBackground(new Color(20, 20, 80));
-		this.useProj = useProj;
-		// useProj = false;
+		setUseProj(useProj);
 		JXLayer<JComponent> layer = new JXLayer<JComponent>(desktop);
 		indUI = new IndicationConnectUI<JComponent>();
 		getContentPane().add(layer, BorderLayout.CENTER);
@@ -367,7 +366,6 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		// set.
 		if (vizState.beanSet == null) {
 			VizState state = ToolkitIO.openDefaultLayout();
-			this.useProj = true;
 			setVizState(state);
 		}
 
@@ -512,8 +510,8 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		vizState.listenerList = new EventListenerList();
 		coord.addBean(vizState);
 
-		useProj = vizState.useProj;
-
+		setUseProj(vizState.useProj);
+		
 		loadData(vizState.dataSource);
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		addToolkitBeanSet(vizState.getBeanSet());
@@ -1390,6 +1388,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 	public void setUseProj(boolean useProj) {
 		this.useProj = useProj;
+		this.menuItemUseProj.setState(useProj);
 	}
 
 	public void annotationChanged(AnnotationEvent e) {
