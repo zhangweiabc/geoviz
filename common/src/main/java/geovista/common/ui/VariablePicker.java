@@ -57,7 +57,7 @@ public class VariablePicker extends JPanel implements DataSetListener,
 	
 	// added by Peter Foley to allow specific variables types in the variable picker
 	// by default all (numeric types) are allowed replicating previous behaviour
-	private static int NUMERIC_TYPE = DataSetForApps.NULL_INT_VALUE;
+	private int NUMERIC_TYPE = DataSetForApps.NULL_INT_VALUE;
 
 	// Creates Variable Picker
 	public VariablePicker() {
