@@ -171,21 +171,29 @@ public class DiscriminantAnalysisGUI extends JPanel
 	 */
 	public void actionPerformed(ActionEvent e) {
 
-		try {
-			if (e.getSource() == categoryCombo) {
-				setCategoryIndex(categoryCombo.getSelectedIndex());
-			} else if (e.getSource() == goButton) {
+
+		if (e.getSource() == categoryCombo) {
+			setCategoryIndex(categoryCombo.getSelectedIndex());
+		} else if (e.getSource() == goButton) {
+			
+			try {
 				
 				// classify the data 
 				classify();	
+				
 				// write the classification output to the screen (diagnostics)
 				getDiagnostics();
+				
 				// send the classification output to all other listening beans
 				fireNewDataSet();
+				
+				//reset the discriminant analysis object - recover memory
+				da.reset();
+				
+			} catch (DiscriminantAnalysisGUIException de) {
+				String message = "unable to classify " + de.getMessage();
+				JOptionPane.showMessageDialog(this, message, "WARNING", JOptionPane.WARNING_MESSAGE);
 			}
-		} catch (DiscriminantAnalysisGUIException de) {
-			String message = "unable to classify " + de.getMessage();
-			JOptionPane.showMessageDialog(this, message, "WARNING", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 	

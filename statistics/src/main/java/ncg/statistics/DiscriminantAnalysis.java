@@ -4,6 +4,7 @@ Implementation of Global Discriminant Analysis
 Peter Foley, 19.07.2010
 */
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,6 +53,29 @@ public class DiscriminantAnalysis {
 	
 	// empty constructor
 	public DiscriminantAnalysis(){
+	}
+	
+	// reset all member variables & try to free up memory
+	public void reset() {
+		
+		// input variables, arrays & objects
+		predictorVariables = null;
+		classification = null;
+		priorProbabilities = null;
+		
+		// input dependent variables, arrays & objects
+		uniqueClasses = null;
+		classFrequencies = null;
+		
+		// output variables, arrays & objects
+		classified = null;
+		posteriorProbabilities = null;
+		parameters = null;
+		mahalanobisDistance2 = null;
+		
+		// run the java garbage collector
+		Runtime.getRuntime().gc();
+		
 	}
 	
 	
@@ -199,7 +223,7 @@ public class DiscriminantAnalysis {
 	// throws a DiscriminantAnalysisException if not set
 	public int[] getClassification() throws DiscriminantAnalysisException {
 		validateClassification();
-		return classification;
+		return Arrays.copyOf(classification,classification.length);
 	}
 	
 	// set prior probabilities
@@ -270,11 +294,11 @@ public class DiscriminantAnalysis {
 	 * and mahalanobisDistance2
 	 */
 	
-	// get classification output 
+	// get classification output (copy)
 	// throws a DiscriminantAnalysisException object if not set
 	public int[] getClassified() throws DiscriminantAnalysisException {
 		validateClassified();
-		return classified;
+		return Arrays.copyOf(classified,classified.length);
 	}
 	
 	// get full 2d array of posterior probabilities
@@ -358,7 +382,7 @@ public class DiscriminantAnalysis {
 	// throws a DiscriminantAnalysisException object if not set
 	public int[] getUniqueClasses() throws DiscriminantAnalysisException {	
 		validateUniqueClasses();
-		return uniqueClasses;
+		return Arrays.copyOf(uniqueClasses,uniqueClasses.length);
 	}
 	
 	// compute class frequencies
@@ -401,7 +425,7 @@ public class DiscriminantAnalysis {
 	// throws a DiscriminantAnalysisException object  if not set
 	public int[] getClassFrequencies() throws DiscriminantAnalysisException {
 		validateClassFrequencies();
-		return classFrequencies;
+		return Arrays.copyOf(classFrequencies,classFrequencies.length);
 	}
 
 	// return integer array of row indices for the classIndex th class
