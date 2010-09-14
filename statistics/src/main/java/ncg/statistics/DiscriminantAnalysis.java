@@ -47,6 +47,9 @@ public class DiscriminantAnalysis {
 	private RealMatrix parameters = null;
 	private RealMatrix mahalanobisDistance2 = null;
 	
+	// classification accuracy
+	private double classificationAccuracy = -1;
+	
 	//logger object
 	protected final static Logger logger = 
 		Logger.getLogger(DiscriminantAnalysis.class.getName());
@@ -72,6 +75,7 @@ public class DiscriminantAnalysis {
 		posteriorProbabilities = null;
 		parameters = null;
 		mahalanobisDistance2 = null;
+		classificationAccuracy = -1;
 		
 		// run the java garbage collector
 		Runtime.getRuntime().gc();
@@ -131,6 +135,15 @@ public class DiscriminantAnalysis {
 	public void validateClassified() throws DiscriminantAnalysisException {
 		if ( classified == null ) {
 			throw new DiscriminantAnalysisException("output classification not set");
+		}
+	}
+	
+	// check to see if classificationAccuracy has been set
+	// throw a new DiscriminantAnalysisException if it has not been set
+	public void validateClassificationAccuracy() throws DiscriminantAnalysisException {
+		
+		if ( classificationAccuracy == -1 ) {
+			throw new DiscriminantAnalysisException("output classification accuracy not set");
 		}
 	}
 	
@@ -299,6 +312,26 @@ public class DiscriminantAnalysis {
 	public int[] getClassified() throws DiscriminantAnalysisException {
 		validateClassified();
 		return Arrays.copyOf(classified,classified.length);
+	}
+	// return the classification accuracy (number of correct classifications)
+	public double getClassificationAccuracy() throws DiscriminantAnalysisException {
+		validateClassificationAccuracy();
+		return classificationAccuracy;
+	}
+	
+	// return the random classification accuracy ( result of classification based on class frequencies)
+	public double getRandomClassificationAccuracy() throws DiscriminantAnalysisException {
+		
+		validateClassification();
+		validateClassFrequencies();
+			
+		double randomClassAccuracy = 0;
+		
+		for ( int i = 0; i < classFrequencies.length; i++) {
+			randomClassAccuracy += Math.pow(( (double)classFrequencies[i] / (double)classification.length),2);
+		}
+		
+		return randomClassAccuracy;
 	}
 	
 	// get full 2d array of posterior probabilities
@@ -714,7 +747,7 @@ public class DiscriminantAnalysis {
 			
 			// number of objects classified
 			int numObjects = classified.length;
-			
+				
 			// compute confusion matrix
 			for ( int c = 0; c < numObjects; c++) {
 				
@@ -731,6 +764,14 @@ public class DiscriminantAnalysis {
 					}
 				}
 			}
+			
+			// compute classification accuracy
+			double classAccuracy = 0.0;
+			for ( int i = 0; i < uniqueClasses.length; i++) {		
+				classAccuracy += cMatrix[i][i];
+			}
+			classificationAccuracy = classAccuracy / numObjects;
+			
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
@@ -743,8 +784,7 @@ public class DiscriminantAnalysis {
 
 		return cMatrix;
 	}
-	
-	
+		
 	// do the classification
 	public void classify() throws DiscriminantAnalysisException {
 		
