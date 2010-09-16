@@ -31,7 +31,7 @@ import geovista.common.ui.VariablePicker;
 import geovista.readers.example.GeoDataGeneralizedStates;
 
 /**
- * 
+ *
  */
 public class PCAViz extends JPanel implements DataSetListener,
 		SubspaceListener, ActionListener {
@@ -72,10 +72,6 @@ public class PCAViz extends JPanel implements DataSetListener,
 			if (logger.isLoggable(Level.FINEST)) {
 				logger.finest("PCAViz, asking data set to fire");
 			}
-			// note: calling this method on the data set causes it to fire it's
-			// own notification
-			dataSetOriginal.addColumn(newData.getNumericArrayName(0), newData
-					.getNumericDataAsDouble(0));
 
 		}
 	}
