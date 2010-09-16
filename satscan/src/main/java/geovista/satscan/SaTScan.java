@@ -130,7 +130,7 @@ public class SaTScan extends JPanel implements ActionListener, DataSetListener {
 				newData[i] = clusterList.get(counter);
 				counter++;
 			}
-			dataSet.addColumn("Cluster", newData);
+			// dataSet.addColumn("Cluster", newData);
 
 		} else if (e.getSource() == sendPValuesButton) {
 			double[] newData = new double[dataSet.getNumObservations()];
@@ -139,15 +139,14 @@ public class SaTScan extends JPanel implements ActionListener, DataSetListener {
 				newData[i] = pValueList.get(counter);
 				counter++;
 			}
-			dataSet.addColumn("P Values", newData);
+			// dataSet.addColumn("P Values", newData);
 		}
 
 	}
 
 	private JPanel constructVariablePanel() {
 		JPanel varPanel = new JPanel();
-		varPanel
-				.setBorder(BorderFactory.createTitledBorder("Select Variables"));
+		varPanel.setBorder(BorderFactory.createTitledBorder("Select Variables"));
 		JLabel casLabel = new JLabel("Choose case variable:");
 		JLabel popLabel = new JLabel("Choose pop. variable:");
 		caseBox = new JComboBox();
