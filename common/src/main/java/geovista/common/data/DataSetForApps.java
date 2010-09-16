@@ -883,14 +883,6 @@ public class DataSetForApps {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	public void addColumn(String columnName, float[] columnData) {
-		// XXX placeholder
-		throw new UnsupportedOperationException(
-				"DataSetForApps is being extended to support this method, but it's not there yet, sorry!");
-
-	}
-
 	public void addColumn(String columnName, double[] columnData) {
 		// I guess we add the new data in at the end....
 		// note that clients with references to the primitive arrays will
