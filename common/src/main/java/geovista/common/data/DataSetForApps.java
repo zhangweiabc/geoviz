@@ -1015,11 +1015,44 @@ public class DataSetForApps {
 	}
 
 	public int getColumnCount() {
-		return getNamedArrays().length;
+		return attributeNames.length;
 	}
 
 	public String getColumnName(int i) {
-		return getAttributeNamesOriginal()[i];
+		return attributeNames[i];
+	}
+	
+	/*
+	 * return a column of attributes associated with a particular attribute index
+	 * getColumnCount() and getColumnName() should refer to similar indices
+	 */
+	public Object getColumnValues(int i) {
+		
+		Object attributes = null;
+		
+		if ( i > -1 && i < attributeNames.length ) {
+			//first index in dataObjectOriginal contains the attribute names so skip this
+			attributes = dataObjectOriginal[i+1];
+		} else {
+			attributes = new Object[0];
+		}
+		
+		return attributes;
+	}
+	
+	/*
+	 * returns the attribute type of a specific column - indices behave similar to
+	 * getColumnCount(), getColumnName() and getColumnValues()
+	 */	
+	public int getColumnType(int i) {
+		
+		int type = TYPE_NONE;
+		
+		if ( i > -1 && i < dataType.length ) {
+			type = dataType[i];
+		} 
+		
+		return type;
 	}
 
 }
