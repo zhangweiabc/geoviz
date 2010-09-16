@@ -62,6 +62,9 @@ public class DiscriminantAnalysisTest {
 			// set the classification variable
 			da.setClassification(classification);
 			
+			// set the prior probabilities
+			da.setPriorProbabilities();
+			
 			// classify
 			da.classify();
 			
