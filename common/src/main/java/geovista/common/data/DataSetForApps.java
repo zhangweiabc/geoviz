@@ -870,20 +870,6 @@ public class DataSetForApps {
 		return doubleVal;
 	}
 
-	public void setNumericValueAsDoubleSkipColNames(int numericColumnIndex,
-			int row, double value) {
-		Object dataNumeric = dataSetNumericAndSpatial[numericColumnIndex + 1];
-		if (dataNumeric instanceof double[]) {
-			((double[]) dataNumeric)[row] = value;
-		} else if (dataNumeric instanceof int[]) {
-			((int[]) dataNumeric)[row] = (int) value;
-		} else {
-			throw new IllegalArgumentException(
-					"Unable to set values in column " + numericColumnIndex
-							+ " as a number");
-		}
-	}
-
 	public String[] makeUniqueNames(String[] inputNames) {
 		String[] outputNames = new String[inputNames.length];
 		// let's use an ArrayList
