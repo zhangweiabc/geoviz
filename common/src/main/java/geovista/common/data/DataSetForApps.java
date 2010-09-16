@@ -369,6 +369,7 @@ public class DataSetForApps {
 		return spatialWeights;
 	}
 
+	@Deprecated
 	public void setSpatialWeights(SpatialWeights weights) {
 		spatialWeights = weights;
 	}
@@ -941,6 +942,7 @@ public class DataSetForApps {
 		return dataSourceName;
 	}
 
+	@Deprecated
 	public void setDataSourceName(String dataSourceName) {
 		this.dataSourceName = dataSourceName;
 	}
