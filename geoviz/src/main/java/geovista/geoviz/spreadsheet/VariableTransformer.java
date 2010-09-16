@@ -183,7 +183,7 @@ public class VariableTransformer extends JPanel implements DataSetListener,
 			currOp = VariableTransformer.OP_DIVIDE;
 			performOp();
 		} else if (e.getSource() == sendButt) {
-			dataSet.addColumn("newCol", resultData);
+			// dataSet.addColumn("newCol", resultData);
 		}
 
 	}
