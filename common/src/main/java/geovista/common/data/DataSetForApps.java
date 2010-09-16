@@ -9,7 +9,6 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -272,10 +271,6 @@ public class DataSetForApps {
 
 	public String getObservationName(int obs) {
 		return observationNames[obs];
-	}
-
-	public void setSpatialType(int spatialType) {
-		this.spatialType = spatialType;
 	}
 
 	/**
@@ -966,22 +961,6 @@ public class DataSetForApps {
 		}
 		return alias;
 
-	}
-
-	public void setAlias(int column, String[] vals, String[] aliases) {
-		HashMap<String, String> map = new HashMap<String, String>();
-		for (int i = 0; i < vals.length; i++) {
-			map.put(vals[i], aliases[i]);
-		}
-		this.aliases[column] = map;
-	}
-
-	public void setAlias(int column, int[] vals, String[] aliases) {
-		String[] intVals = new String[vals.length];
-		for (int i = 0; i < vals.length; i++) {
-			intVals[i] = String.valueOf(intVals[i]);
-		}
-		this.setAlias(column, vals, aliases);
 	}
 
 	public String getDataSourceName() {
