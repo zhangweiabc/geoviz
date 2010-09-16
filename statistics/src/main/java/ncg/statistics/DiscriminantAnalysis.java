@@ -27,28 +27,28 @@ import org.apache.commons.math.linear.InvalidMatrixException;
 public class DiscriminantAnalysis {
 	
 	// array to hold predictor variables
-	private RealMatrix predictorVariables = null;
+	private transient RealMatrix predictorVariables = null;
 	
 	// array to hold classification variable
-	private int[] classification = null;
+	private transient int[] classification = null;
 	
 	// array to hold prior probabilities
-	private RealVector priorProbabilities = null;
+	private transient RealVector priorProbabilities = null;
 	
 	// array to hold unique class labels
-	private int[] uniqueClasses = null;
+	private transient int[] uniqueClasses = null;
 
 	// array to hold unique class frequencies
-	private int[] classFrequencies = null;
+	private transient int[] classFrequencies = null;
 	
 	// output variables
-	private int[] classified = null;
-	private RealMatrix posteriorProbabilities = null;
-	private RealMatrix parameters = null;
-	private RealMatrix mahalanobisDistance2 = null;
+	private transient int[] classified = null;
+	private transient RealMatrix posteriorProbabilities = null;
+	private transient RealMatrix parameters = null;
+	private transient RealMatrix mahalanobisDistance2 = null;
 	
 	// classification accuracy
-	private double classificationAccuracy = -1;
+	private transient double classificationAccuracy = -1;
 	
 	//logger object
 	protected final static Logger logger = 

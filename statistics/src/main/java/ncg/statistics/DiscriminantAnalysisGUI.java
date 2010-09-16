@@ -10,9 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import geovista.common.data.DataSetBroadcaster;
 import geovista.common.data.DataSetForApps;
@@ -49,28 +51,31 @@ public class DiscriminantAnalysisGUI extends JPanel
 	 
 
 	// backend components
-	transient DiscriminantAnalysis da = null;
-	transient DataSetForApps dataSet = null;
+	private transient DataSetForApps dataSet = null;
 
 	// gui components
-	transient JButton goButton = null;
-	transient JComboBox categoryCombo = null;
-	transient VariablePicker indVarPicker = null;
-	//transient JPanel outputInfo = null;
-	transient JTextArea outputInfo = null;
+	private transient JButton goButton = null;
+	private transient JComboBox categoryCombo = null;
+	private transient VariablePicker indVarPicker = null;
+	private transient JTextArea outputInfo = null;
 	
 	// array of indices of independent variables from the indVarPicker object
-	transient int [] indVarIndices = new int[0];
+	private transient int [] indVarIndices = new int[0];
 	
 	// index of dependent variable from the categoryCombo object
-	transient int categoryIndex = -1;
+	private transient int categoryIndex = -1;
 	
 	// number of distinct classifications for the current bean
-	transient int numClassifications = 0;
+	private transient int numClassifications = 0;
 	
-	// categoryIndexMap maps the indices of items in the categoryCombo Box to indices of attributes in dataSet
-	transient Map<Integer,Integer> categoryIndexMap = null;
+	// categoryIndexMap maps the indices of items in the categoryCombo Box to indices of numeric attributes 
+	// in dataSet (dataSetForApps object)
+	private transient Map<Integer,Integer> categoryIndexMap = null;
 	
+	// indVarIndexMap maps the indices of items in the independent variable picker to indices of numeric attributes
+	// in dataSet (dataSetForApps object)
+	private transient Map<Integer,Integer> indVarIndexMap = null;
+			
 	// logger
 	protected final static Logger logger = Logger.getLogger(DiscriminantAnalysisGUI.class.getPackage().getName());
 	
@@ -81,7 +86,6 @@ public class DiscriminantAnalysisGUI extends JPanel
 		setPreferredSize(new Dimension(500, 400));
 		
 		// create the class variables
-		da = new DiscriminantAnalysis();
 		goButton = new JButton("Classify");
 		categoryCombo = new JComboBox();
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
@@ -114,6 +118,250 @@ public class DiscriminantAnalysisGUI extends JPanel
 		this.add(bottomPanel, BorderLayout.SOUTH);
 
 	}
+	
+	
+	/*
+	 * ClassifierThread is an subclass of the SwingWorker class which is designed to allow
+	 * a) the classification
+	 * b) sending of diagnostics to the gui 
+	 * c) create a new DataSetForApps object ready for broadcast to the other beans
+	 * as a separate worker thread
+	 * Note that b should work as we are using JTextArea.append to send to gui which is designated
+	 * as thread safe by the java documentation
+	 * Note also that the java Logger object is thread safe
+	 */
+	
+	private class ClassifierThread extends SwingWorker<DataSetForApps,Void> {
+		
+		private DiscriminantAnalysis daTask = null;
+		private DataSetForApps newDataSet = null;
+		
+		public ClassifierThread() {
+			super();
+			daTask = new DiscriminantAnalysis();
+		}
+		
+		@Override
+		public DataSetForApps doInBackground() {
+						
+			DataSetForApps newDataSetForApps = null;
+			
+			try{
+				classify();
+				getDiagnostics();
+				newDataSetForApps = getNewDataSet();
+			} catch (final DiscriminantAnalysisGUIException e ) {
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						final String message = "unable to classify : " + e.getMessage();
+						logger.warning(message);
+						JOptionPane.showMessageDialog(DiscriminantAnalysisGUI.this, message, "WARNING", JOptionPane.WARNING_MESSAGE);
+					}
+				});
+				
+			} catch ( final Exception e) {
+				logger.severe("unhandled exception during classification : " + e.getMessage());
+			}
+			return newDataSetForApps;
+		}
+		
+		@Override
+		public void done() {
+			try {
+				
+				newDataSet = get();
+				
+				if ( newDataSet != null ) {
+					fireDataSetChanged(newDataSet);
+				}
+				
+			} catch (InterruptedException e) {
+				logger.severe(e.getMessage());
+			} catch (ExecutionException e) {
+				logger.severe(e.getMessage());
+			} catch (Exception e) {
+				logger.severe("unhandled exception encountered during classification : " + e.getMessage());
+			}
+		}
+		
+		/*
+		 * classify the dataset
+		 */
+		private void classify() throws DiscriminantAnalysisGUIException {
+			
+			// need a valid categoryIndex and an indVarIndices array to proceed	
+			if (categoryIndex < 0 || indVarIndices.length == 0) {
+				
+				String message = ((categoryIndex < 0) ? "\nCategory Index is not set" : "");
+				message += ((indVarIndices.length == 0) ? "\nIndependent Variables are not set" : "");
+				
+				throw new DiscriminantAnalysisGUIException(message);
+			}
+			
+			
+			// get the data for the independent variables
+			double[][] data = new double[indVarIndices.length][0];
+			for (int i = 0; i < indVarIndices.length; i++) {
+				Object x = dataSet.getColumnValues(indVarIndices[i]);
+				if (x instanceof double[]) {
+					data[i] = (double[])x;
+				} else {
+					logger.severe("type of column " + dataSet.getColumnName(indVarIndices[i]) + " is not double[] as expected");
+					throw new DiscriminantAnalysisGUIException();
+				}
+				
+			}
+						
+			//get the data for the dependent variables
+			int[] categories = null;	
+			Object x = dataSet.getColumnValues(categoryIndex);	
+			if (x instanceof int[]) {
+				categories = (int[])x;
+			} else {
+				logger.severe("type of column " + dataSet.getColumnName(categoryIndex) + " is not int[] as expected");
+				throw new DiscriminantAnalysisGUIException();
+			}
+						
+			try {
+								
+				// set the independent variables
+				daTask.setPredictorVariables(data,false);
+					
+				// set the dependent variable (category)
+				daTask.setClassification(categories);
+
+				// set the prior probabilities to the default (equal)
+				daTask.setPriorProbabilities();;
+					
+				// classify the data
+				daTask.classify();
+								
+			} catch (DiscriminantAnalysisException e ){
+				throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
+			}
+		}
+		
+		/*
+		 * Update the GUI with various diagnostics
+		 * Note here that we can update the gui using the append method of the JTextArea object
+		 * outputInfo as this method is considered thread safe.
+		 */
+		
+		private void getDiagnostics() throws DiscriminantAnalysisGUIException {
+			
+			try {
+				
+				int[][] confMatrix = daTask.confusionMatrix();
+				int[] classFreq = daTask.getClassFrequencies();
+				double[][] params = daTask.getParameters();
+				int numFields = daTask.getNumAttributes();
+				int[] uniqueClasses = daTask.getUniqueClasses();
+				double classAccuracy = daTask.getClassificationAccuracy();
+				double randomClassAccuracy = daTask.getRandomClassificationAccuracy();
+				int numClasses = uniqueClasses.length;
+
+			
+				String categoryName = dataSet.getColumnName(categoryIndex);
+				
+				outputInfo.append("\nClassification " + Integer.toString(++numClassifications));
+				outputInfo.append("\n\nClassification Category : " + categoryName);
+				outputInfo.append("\nIndependent Variables (" + Integer.toString(indVarIndices.length) + ") : ");
+				for (int i=0; i < indVarIndices.length; i++) {
+					outputInfo.append("\n" + dataSet.getColumnName(indVarIndices[i]));
+				}
+				
+				// confusion matrix and percentages correctly classified		
+				String confMatrixStr = "\n\nConfusion Matrix\n\n";
+				confMatrixStr += String.format("%8s"," ");
+				for ( int i = 0; i < numClasses; i++) {		
+					confMatrixStr += " | " + String.format("%-8s","Class " + String.valueOf(uniqueClasses[i]));			
+				}
+				confMatrixStr += " | " + String.format("%-8s","Total") + "\n";
+				for ( int i = 0; i < numClasses; i++) {	
+					confMatrixStr += String.format("%-8s","Class " + String.valueOf(uniqueClasses[i]));
+					for ( int j = 0; j < numClasses; j++) {	
+						confMatrixStr += " | " + String.format("%8d", confMatrix[i][j]);
+					}
+					confMatrixStr += " | " + String.format("%8d", classFreq[i]) + "\n";
+					
+				}
+				
+				outputInfo.append(confMatrixStr);
+
+				// classification accuracy and error rate
+				outputInfo.append("\n\nClassification Accuracy                     : " + 
+						String.format("%5.2f", classAccuracy * 100.0) + " %");
+				outputInfo.append("\nClassification Error Rate                   : " + 
+						String.format("%5.2f", (1.0 - classAccuracy) * 100.0 )  + " %");
+				outputInfo.append("\nClassification Accuracy (Random Assignment) : " 
+						+ String.format("%5.2f", randomClassAccuracy  * 100.0) + " %");
+						
+				// write out the classification function coefficients
+				String classFuncParams = "\n\nClassification Function Parameters\n";
+				classFuncParams += String.format("%-12s"," ");
+				for (int j = 0; j < numClasses; j++) {
+					
+					classFuncParams += " | " + String.format("%-12s","Class " + String.valueOf(j));
+				}
+				classFuncParams += "\n";
+				
+				for (int i = 0; i < (numFields+1); i++) {
+					
+					if (i == 0) {
+						classFuncParams += String.format("%-12s", "Intercept");
+					} else {
+						classFuncParams += String.format("%-12s", dataSet.getColumnName(indVarIndices[i-1]));
+					}
+					
+					
+					for (int j = 0; j < numClasses; j++) {
+						classFuncParams += " | " + String.format("%12.4f",params[i][j]);
+					}
+					classFuncParams += "\n";
+				}
+				outputInfo.append(classFuncParams);
+				
+			} catch (DiscriminantAnalysisException e ){
+				throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
+			}
+		}
+		
+		/*
+		 * create a new DataSetForApps ready for broadcast
+		 */
+		
+		private DataSetForApps getNewDataSet() throws DiscriminantAnalysisException {
+						
+			int numClasses = daTask.getUniqueClasses().length;					
+			
+			int numAttributes = dataSet.getColumnCount();
+						
+			Object[] newData = new Object[numAttributes + (1 + (numClasses*2))];
+			String[] newFieldNames = new String[numAttributes + (1 + (numClasses*2))];
+			
+			for ( int i = 0; i < numAttributes; i++) {
+				newData[i] = dataSet.getColumnValues(i);
+				newFieldNames[i] = dataSet.getColumnName(i);
+			}
+			
+			newFieldNames[numAttributes] = "Classified";
+			newData[numAttributes] = daTask.getClassified();
+			
+			for ( int i = 0; i < numClasses; i++) {
+				newFieldNames[i+(numAttributes+1)] = "MhDist2_" + String.valueOf(i);
+				newData[i+(numAttributes+1)] = daTask.getMahalanobisDistance2(i);
+			}
+			for ( int i = 0; i < numClasses; i++) {
+				newFieldNames[i+(numAttributes+numClasses+1)] = "PostProb_" + String.valueOf(i);
+				newData[i+(numAttributes+numClasses+1)] = daTask.getPosteriorProbabilities(i);
+			}
+			
+			DataSetForApps newDataSetForApps = new DataSetForApps(newFieldNames, newData, dataSet.getShapeData());
+			
+			return newDataSetForApps;
+		}
+	}
 
 	/**
 	 * main method is used exclusively for testing and debugging purposes only
@@ -141,30 +389,58 @@ public class DiscriminantAnalysisGUI extends JPanel
 		// create the GUI
 		JFrame app = new JFrame();
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		DiscriminantAnalysisGUI daGui = new DiscriminantAnalysisGUI();
+		final DiscriminantAnalysisGUI daGui = new DiscriminantAnalysisGUI();
 		app.add(daGui);
 		app.pack();
 		app.setVisible(true);
 		
-		// open the sample data file
-		URL testFileName = daGui.getClass().getResource("resources/iris_poly.shp");
-		ShapeFileDataReader shpRead = new ShapeFileDataReader();
-		shpRead.setFileName(testFileName.getFile());
-		
-		// now broadcast the sample data we have just read in to the this bean 
-		// see the dataSetChanged method
-		Object[] testDataArray = shpRead.getDataSet();
-
-		if (testDataArray != null) {
-			DataSetForApps data = new DataSetForApps(testDataArray);
-			DataSetBroadcaster dataCaster = new DataSetBroadcaster();
-			dataCaster.addDataSetListener(daGui);
-			dataCaster.setAndFireDataSet(data);
-			logger.info("Sample data loaded from " + testFileName.getFile());
-		} else {
-			logger.severe("Unable to read Sample data from file " + testFileName.getFile());
-		}
-
+		// read in the test data set and create the new dataSetForApps object in a 
+		// separate worker thread
+		// note that the Logger class is thread safe according to the java documentation
+		(new SwingWorker<DataSetForApps,Void>() {
+			
+			DataSetForApps data = null;
+			
+			@Override
+			public DataSetForApps doInBackground() {
+				
+				// open the sample data file
+				URL testFileName = daGui.getClass().getResource("resources/iris_poly.shp");
+				ShapeFileDataReader shpRead = new ShapeFileDataReader();
+				shpRead.setFileName(testFileName.getFile());
+				
+				Object[] testDataArray = shpRead.getDataSet();
+				
+				DataSetForApps dataTest = null;
+				
+				if (testDataArray != null) {
+					dataTest = new DataSetForApps(testDataArray);
+					logger.info("test data loaded from " + testFileName.getFile());
+				} else {
+					logger.severe("unable to read test data from file " + testFileName.getFile());
+				}
+				
+				return dataTest;
+			}
+			
+			@Override
+			public void done() {
+				try {
+					// get the new DataSetForApps object and broadcast it
+					data = get();				
+					DataSetBroadcaster dataCaster = new DataSetBroadcaster();
+					dataCaster.addDataSetListener(daGui);
+					dataCaster.setAndFireDataSet(data);
+					
+				} catch (ExecutionException e) {
+					logger.severe("unable to broadcast test data : " + e.getMessage());
+				}
+				catch (InterruptedException e) {
+					logger.severe("unable to broadcast test data : " + e.getMessage());
+				}	
+			}
+		}).execute();
+				
 	}
 	
 	/*
@@ -178,24 +454,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 			setCategoryIndex(categoryCombo.getSelectedIndex());
 		} else if (e.getSource() == goButton) {
 			
-			try {
-				
-				// classify the data 
-				classify();	
-				
-				// write the classification output to the screen (diagnostics)
-				getDiagnostics();
-				
-				// send the classification output to all other listening beans
-				fireNewDataSet();
-				
-				//reset the discriminant analysis object - recover memory
-				da.reset();
-				
-			} catch (DiscriminantAnalysisGUIException de) {
-				String message = "unable to classify " + de.getMessage();
-				JOptionPane.showMessageDialog(this, message, "WARNING", JOptionPane.WARNING_MESSAGE);
-			}
+			// perform the classification, update the gui with diagnostics and create a new DataSetForApps object
+			// ready for broadcast in a separate  thread
+			(new ClassifierThread()).execute();
 		}
 	}
 	
@@ -207,24 +468,32 @@ public class DiscriminantAnalysisGUI extends JPanel
 
 		dataSet = e.getDataSetForApps();
 		
-		// map indices of categories in combo box to indices of attributes in the dataSet object
+		// map indices of categories in combo box to indices of numeric attributes in the dataSet object
 		categoryIndexMap = new HashMap<Integer, Integer>();
+		
+		// map indices of variables in the variable picker to attribute indices in the dataSet object
+		indVarIndexMap = new HashMap<Integer,Integer>();
 				
+		int numVars = dataSet.getColumnCount();
+				
+		// remove all existing items in the category combo box
+		categoryCombo.removeAllItems();
+		
 		// only include variables of type integer (categorical variables) in the category combo box
 		// as this represents the dependent variable in the classification
-		int numVars = dataSet.getColumnCount();
-		int[] dTypes = dataSet.getDataTypeArray();
-		categoryCombo.removeAllItems();
+		// include only variable of type double in the independent variable picker
 		
 		for (int i = 0;  i < numVars; i++){
 						
-			if (dTypes[i] == DataSetForApps.TYPE_INTEGER) {
+			if (dataSet.getColumnType(i) == DataSetForApps.TYPE_INTEGER) {
 				categoryCombo.addItem(dataSet.getColumnName(i));
 				categoryIndexMap.put(Integer.valueOf(categoryIndexMap.size()),Integer.valueOf(i));
-			} 
+			} else if ( dataSet.getColumnType(i) == DataSetForApps.TYPE_DOUBLE ) {
+				indVarIndexMap.put(Integer.valueOf(indVarIndexMap.size()), Integer.valueOf(i));
+			}
 		}
 		
-		// send the dataset to the independenet variable picker
+		// send the dataset to the independent variable picker
 		indVarPicker.dataSetChanged(e);
 	}
 
@@ -263,9 +532,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 	 * @see EventListenerList
 	 */
 	protected void fireDataSetChanged(DataSetForApps data) {
-		
-		logger.finest("ShpToShp.fireDataSetChanged, Hi!!");
-		
+				
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerList.getListenerList();
 		DataSetEvent e = null;
@@ -283,230 +550,34 @@ public class DiscriminantAnalysisGUI extends JPanel
 			}
 		}
 	}
-		
-	
-	/*
-	 * Perform the classification 
-	 */
-	private void classify() throws DiscriminantAnalysisGUIException {
-				
-		// need a valid categoryIndex and an indVarIndices array to proceed	
-		if (categoryIndex < 0 || indVarIndices.length == 0) {
-			
-			String message = ((categoryIndex < 0) ? "\nCategory Index is not set" : "");
-			message += ((indVarIndices.length == 0) ? "\nIndependent Variables are not set" : "");
-			
-			throw new DiscriminantAnalysisGUIException(message);
-		}
-		
-		
-		// get the data for the independent variables
-		double[][] data = new double[indVarIndices.length][0];
-		for (int i = 0; i < indVarIndices.length; i++) {
-			data[i] = dataSet.getNumericDataAsDouble(indVarIndices[i]);
-		}
-			
-		// get the data for the dependent variable
-		String categoryName = dataSet.getNumericArrayName(categoryIndex);
-		int[] categories = dataSet.getIntArrayDataByName(categoryName);
-		
-		try {
-							
-			// set the independent variables
-			da.setPredictorVariables(data,false);
-				
-			// set the dependent variable (category)
-			da.setClassification(categories);
-
-			// set the prior probabilities to the default (equal)
-			da.setPriorProbabilities();
-				
-			// classify the data
-			da.classify();
-							
-		} catch (DiscriminantAnalysisException e ){
-			throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
-		}		
-	}
-	
-	/*
-	 * fire a new DataSetForApps object to all listening beans
-	 * this new object will contain the classification output
-	 */
-	
-	private void fireNewDataSet() throws DiscriminantAnalysisGUIException {
-		
-		try {
-			int numClasses = da.getUniqueClasses().length;					
-			
-			String[] initFieldNames = dataSet.getAttributeNamesOriginal();
-			Object[] initData = dataSet.getDataSetNumeric();
-			int numAttributes = dataSet.getColumnCount();
-	
-			
-			Object[] newData = new Object[numAttributes + (1 + (numClasses*2))];
-			String[] newFieldNames = new String[numAttributes + (1 + (numClasses*2))];
-			
-			for ( int i = 0; i < numAttributes; i++) {
-				newData[i] = initData[i];
-				newFieldNames[i] = initFieldNames[i];
-			}
-			
-			newFieldNames[numAttributes] = "Classified";
-			newData[numAttributes] = da.getClassified();
-			
-			for ( int i = 0; i < numClasses; i++) {
-				newFieldNames[i+(numAttributes+1)] = "MhDist2_" + String.valueOf(i);
-				newData[i+(numAttributes+1)] = da.getMahalanobisDistance2(i);
-			}
-			for ( int i = 0; i < numClasses; i++) {
-				newFieldNames[i+(numAttributes+numClasses+1)] = "PostProb_" + String.valueOf(i);
-				newData[i+(numAttributes+numClasses+1)] = da.getPosteriorProbabilities(i);
-			}
-			
-			// create a new DataSetForApps object and send it to the other listening beans
-			DataSetForApps newDataSet = new DataSetForApps(newFieldNames, newData, dataSet.getShapeData());
-			fireDataSetChanged(newDataSet);
-			
-		} catch (DiscriminantAnalysisException e ){
-			throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
-		}
-	}
-	
-	/*
-	 * write diagnostics on current classification to the outputInfo JPanel
-	 */
-	
-	private void getDiagnostics() throws DiscriminantAnalysisGUIException {
-		
-		try {
-			
-			int[][] confMatrix = da.confusionMatrix();
-			int[] classFreq = da.getClassFrequencies();
-			double[][] params = da.getParameters();
-			int numFields = da.getNumAttributes();
-			int numObs = da.getNumObservations();
-			int[] uniqueClasses = da.getUniqueClasses();
-			double classAccuracy = da.getClassificationAccuracy();
-			double randomClassAccuracy = da.getRandomClassificationAccuracy();
-			int numClasses = uniqueClasses.length;
-
-		
-			String categoryName = dataSet.getNumericArrayName(categoryIndex);
-			
-			outputInfo.append("\nClassification " + Integer.toString(++numClassifications));
-			outputInfo.append("\n\nClassification Category : " + categoryName);
-			outputInfo.append("\nIndependent Variables (" + Integer.toString(indVarIndices.length) + ") : ");
-			for (int i=0; i < indVarIndices.length; i++) {
-				outputInfo.append("\n" + dataSet.getNumericArrayName(indVarIndices[i]) + " (Variable " + 
-							+ Integer.valueOf(indVarIndices[i]) + ")");
-			}
-			
-			// confusion matrix and percentages correctly classified		
-			String confMatrixStr = "\n\nConfusion Matrix\n\n";
-			confMatrixStr += String.format("%8s"," ");
-			for ( int i = 0; i < numClasses; i++) {		
-				confMatrixStr += " | " + String.format("%-8s","Class " + String.valueOf(uniqueClasses[i]));			
-			}
-			confMatrixStr += " | " + String.format("%-8s","Total") + "\n";
-			for ( int i = 0; i < numClasses; i++) {	
-				confMatrixStr += String.format("%-8s","Class " + String.valueOf(uniqueClasses[i]));
-				for ( int j = 0; j < numClasses; j++) {	
-					confMatrixStr += " | " + String.format("%8d", confMatrix[i][j]);
-				}
-				confMatrixStr += " | " + String.format("%8d", classFreq[i]) + "\n";
-				
-			}
-			
-			outputInfo.append(confMatrixStr);
-
-			// classification accuracy and error rate
-			outputInfo.append("\n\nClassification Accuracy                     : " + 
-					String.format("%5.2f", classAccuracy * 100.0) + " %");
-			outputInfo.append("\nClassification Error Rate                   : " + 
-					String.format("%5.2f", (1.0 - classAccuracy) * 100.0 )  + " %");
-			outputInfo.append("\nClassification Accuracy (Random Assignment) : " 
-					+ String.format("%5.2f", randomClassAccuracy  * 100.0) + " %");
 					
-			// write out the classification function coefficients
-			String classFuncParams = "\n\nClassification Function Parameters\n";
-			classFuncParams += String.format("%-12s"," ");
-			for (int j = 0; j < numClasses; j++) {
-				classFuncParams += " | " + String.format("%-12s","Class " + String.valueOf(j));
-			}
-			classFuncParams += "\n";
-			
-			for (int i = 0; i < numFields; i++) {
-				
-				classFuncParams += String.format("%-12s", "Paramater " + String.valueOf(i));
-				
-				for (int j = 0; j < numClasses; j++) {
-					classFuncParams += " | " + String.format("%12.4f",params[i][j]);
-				}
-				classFuncParams += "\n";
-			}
-			outputInfo.append(classFuncParams);
-			
-		} catch (DiscriminantAnalysisException e ){
-			throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
-		}
-	}
-
 	/*
-	 * Set the independent variable indices and check to make sure that there is no overlap between 
-	 * them and the dependent variable
+	 * Set the independent variable indices
 	 */
 	private void setIndVarIndices(int[] indVarIndices) {
-
-		this.indVarIndices = indVarIndices;
-		checkIndVarIndices();
-	}
-
-	private void setCategoryIndex(int categoryIndex) {
-
-		if (categoryIndexMap.containsKey(Integer.valueOf(categoryIndex))) {
-			this.categoryIndex = categoryIndexMap.get(Integer
-					.valueOf(categoryIndex));
-			checkIndVarIndices();
-		}
-	}
-
-	/*
-	 * Check the independent Variable choices to ensure that they are
-	 * Consistent. Also check to see if the categoryIndex is contained in the
-	 * indVarIndices array. If so, remove it.
-	 */
-	private void checkIndVarIndices() {
-
-		// only do check if we have a categoryIndex value and
-		// an indVarIndices array to search
-		if (categoryIndex >= 0 && indVarIndices.length > 0) {
-
-			// array must be sorted for binary search
-			Arrays.sort(indVarIndices);
-			int found = Arrays.binarySearch(indVarIndices, categoryIndex);
-
-			if (found >= 0) {
-
-				logger.info("Unable use ["
-						+ dataSet.getNumericArrayName(indVarIndices[found])
-						+ "] as an independent and dependent variable");
-				logger.info("Excluding ["
-						+ dataSet.getNumericArrayName(indVarIndices[found])
-						+ "] as an independent variable");
-
-				int[] indVarIndicesNew = new int[indVarIndices.length - 1];
-				for (int i = 0; i < indVarIndices.length; i++) {
-					if (i < found) {
-						indVarIndicesNew[i] = indVarIndices[i];
-					} else if (i > found) {
-						indVarIndicesNew[i - 1] = indVarIndices[i];
-					}
-				}
-
-				indVarIndices = indVarIndicesNew;
+		
+		this.indVarIndices = new int[indVarIndices.length];
+		
+		for ( int i = 0; i < indVarIndices.length; i++) {
+			if ( indVarIndexMap.containsKey(Integer.valueOf(indVarIndices[i])) ) {
+				this.indVarIndices[i] = indVarIndexMap.get(Integer.valueOf(indVarIndices[i]));
+			} else {
+				logger.severe("Independent Variable Index Map does not contain key " + String.valueOf(indVarIndices[i]));
 			}
 		}
 	}
 	
+	/*
+	 * Set the category index 
+	 */
+	private void setCategoryIndex(int categoryIndex) {
+
+		if (!categoryIndexMap.isEmpty()) {
+			if (categoryIndexMap.containsKey(Integer.valueOf(categoryIndex))) {
+				this.categoryIndex = categoryIndexMap.get(Integer.valueOf(categoryIndex));
+			} else {
+				logger.severe("Category Index Map does not contain key " + String.valueOf(categoryIndex));
+			}
+		}
+	}	
 }
