@@ -1,9 +1,9 @@
-/* 
+/*
  Licensed under LGPL v. 2.1 or any later version;
  see GNU LGPL for details.
- 
+
  Original Author: Frank Hardisty
- 
+
  */
 
 package geovista.toolkitcore;
@@ -37,6 +37,7 @@ import java.util.logging.SimpleFormatter;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -46,7 +47,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -199,7 +199,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 	JMenuItem menuItemSaveWholeImageToFile;
 	JMenuItem menuItemSaveSelectedWindowToFile;
 	JMenuItem menuItemSaveShapefile;
-	
+
 	JCheckBoxMenuItem menuItemUseProj;
 
 	VizState vizState;
@@ -300,7 +300,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuItemSaveWholeImageToFile = new JMenuItem();
 		menuItemSaveSelectedWindowToFile = new JMenuItem();
 		menuItemSaveShapefile = new JMenuItem();
-		
+
 		menuItemUseProj = new JCheckBoxMenuItem();
 
 	}
@@ -694,12 +694,12 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		} else if (e.getSource() == menuItemLoadShp) {
 			openShapefilePicker();
-		} else if (e.getSource() == menuItemUseProj){
+		} else if (e.getSource() == menuItemUseProj) {
 			useProj = menuItemUseProj.getState();
 		} else if (e.getSource() == menuItemLoadStates) {
 			loadData("48States");
 		} else if (e.getSource() == menuItemLoadWorld) {
-			loadData("World");
+			loadData("GTD");
 
 		} else if (e.getSource() == menuItemLoadDataTable) {
 			openExcelFilePicker();
@@ -714,7 +714,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		} else if (e.getSource() == menuItemExportSelection) {
 
-		} 
+		}
 
 		else if (e.getSource() == menuItemOpenProject) {
 			VizState state = ToolkitIO.getVizState(this);
@@ -1174,7 +1174,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuItemSaveShapefile.addActionListener(this);
 		menuItemCopyApplicationToClipboard.addActionListener(this);
 		menuItemCopySelectedWindowToClipboard.addActionListener(this);
-		
+
 		menuItemUseProj.addActionListener(this);
 
 		// components are organized by dimension of analysis
@@ -1253,9 +1253,9 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuFile.setText("File");
 		menuItemLoadShp.setText("Load Shapefile");
 		menuAddTool.setText("Add Tool");
-		menuItemLoadStates.setText("Load U.S. State Data");
+		menuItemLoadStates.setText("Load DC Crime Data");
 		menuItemLoadCounty.setText("Load U.S. County Data");
-		menuItemLoadWorld.setText("Load World Country Data");
+		menuItemLoadWorld.setText("Load GTD Data");
 
 		menuRemoveTool.setText("Remove Tool");
 		menuAbout.setText("About");
@@ -1285,7 +1285,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 				.setText("Export image of currently selected window to file");
 
 		menuItemSaveShapefile.setText("Export data to shapefile");
-		
+
 		menuItemUseProj.setText("Use U.S. Projection");
 		menuItemUseProj.setState(true);
 
@@ -1305,7 +1305,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuFile.add(menuItemLoadStates);
 		menuFile.add(menuItemLoadCounty);
 
-		// menuFile.add(menuItemLoadWorld);
+		menuFile.add(menuItemLoadWorld);
 
 		// menuFile.addSeparator();
 		// menuFile.add(menuItemLoadCsv);
