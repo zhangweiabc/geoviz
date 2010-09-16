@@ -236,9 +236,6 @@ public class MoranMap extends JPanel implements SelectionListener,
 				return;
 			}
 
-			dataSetOriginal.addColumn((String) varList.getSelectedValue(),
-					dataSetMoran.getNumericDataAsDouble(varList
-							.getSelectedIndex()));
 		}
 
 	}
