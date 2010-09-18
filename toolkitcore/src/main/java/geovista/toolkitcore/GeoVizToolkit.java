@@ -102,7 +102,6 @@ import geovista.geoviz.spreadsheet.TableViewer;
 import geovista.geoviz.spreadsheet.VariableTransformer;
 import geovista.geoviz.star.StarPlot;
 import geovista.geoviz.star.StarPlotMap;
-import geovista.largedata.DCCrimeDataReader;
 import geovista.largedata.H1N1DataReader;
 import geovista.matrix.MapAndScatterplotMatrix;
 import geovista.matrix.MapMatrix;
@@ -112,6 +111,7 @@ import geovista.matrix.TreemapAndScatterplotMatrix;
 import geovista.matrix.map.LISTAViz;
 import geovista.matrix.map.MoranMap;
 import geovista.readers.example.GeoData2008Election;
+import geovista.readers.example.GeoDataGeneralizedStates;
 import geovista.readers.example.TexasZoonoticDataReader;
 import geovista.readers.seerstat.SeerStatReader;
 import geovista.readers.shapefile.ShapeFileDataReader;
@@ -511,7 +511,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		coord.addBean(vizState);
 
 		setUseProj(vizState.useProj);
-		
+
 		loadData(vizState.dataSource);
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		addToolkitBeanSet(vizState.getBeanSet());
@@ -899,18 +899,18 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		// name = "TX";
 		if (name.equals("48States") || name.equals("USCounties")) {
 
-			// GeoDataGeneralizedStates statesData = new
-			// GeoDataGeneralizedStates();
+			GeoDataGeneralizedStates statesData = new GeoDataGeneralizedStates();
 			// TexasZoonoticDataReader statesData = new
 			// TexasZoonoticDataReader();
 
-			DCCrimeDataReader crimeReader = new DCCrimeDataReader();
-			newDataSet = crimeReader.getDataForApps().getDataObjectOriginal();
+			// DCCrimeDataReader crimeReader = new DCCrimeDataReader();
+			// newDataSet =
+			// crimeReader.getDataForApps().getDataObjectOriginal();
 
 			// GoogleFluDataReader statesData = new GoogleFluDataReader();
-			// ShapeFileProjection proj = new ShapeFileProjection();
-			// proj.setInputDataSetForApps(statesData.getDataForApps());
-			// newDataSet = proj.getOutputDataSet();
+			ShapeFileProjection proj = new ShapeFileProjection();
+			proj.setInputDataSetForApps(statesData.getDataForApps());
+			newDataSet = proj.getOutputDataSet();
 
 			// geovista.largedata.GeoDataNiger statesData = new
 			// geovista.largedata.GeoDataNiger();
@@ -1388,7 +1388,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 	public void setUseProj(boolean useProj) {
 		this.useProj = useProj;
-		this.menuItemUseProj.setState(useProj);
+		menuItemUseProj.setState(useProj);
 	}
 
 	public void annotationChanged(AnnotationEvent e) {
