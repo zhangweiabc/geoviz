@@ -174,6 +174,10 @@ public class DiscriminantAnalysisGUI extends JPanel
 				
 				if ( newDataSet != null ) {
 					fireDataSetChanged(newDataSet);
+					
+					daTask = null;					
+					// run the java garbage collector
+					Runtime.getRuntime().gc();
 				}
 				
 			} catch (InterruptedException e) {
@@ -212,7 +216,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 				}
 				
 			}
-						
+								
 			//get the data for the dependent variables
 			int[] categories = null;	
 			Object x = dataSet.getColumnValues(categoryIndex);	
@@ -478,6 +482,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 				
 		// remove all existing items in the category combo box
 		categoryCombo.removeAllItems();
+		
+		// remove all existing items in the outputInfo text area
+		outputInfo.setText("");
 		
 		// only include variables of type integer (categorical variables) in the category combo box
 		// as this represents the dependent variable in the classification

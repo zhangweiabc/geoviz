@@ -593,9 +593,9 @@ public class DiscriminantAnalysis {
 		int[] fieldIndices = computeFieldIndices();
 		
 		// check to make sure that there are least two fields
-		if ( fieldIndices.length < 2 ) {
-			throw new DiscriminantAnalysisException("cannot compute covariance matrix for less than two fields");
-		}
+		//if ( fieldIndices.length < 2 ) {
+		//	throw new DiscriminantAnalysisException("cannot compute covariance matrix for less than two fields");
+		//}
 
 		// compute row indices for class 'classIndex'
 		int[] classRowIndices = computeClassIndices(classIndex);
@@ -614,11 +614,16 @@ public class DiscriminantAnalysis {
 			RealMatrix predC = 
 				predictorVariables.getSubMatrix(classRowIndices,fieldIndices);
 			
-			// compute covariance matrix for class 'classIndex'
-			Covariance c = new Covariance(predC);
-			covMatrix = c.getCovarianceMatrix();
-			
-			
+			if ( fieldIndices.length > 1) {
+				// compute covariance matrix for class 'classIndex' if we have more than 1 attribute
+				Covariance c = new Covariance(predC);
+				covMatrix = c.getCovarianceMatrix();
+			} else {
+				// if we only have one attribute calculate the variance instead
+				covMatrix = MatrixUtils.createRealMatrix(1,1);
+				covMatrix.setEntry(0, 0, StatUtils.variance(predC.getColumn(0)));
+			}	
+					
 		} catch (MatrixIndexException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
