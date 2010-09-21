@@ -52,9 +52,11 @@ public class DiscriminantAnalysisGUI extends JPanel
 
 	// backend components
 	private transient DataSetForApps dataSet = null;
+	private transient boolean newDataSetFired = false;
 
 	// gui components
 	private transient JButton goButton = null;
+	private transient JButton resetButton = null;
 	private transient JComboBox categoryCombo = null;
 	private transient VariablePicker indVarPicker = null;
 	private transient JTextArea outputInfo = null;
@@ -87,6 +89,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		// create the class variables
 		goButton = new JButton("Classify");
+		resetButton = new JButton("Reset");
 		categoryCombo = new JComboBox();
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
 		outputInfo = new JTextArea();
@@ -100,6 +103,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		// add this bean a listener for the following events types:
 		goButton.addActionListener(this);
+		resetButton.addActionListener(this);
 		categoryCombo.addActionListener(this);
 		indVarPicker.addSubspaceListener(this);
 		
@@ -108,18 +112,18 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		// create and add items to the bottom panel
 		JPanel bottomPanel = new JPanel();
+		bottomPanel.add(new JLabel("Category : "));
 		bottomPanel.add(categoryCombo);
-		bottomPanel.add(new JLabel("Category"));
 		bottomPanel.add(goButton);
+		bottomPanel.add(resetButton);
 
 		// add all gui items to the current window
 		this.add(outputInfoSPane, BorderLayout.CENTER);
-		this.add(indVarPicker, BorderLayout.WEST);
-		this.add(bottomPanel, BorderLayout.SOUTH);
+		this.add(indVarPicker, BorderLayout.LINE_START);
+		this.add(bottomPanel, BorderLayout.PAGE_END);
 
 	}
-	
-	
+		
 	/*
 	 * ClassifierThread is an subclass of the SwingWorker class which is designed to allow
 	 * a) the classification
@@ -174,6 +178,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 				
 				if ( newDataSet != null ) {
 					fireDataSetChanged(newDataSet);
+					newDataSetFired = true;
 					
 					daTask = null;					
 					// run the java garbage collector
@@ -461,6 +466,20 @@ public class DiscriminantAnalysisGUI extends JPanel
 			// perform the classification, update the gui with diagnostics and create a new DataSetForApps object
 			// ready for broadcast in a separate  thread
 			(new ClassifierThread()).execute();
+			
+		} else if (e.getSource() == resetButton) {
+			
+			// reset the java bean to it's initial status
+			// need to rebroadcast the DataSetForApps object if it has been modified by a previous 
+			// classification
+			if (newDataSetFired == true) {
+				fireDataSetChanged(dataSet);
+				newDataSetFired = false;
+				outputInfo.setText("");	
+				indVarIndices = new int[0];
+				categoryIndex = -1;
+				numClassifications = 0;
+			}
 		}
 	}
 	
