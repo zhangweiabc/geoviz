@@ -5,6 +5,7 @@
 package geovista.common.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,8 +15,6 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cern.colt.Arrays;
-
 public abstract class SpatialStatistics {
 
 	private static final Logger logger = Logger
@@ -23,7 +22,7 @@ public abstract class SpatialStatistics {
 
 	/**
 	 */
-	// 
+	//
 	public static double[] calculateMoranScores(double[] zData,
 			SpatialWeights sw) {
 
