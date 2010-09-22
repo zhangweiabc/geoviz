@@ -58,6 +58,11 @@
 			<version>${project.version}</version>
 		</dependency>	
 		<dependency>
+			<groupId>ncg</groupId>
+			<artifactId>statistics</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.jdesktop</groupId>
 			<artifactId>jxlayer</artifactId>
 			<version>${project.version}</version>
