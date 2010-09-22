@@ -17,6 +17,11 @@
 			<groupId>geovista</groupId>
 			<artifactId>common</artifactId>
 			<version>${project.version}</version>
-		</dependency>		
+		</dependency>	
+		<dependency>
+			<groupId>geovista</groupId>
+			<artifactId>readers</artifactId>
+			<version>${project.version}</version>
+		</dependency>			
 	</dependencies>
 </project>
