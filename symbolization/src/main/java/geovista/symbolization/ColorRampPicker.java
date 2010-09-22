@@ -11,13 +11,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.event.EventListenerList;
-
-import cern.colt.Arrays;
 
 import geovista.colorbrewer.ColorBrewerDataReader;
 import geovista.colorbrewer.UnivariatePalette;
