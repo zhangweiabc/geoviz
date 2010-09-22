@@ -22,7 +22,15 @@
       <name>geovista-repo</name>
       <url>http://www.geovista.psu.edu/repository/m2</url>
     </repository>    
-    
+        </repository>
+      <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>ibiblio.org</id>
+      <name>ibiblio Mirror of http://repo1.maven.org/maven2/</name>
+      <url>http://mirrors.ibiblio.org/pub/mirrors/maven2</url>
+    </repository>  
   </repositories>
   <modules>
     <module>common</module>
