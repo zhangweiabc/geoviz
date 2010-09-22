@@ -102,7 +102,6 @@ import geovista.geoviz.spreadsheet.TableViewer;
 import geovista.geoviz.spreadsheet.VariableTransformer;
 import geovista.geoviz.star.StarPlot;
 import geovista.geoviz.star.StarPlotMap;
-import geovista.largedata.H1N1DataReader;
 import geovista.matrix.MapAndScatterplotMatrix;
 import geovista.matrix.MapMatrix;
 import geovista.matrix.MapScatterplotTreemapMatrix;
@@ -875,7 +874,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 	}
 
-	H1N1DataReader reader = null;
+	// H1N1DataReader reader = null;
 
 	private Object[] createData(String name) throws IOException {
 		setTitle("GeoViz Toolkit -- " + name);
@@ -1618,9 +1617,9 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 	@Override
 	public void textChanged(TextEvent e) {
-		String s = e.getText();
-		DataSetForApps dsa = reader.makeDataSetForApps(s);
-		dataCaster.setAndFireDataSet(dsa);
+		// String s = e.getText();
+		// DataSetForApps dsa = reader.makeDataSetForApps(s);
+		// dataCaster.setAndFireDataSet(dsa);
 
 	}
 
