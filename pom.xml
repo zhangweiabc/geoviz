@@ -22,7 +22,6 @@
       <name>geovista-repo</name>
       <url>http://www.geovista.psu.edu/repository/m2</url>
     </repository>    
-        </repository>
       <repository>
       <snapshots>
         <enabled>true</enabled>
