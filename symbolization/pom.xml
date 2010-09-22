@@ -28,5 +28,10 @@
 			<artifactId>readers</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>geovista</groupId>
+			<artifactId>colorbrewer</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>
