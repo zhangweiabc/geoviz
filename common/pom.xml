@@ -14,7 +14,7 @@
 	</parent>
 	    <dependencies>
 	      <dependency>
-      <groupId>jts</groupId>
+      <groupId>com.vividsolutions.jts</groupId>
       <artifactId>jts</artifactId>
       <version>1.11</version>
 
