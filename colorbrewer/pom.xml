@@ -25,11 +25,6 @@
 		</dependency>
 		<dependency>
 			<groupId>geovista</groupId>
-			<artifactId>symbolization</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>geovista</groupId>
 			<artifactId>coordination</artifactId>
 			<version>${project.version}</version>
 		</dependency>
