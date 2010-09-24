@@ -8,17 +8,25 @@ package geovista.geoviz.spreadsheet;
  */
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.logging.Logger;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import geovista.common.data.DataSetForApps;
 import geovista.common.data.DataSetTableModel;
@@ -36,8 +44,12 @@ public class TableViewer extends JPanel implements SelectionListener,
 
 	private DescriptiveStats stats;
 	private transient DataSetTableModel dataSet;
+	
+	// this renders table header cells as buttons (used for statistics display)
+	private transient ButtonHeaderRenderer renderer;
 
 	private JTable table;
+
 	JScrollPane scrollPane;
 	final static Logger logger = Logger.getLogger(TableViewer.class.getName());
 
@@ -47,6 +59,24 @@ public class TableViewer extends JPanel implements SelectionListener,
 		init();
 		setPreferredSize(new Dimension(300, 600));
 	}
+	
+	/*
+	 * Set the header renderer for the current table Model
+	 * The header cells are rendered as JButtons. When a header cell button is 
+	 * pressed, statistics are displayed for the header
+	 */
+	
+	private void setTableHeaderRenderer() {
+		
+		JTableHeader header = table.getTableHeader();
+		header.setDefaultRenderer(renderer);
+		header.addMouseListener(new HeaderListener(renderer,header));
+			
+	}
+	
+	/*
+	 * Returns a new JTable object
+	 */
 
 	private void init() {
 		if (dataSet == null) {
@@ -54,17 +84,22 @@ public class TableViewer extends JPanel implements SelectionListener,
 		}
 
 		// clear out whatever was there before
-		removeAll();
-		ListSelectionReporter reporter = new ListSelectionReporter();
-
+		removeAll();		
+		
 		table = new JTable(dataSet);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);	
 		table.setAutoCreateRowSorter(true);
+		ListSelectionReporter reporter = new ListSelectionReporter();
 		table.getSelectionModel().addListSelectionListener(reporter);
-		// table.setColumnSelectionAllowed(true);
+		//table.setColumnSelectionAllowed(true);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setPreferredScrollableViewportSize(new Dimension(300, 70));
 		// table.setFillsViewportHeight(true);
-
+		
+		renderer = new ButtonHeaderRenderer();
+		
+		setTableHeaderRenderer();
+		
 		// Create the scroll pane and add the table to it.
 		scrollPane = new JScrollPane(table,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
@@ -100,13 +135,15 @@ public class TableViewer extends JPanel implements SelectionListener,
 	public void dataSetChanged(DataSetEvent e) {
 
 		dataSet = new DataSetTableModel(e.getDataSetForApps());
-		dataSet.addTableModelListener(table);
+		table.setModel(dataSet);
+		setTableHeaderRenderer();
 		stats.dataSetChanged(e);
 
 	}
+	
 
 	public void selectionChanged(SelectionEvent e) {
-
+				
 		int[] selVals = e.getSelection();
 		for (int i : selVals) {
 			if (i > table.getRowCount()) {
@@ -115,7 +152,11 @@ public class TableViewer extends JPanel implements SelectionListener,
 		}
 		table.clearSelection();
 		for (int i : selVals) {
-			table.addRowSelectionInterval(i, i);
+			
+			// if we have sorted the table we need to convert the indices
+			// to the new view indices
+			int v = table.getRowSorter().convertRowIndexToView(i);
+			table.addRowSelectionInterval(v, v);
 		}
 		// this.setSelectedIndex(e.getSelection());
 		stats.selectionChanged(e);
@@ -134,7 +175,7 @@ public class TableViewer extends JPanel implements SelectionListener,
 	 * 
 	 * @see EventListenerList
 	 */
-	@SuppressWarnings("unused")
+	//@SuppressWarnings("unused")
 	private void fireSelectionChanged(int[] newSelection) {
 
 		// Guaranteed to return a non-null array
@@ -213,6 +254,56 @@ public class TableViewer extends JPanel implements SelectionListener,
 		 * this.setData(tablesData, attributeNames);
 		 */
 	}
+	
+	/*
+	 * This class acts as a listener for mouse click events on the
+	 * header cells. when a header cell is clicked the corresponding button is depressed
+	 * and all other header cell buttons are set to be "not pressed". Statistics are displayed for
+	 * the column with the pressed button
+	 */
+	
+	private class HeaderListener extends MouseAdapter {
+		
+		ButtonHeaderRenderer renderer;
+		JTableHeader header;
+		
+		public HeaderListener(ButtonHeaderRenderer renderer, JTableHeader header) {
+			this.renderer = renderer;
+			this.header = header;
+		}
+		
+		public void mousePressed(MouseEvent e) {
+			int pushedColumn = header.columnAtPoint(e.getPoint());
+			renderer.setPressedColumn(pushedColumn);
+			stats.setSelectedColumn(pushedColumn);
+		}
+		
+		public void mouseReleased(MouseEvent e) {}
+	}
+	
+	/*
+	 *  Subclass JButton to create header cells that act like buttons
+	 *  When a cell header for a column is pressed statistics for that column
+	 *  are displayed. Only one button can be pressed at at time
+	 */
+	private class ButtonHeaderRenderer extends JButton implements TableCellRenderer {
+		
+		int pushedColumn = 0;
+		
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, 
+				boolean hasFocus, int row,  int column) {
+			setText((value == null) ? "" : value.toString());
+			boolean isPressed = (column == pushedColumn);
+			getModel().setPressed(isPressed);
+			getModel().setArmed(isPressed);
+			return this;
+		}
+		
+		public void setPressedColumn(int col) {
+			pushedColumn = col;
+		}
+	}
+			
 
 	/***************************************************************************
 	 * Test
@@ -224,7 +315,7 @@ public class TableViewer extends JPanel implements SelectionListener,
 		mf.getContentPane().add(tView);
 
 		DataSetForApps dataSet = getStateData(tView);
-		tView.setDataSet(dataSet);
+		//tView.setDataSet(dataSet);
 		mf.pack();
 		mf.setVisible(true);
 
@@ -262,13 +353,37 @@ public class TableViewer extends JPanel implements SelectionListener,
 	class ListSelectionReporter implements ListSelectionListener {
 
 		public void valueChanged(ListSelectionEvent e) {
-			logger.info("**********");
-			logger.info("");
-			logger.info(e.toString());
-			logger.info("" + e.getFirstIndex());
-			logger.info("" + e.getLastIndex());
-
-			logger.info("*****");
+			
+			// only fire new selections when they originate from the JTable
+			// selections from other beans will also cause the valueChanged method to be
+			// called via table.addRowSelectionInterval method which fires a ListSelectionEvent
+			
+			if (!e.getValueIsAdjusting() && table.hasFocus()) { 
+				
+				/*logger.info("**********");
+				logger.info("");
+				logger.info(e.toString());
+				logger.info("" + e.getFirstIndex());
+				logger.info("" + e.getLastIndex());
+	
+				logger.info("*****");
+				logger.info("Selected column is : " + table.getSelectedColumn());*/
+								
+				// if the table has been sorted we need to convert the view based indices
+				// to the model indices
+				int[] selRowsView = table.getSelectedRows();
+				int[] selRowsModel = new int[selRowsView.length];
+				RowSorter rowSort = table.getRowSorter();
+				for (int i = 0; i < selRowsView.length; i++) {
+					selRowsModel[i] = rowSort.convertRowIndexToModel(selRowsView[i]);
+				}
+				
+				// send the newly selected observations to the other beans
+				fireSelectionChanged(selRowsModel);
+				
+				// compute the statistics for the changed selection
+				stats.selectionChanged(new SelectionEvent(this,selRowsModel));
+			}
 
 		}
 

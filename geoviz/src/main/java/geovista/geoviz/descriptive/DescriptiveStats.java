@@ -48,6 +48,7 @@ implements SelectionListener, DataSetListener {
 	JFormattedTextField skewnessSelFTF;
 	JFormattedTextField kurtosisSelFTF;
 	int[] savedSelection;
+	int selectedColumn = 0; //compute statistics for this column in dataSetForApps
 
 	/**
 	 * 
@@ -204,9 +205,19 @@ implements SelectionListener, DataSetListener {
 		calculateStats();
 
 	}
+	
+	/*
+	 * select the selectedColumn variable and recalculate the statistics
+	 */
+	
+	public void setSelectedColumn(int column) {
+		selectedColumn = column;
+		calculateStats();
+		calculateSelStats(new int[0]);
+	}
 
 	private void calculateStats() {
-		double[] data = dataSet.getNumericDataAsDouble(0);
+		double[] data = dataSet.getNumericDataAsDouble(selectedColumn);
 		double meanValue = DescriptiveStatistics.mean(data);
 		meanFTF.setValue(meanValue);
 		if (meanFTF.getText().equals("-0")) {
@@ -223,10 +234,12 @@ implements SelectionListener, DataSetListener {
 	}
 
 	private void calculateSelStats(int[] selObs) {
+		
 		if (dataSet == null) {
 			return;
 		}
-		double[] originalData = dataSet.getNumericDataAsDouble(0);
+		
+		double[] originalData = dataSet.getNumericDataAsDouble(selectedColumn);
 		double[] data = null;
 		if (selObs.length > 0) {
 			data = new double[selObs.length];
