@@ -83,8 +83,8 @@ public class MapMatrixElement extends MapCanvas implements MatrixElement {
 		// i know...
 		// let's keep changing our minds!
 		// then we'll never get it straight!
-		super.setCurrColorColumnX(elementPosition[0] - 1);
-		super.setCurrColorColumnY(elementPosition[1] - 1);
+		super.setCurrColorColumnX(elementPosition[0]);
+		super.setCurrColorColumnY(elementPosition[1]);
 		setHistogramData();
 	}
 

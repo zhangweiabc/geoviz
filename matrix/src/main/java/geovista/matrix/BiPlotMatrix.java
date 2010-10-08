@@ -281,8 +281,8 @@ public class BiPlotMatrix extends AbstractMatrix {
 						c.gridheight = AbstractMatrix.DEFAULT_BUTTON_CONSTRAINTS;
 						int indexCurrent = (i - 1) * (plotNumber) + (j - 1);
 						int[] dataIndices = new int[2];
-						dataIndices[0] = plottedAttributes[j - 1] + 1;
-						dataIndices[1] = plottedAttributes[i - 1] + 1;
+						dataIndices[0] = plottedAttributes[j - 1];
+						dataIndices[1] = plottedAttributes[i - 1];
 						// construct of each element
 						if (elementClasses[0] != null
 								&& elementClasses[1] == null) {
