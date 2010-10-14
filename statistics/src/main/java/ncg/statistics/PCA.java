@@ -10,8 +10,6 @@ package ncg.statistics;
  * See chapter 6 for details
  */
 
-import geovista.common.data.DescriptiveStatistics;
-
 import java.util.logging.Logger;
 
 import org.apache.commons.math.linear.ArrayRealVector;
