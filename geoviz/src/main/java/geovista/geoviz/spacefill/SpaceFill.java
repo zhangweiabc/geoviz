@@ -79,7 +79,7 @@ public class SpaceFill extends JPanel implements ActionListener,
 		Color[] colors = vc.getColors();
 		spatCan.setColors(colors);
 
-		spatCan.setColorSymbolizer(vc.getColorSymbolClassification());
+		spatCan.setColorSymbolizer(vc.getColorClasser());
 		setPreferredSize(new Dimension(400, 400));
 
 		// orders to implement (in order): scan, bostrophedon, spiral, Morton,
@@ -89,7 +89,7 @@ public class SpaceFill extends JPanel implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
 		if (command.equals(VisualClassifier.COMMAND_COLORS_CHANGED)) {
-			spatCan.setColorSymbolizer(vc.getColorSymbolClassification());
+			spatCan.setColorSymbolizer(vc.getColorClasser());
 			fireActionPerformed(SpaceFillCanvas.COMMAND_COLOR_CLASSFICIATION);
 			// this.spat.setColors(colors);
 		}
@@ -215,7 +215,7 @@ public class SpaceFill extends JPanel implements ActionListener,
 		Color[] colors = vc.getColors();
 		spatCan.setColors(colors);
 
-		spatCan.setColorSymbolizer(vc.getColorSymbolClassification());
+		spatCan.setColorSymbolizer(vc.getColorClasser());
 		setVariableNames(dataSet.getAttributeNamesNumeric());
 		spatCan.setDataSet(dataSet);
 		if (dataSet.getNumberNumericAttributes() > 2) {

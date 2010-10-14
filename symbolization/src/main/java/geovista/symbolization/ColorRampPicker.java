@@ -12,13 +12,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import javax.swing.BoxLayout;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.EventListenerList;
 
-import geovista.colorbrewer.ColorBrewerDataReader;
+import geovista.colorbrewer.ColorBrewer;
 import geovista.colorbrewer.UnivariatePalette;
 
 public class ColorRampPicker extends JPanel implements ComponentListener {
@@ -47,19 +47,13 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 
 	private UnivariatePalette pal;
 
-	private static HashMap<String, UnivariatePalette> palettes = ColorBrewerDataReader
-			.readContents();
-
 	public ColorRampPicker() {
 		init();
 	}
 
-	public static UnivariatePalette getPalette(String name) {
-		return palettes.get(name);
-	}
-
 	private void init() {
-		pal = ColorRampPicker.palettes.get("Blues");
+		pal = ColorBrewer
+				.getPalette(ColorBrewer.BrewerNames.Blues);
 		// this.setBorder(BorderFactory.createLineBorder(Color.black));
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		ramp = new ColorRamp();
@@ -84,9 +78,15 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 		addComponentListener(this);
 	}
 
-	public void setPalette(String name) {
-		pal = ColorRampPicker.palettes.get(name);
-		colors = pal.getColors(colors.length);
+	public void setPalette(ColorBrewer.BrewerNames name) {
+		pal = ColorBrewer.getPalette(name);
+		int len = 0;
+		if (colors != null) {
+			len = colors.length;
+		} else {
+			len = ColorRampPicker.DEFAULT_NUM_SWATCHES;
+		}
+		colors = pal.getColors(len);
 	}
 
 	public void makeRamp(int nSwatches) {
@@ -394,7 +394,14 @@ public class ColorRampPicker extends JPanel implements ComponentListener {
 	}
 
 	public static void main(String[] args) {
+		JFrame app = new JFrame();
+		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		ColorRampPicker picker = new ColorRampPicker();
+		app.add(picker);
+		app.setVisible(true);
+
 		boolean[] bools = new boolean[10];
 		System.out.println(Arrays.toString(bools));
+
 	}
 }

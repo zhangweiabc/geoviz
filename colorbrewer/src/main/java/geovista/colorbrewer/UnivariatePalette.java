@@ -78,4 +78,8 @@ public final class UnivariatePalette implements Palette1D {
 		return name;
 	}
 
+	public int getMaxLength() {
+		return maxLength;
+	}
+
 }

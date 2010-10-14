@@ -6,7 +6,7 @@ package geovista.common.event;
 
 import java.util.EventObject;
 
-import geovista.common.color.Palette;
+import geovista.colorbrewer.UnivariatePalette;
 
 /**
  * An PalletEvent signals that there is a new or changed pallet.
@@ -17,22 +17,22 @@ import geovista.common.color.Palette;
 
 public class PaletteEvent extends EventObject {
 
-	private transient Palette pallet;
+	private transient UnivariatePalette pallet;
 
 	/**
 	 * The constructor is the same as that for EventObject, except that the
 	 * pallet is indicated.
 	 */
-	public PaletteEvent(Object source, Palette pallet) {
+	public PaletteEvent(Object source, UnivariatePalette pallet) {
 		super(source);
 		this.pallet = pallet;
 	}
 
-	public Palette getPalette() {
+	public UnivariatePalette getPalette() {
 		return pallet;
 	}
 
-	public void setPalette(Palette pallet) {
+	public void setPalette(UnivariatePalette pallet) {
 		this.pallet = pallet;
 	}
 }

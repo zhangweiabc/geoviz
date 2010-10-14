@@ -21,6 +21,7 @@ package geovista.symbolization;
 
 import java.awt.Color;
 
+import geovista.colorbrewer.ColorBrewer;
 import geovista.colorbrewer.UnivariatePalette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierQuantiles;
@@ -32,6 +33,9 @@ public class BivariateColorSymbolClassificationSimple implements
 	private Classifier classerX;
 	private ColorSymbolizer colorerY;
 	private Classifier classerY;
+	// XXX need to merge ColorSymbolizer and UnivariatePalette
+	UnivariatePalette xPal;
+	UnivariatePalette yPal;
 	private transient int numClassesX;
 	private transient int numClassesY;
 	transient int[] classesX;
@@ -49,10 +53,9 @@ public class BivariateColorSymbolClassificationSimple implements
 
 	public Color[][] getClassColors() {
 		Color[][] currColors = new Color[numClassesX][numClassesY];
-		Color[] xColors = colorerX.symbolize(numClassesX);
-		Color[] yColors = colorerY.symbolize(numClassesY);
-		UnivariatePalette xPal = ColorRampPicker.getPalette("Blues");
-		UnivariatePalette yPal = ColorRampPicker.getPalette("Greens");
+		Color[] xColors = colorerX.getColors(numClassesX);
+		Color[] yColors = colorerY.getColors(numClassesY);
+
 		xColors = xPal.getColors(numClassesX);
 		yColors = yPal.getColors(numClassesY);
 		for (int x = 0; x < currColors.length; x++) {
@@ -71,6 +74,11 @@ public class BivariateColorSymbolClassificationSimple implements
 
 	public BivariateColorSymbolClassificationSimple() {
 		// defaults
+		xPal = ColorBrewer
+				.getPalette(ColorBrewer.BrewerNames.Blues);
+		yPal = ColorBrewer
+				.getPalette(ColorBrewer.BrewerNames.Greens);
+
 		ColorSymbolizerLinear colX = new ColorSymbolizerLinear();
 		colX.setLowColor(ColorRampPicker.DEFAULT_LOW_COLOR);
 		colX.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_PURPLE);
@@ -109,12 +117,12 @@ public class BivariateColorSymbolClassificationSimple implements
 			return symbolizeUnivariate(dataX);
 		}
 
-		Color[] colorsX = colorerX.symbolize(numClassesX);
+		Color[] colorsX = colorerX.getColors(numClassesX);
 		classesX = classerX.classify(dataX, numClassesX);
 		int myClassX = 0;
 		Color colorX = null;
 
-		Color[] colorsY = colorerY.symbolize(numClassesY);
+		Color[] colorsY = colorerY.getColors(numClassesY);
 		classesY = classerY.classify(dataY, numClassesY);
 		int myClassY = 0;
 		Color colorY = null;
@@ -140,7 +148,7 @@ public class BivariateColorSymbolClassificationSimple implements
 	}
 
 	private Color[] symbolizeUnivariate(double[] dataX) {
-		Color[] colorsX = colorerX.symbolize(numClassesX);
+		Color[] colorsX = colorerX.getColors(numClassesX);
 		classesX = classerX.classify(dataX, numClassesX);
 		int myClassX = 0;
 		Color colorX = null;

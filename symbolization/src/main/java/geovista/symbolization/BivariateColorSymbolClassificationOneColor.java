@@ -44,8 +44,8 @@ public class BivariateColorSymbolClassificationOneColor implements
 
 	public Color[][] getClassColors() {
 		Color[][] currColors = new Color[numClassesX][numClassesY];
-		Color[] xColors = colorerX.symbolize(numClassesX);
-		Color[] yColors = colorerY.symbolize(numClassesY);
+		Color[] xColors = colorerX.getColors(numClassesX);
+		Color[] yColors = colorerY.getColors(numClassesY);
 
 		for (int x = 0; x < currColors.length; x++) {
 			for (int y = 0; y < currColors.length; y++) {
@@ -77,12 +77,12 @@ public class BivariateColorSymbolClassificationOneColor implements
 			return symbolizeUnivariate(dataX);
 		}
 
-		Color[] colorsX = colorerX.symbolize(numClassesX);
+		Color[] colorsX = colorerX.getColors(numClassesX);
 		int[] classesX = classerX.classify(dataX, numClassesX);
 		int myClassX = 0;
 		Color colorX = null;
 
-		Color[] colorsY = colorerY.symbolize(numClassesY);
+		Color[] colorsY = colorerY.getColors(numClassesY);
 		int[] classesY = classerY.classify(dataY, numClassesY);
 		int myClassY = 0;
 		Color colorY = null;
@@ -106,12 +106,12 @@ public class BivariateColorSymbolClassificationOneColor implements
 	}
 
 	private Color[] symbolizeUnivariate(double[] dataX) {
-		Color[] colorsX = colorerX.symbolize(numClassesX);
+		Color[] colorsX = colorerX.getColors(numClassesX);
 		int[] classesX = classerX.classify(dataX, numClassesX);
 		int myClassX = 0;
 		Color colorX = null;
 
-		Color[] colorsY = colorerY.symbolize(numClassesX);
+		Color[] colorsY = colorerY.getColors(numClassesX);
 		Color colorY = null;
 
 		Color[] returnColors = new Color[dataX.length];

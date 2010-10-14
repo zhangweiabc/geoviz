@@ -32,6 +32,7 @@ import javax.swing.JToolBar;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import geovista.colorbrewer.ColorBrewer;
 import geovista.common.classification.ClassifierPicker;
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.AuxiliaryDataSetEvent;
@@ -141,6 +142,7 @@ public class GeoMap extends JPanel
 		if (visualClassifierNeeded) {
 			JPanel vcPanel = new JPanel();
 			vcPanel.setLayout(new BoxLayout(vcPanel, BoxLayout.Y_AXIS));
+			// vcPanel.setLayout(new BorderLayout());
 			visClassOne = new VisualClassifier();
 			visClassTwo = new VisualClassifier();
 			visClassOne.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -194,7 +196,7 @@ public class GeoMap extends JPanel
 		visClassTwo.addColorClassifierListener(this);
 		addIndicationListener(biViz);
 
-		visClassTwo.setPalette("Greens");
+		visClassTwo.setPalette(ColorBrewer.BrewerNames.Greens);
 		visClassTwo.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_GREEN); // green
 		currSize = new Dimension(this.getSize());
 		fisheyes = new Fisheyes();
@@ -411,7 +413,7 @@ public class GeoMap extends JPanel
 
 		if ((src == visClassOne) && command.equals(varChangedCommand)) {
 			int index = visClassOne.getCurrVariableIndex();
-			// index++; dataSetForApps goodness
+
 			if (index >= 0) { // fix bug by jin,there could be a chance when
 				// index=-1
 				mapCan.setCurrColorColumnX(index);
@@ -420,7 +422,7 @@ public class GeoMap extends JPanel
 			}
 		} else if ((src == visClassTwo) && command.equals(varChangedCommand)) {
 			int index = visClassTwo.getCurrVariableIndex();
-			// index++; dataSetForApps goodness
+
 			if (index >= 0) { // fix bug by jin, there could be a chance when
 				// index=-1, it =>
 				// DataSetForApps.getNumericDataAsDouble()

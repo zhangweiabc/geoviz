@@ -79,7 +79,7 @@ public class ColorSymbolizerLinear implements ColorSymbolizer {
 
 	}
 
-	public Color[] symbolize(int numColors) {
+	public Color[] getColors(int numColors) {
 		if (anchors == null || anchors.length != numColors) {
 			anchors = new boolean[numColors];
 			anchors[0] = true; // anchor first and last colors

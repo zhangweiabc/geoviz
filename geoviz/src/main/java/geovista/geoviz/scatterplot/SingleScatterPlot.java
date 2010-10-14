@@ -28,6 +28,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import geovista.colorbrewer.ColorBrewer;
 import geovista.common.classification.ClassifierPicker;
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.DataSetEvent;
@@ -92,7 +93,7 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 
 		vcPanel.add(visClassY);
 		vcPanel.add(visClassX);
-		visClassY.setPalette("Greens");
+		visClassY.setPalette(ColorBrewer.BrewerNames.Greens);
 		JPanel legendPanel = new JPanel();
 		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.X_AXIS));
 		biViz = new BivariateColorSchemeVisualizer();

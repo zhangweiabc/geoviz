@@ -30,9 +30,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import geovista.colorbrewer.Palette;
+import geovista.colorbrewer.UnivariatePalette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierPicker;
-import geovista.common.color.Palette;
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.DataSetListener;
@@ -342,7 +343,8 @@ public class SonicClassifier extends JPanel implements ActionListener,
 
 	public void paletteChanged(PaletteEvent e) {
 		Palette pal = e.getPalette();
-		int maxColors = pal.getRecommendedMaxLength();
+		UnivariatePalette uPal = (UnivariatePalette) pal;
+		int maxColors = uPal.getMaxLength();
 		logger.finest("max colors = " + maxColors);
 
 		// we can't go over the max, or it blows null exceptions
@@ -350,13 +352,14 @@ public class SonicClassifier extends JPanel implements ActionListener,
 
 		int numClasses = classPick.getNClasses();
 		Color[] cols = null;
+
 		if (numClasses <= maxColors) {
-			cols = pal.getColors(numClasses);
+			cols = uPal.getColors(numClasses);
 		} else {
 			// we have more colors wanted than the pallet can give us
 			// todo: make this work
 			// this.assignColors
-			cols = pal.getColors(numClasses);
+			cols = uPal.getColors(numClasses);
 		}
 
 		setColors(cols);

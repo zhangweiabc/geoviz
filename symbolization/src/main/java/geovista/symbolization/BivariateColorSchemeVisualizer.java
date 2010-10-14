@@ -107,8 +107,8 @@ public class BivariateColorSchemeVisualizer extends JPanel implements
 		if (gl.getColumns() != numX || gl.getRows() != numY) {
 			initSwatches();
 		}
-		Color[] xColors = xSymbolizer.symbolize(xSymbolizer.getNumClasses());
-		Color[] yColors = ySymbolizer.symbolize(ySymbolizer.getNumClasses());
+		Color[] xColors = xSymbolizer.getColors(xSymbolizer.getNumClasses());
+		Color[] yColors = ySymbolizer.getColors(ySymbolizer.getNumClasses());
 		int counter = 0;
 		for (int j = yColors.length - 1; j >= 0; j--) {
 			for (int i = 0; i < xColors.length; i++) {

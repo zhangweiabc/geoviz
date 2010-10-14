@@ -5,7 +5,6 @@
 package geovista.colorbrewer;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -14,13 +13,24 @@ import java.util.regex.Pattern;
 
 import geovista.colorbrewer.Palette1D.SequenceType;
 
-public class ColorBrewerDataReader {
+public class ColorBrewer {
 
-	final static Logger logger = Logger.getLogger(ColorBrewerDataReader.class
-			.getName());
+	final static Logger logger = Logger.getLogger(ColorBrewer.class.getName());
 
-	public ColorBrewerDataReader() throws IOException {
-		readContents();
+	public enum BrewerNames {
+		Blues, BrBG, BuGn, BuPu, Dark2, GnBu, Greens, Greys, Oranges, OrRd, Paired, Pastel1, Pastel2, PiYG, PRGn, PuBu, PuBuGn, PuOr, PuRd, Purples, RdBu, RdGy, RdPu, Reds, RdYlBu, RdYlGn, Set1, Set2, Set3, Spectral, YlGn, YlGnBu, YlOrBr, YlOrRd
+	}
+
+	static HashMap<String, UnivariatePalette> palettes = ColorBrewer
+			.readContents();
+
+	public static UnivariatePalette getPalette(BrewerNames name) {
+		return palettes.get(name.toString());
+
+	}
+
+	public static UnivariatePalette getPalette(String name) {
+		return palettes.get(name);
 
 	}
 
@@ -77,7 +87,7 @@ public class ColorBrewerDataReader {
 	}
 
 	private static boolean checkPalette(UnivariatePalette pal) {
-		for (int i = pal.minLength; i < pal.maxLength; i++) {
+		for (int i = UnivariatePalette.minLength; i < pal.maxLength; i++) {
 			Color[] cols = pal.getColors(i);
 			assert (cols != null);
 		}
@@ -87,7 +97,7 @@ public class ColorBrewerDataReader {
 
 	public static HashMap<String, UnivariatePalette> readContents() {
 		HashMap<String, UnivariatePalette> palettes = new HashMap<String, UnivariatePalette>();
-		InputStream colorBrewerIs = ColorBrewerDataReader.class
+		InputStream colorBrewerIs = ColorBrewer.class
 				.getResourceAsStream("resources/brewer_values.csv");
 		Scanner scan = new Scanner(colorBrewerIs);
 		Pattern pat = Pattern.compile("[,\r]");
@@ -99,6 +109,7 @@ public class ColorBrewerDataReader {
 			if (currentPalette.name.equals(pal.name)) {
 				currentPalette = currentPalette.combine(pal);
 			} else {
+
 				assert (checkPalette(currentPalette));
 				palettes.put(currentPalette.name, currentPalette);
 				currentPalette = pal;
@@ -111,19 +122,14 @@ public class ColorBrewerDataReader {
 
 	public static void main(String[] args) {
 
-		ColorBrewerDataReader reader = null;
+		ColorBrewer reader = null;
 		double duration = 0;
-		try {
-			long start = System.currentTimeMillis();
-			reader = new ColorBrewerDataReader();
-			long end = System.currentTimeMillis();
-			duration = end - start;
-			duration = duration / 1000;
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		long start = System.nanoTime();
+		reader = new ColorBrewer();
+		long end = System.nanoTime();
+		duration = end - start;
+		duration = duration / 1000;
 
 		logger.info("All done! took this long:" + duration);
 

@@ -309,11 +309,10 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 				"Visual Classifier"));
 		renderPanel.add(vc);
 		vc.setPreferredSize(new Dimension(600, 20));
-		vc.getSymbolizationPanel().setLowColor(Color.black);
+		// vc.getSymbolizationPanel().setLowColor(Color.black);
 
 		vc.addColorArrayListener(this);
-		vc
-				.setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
+		vc.setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
 
 		// renderLabel.setText("progress:");
 		// renderLabel.setFont(new java.awt.Font("Dialog", 0, 12));

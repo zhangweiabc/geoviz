@@ -7,13 +7,11 @@ package geovista.symbolization;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.TexturePaint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -34,24 +32,13 @@ public class ColorRampSwatch extends JPanel implements MouseListener {
 			.getLogger(ColorRampSwatch.class.getName());
 
 	public ColorRampSwatch(ColorRampPicker parent, boolean anchored, boolean end) {
-		makeImage();
+
 		this.parent = parent;
 		swatchColor = Color.white;
 		setBackground(swatchColor);
 		addMouseListener(this);
 		setAnchored(anchored);
 		isEnd = end;
-	}
-
-	public static void makeImage() {
-		Class cl = ColorRampSwatch.class;
-		URL urlGif = cl.getResource("resources/anchorBlack.gif");
-		ImageIcon icon = new ImageIcon(urlGif, "Anchors the color in a ramp");
-		iconBlack = icon;
-
-		URL urlGif2 = cl.getResource("resources/anchorWhite.gif");
-		ImageIcon icon2 = new ImageIcon(urlGif2, "Anchors the color in a ramp");
-		iconWhite = icon2;
 	}
 
 	public void setTexPaint(TexturePaint texPaint) {
@@ -140,22 +127,6 @@ public class ColorRampSwatch extends JPanel implements MouseListener {
 			g.fillRect(0, 0, getWidth(), getHeight());
 		}
 
-		if (getAnchored()) {
-			int midX = getWidth() / 2;
-			int midY = getHeight() / 2;
-
-			Color c = getBackground();
-			int colorValue = c.getRed() + c.getBlue() + c.getGreen();
-			Image ico = null;
-			if (colorValue > 200) { // pulled this out of my hat
-				ico = iconBlack.getImage();
-			} else {
-				ico = iconWhite.getImage();
-			}
-			midX = midX - (ico.getWidth(this) / 2);
-			midY = midY - (ico.getHeight(this) / 2);
-			// g.drawImage(ico, midX, midY, this);
-		}
 	}
 
 	/**

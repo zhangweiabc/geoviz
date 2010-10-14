@@ -9,17 +9,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.TexturePaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.Enumeration;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,9 +30,11 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import geovista.colorbrewer.ColorBrewer;
+import geovista.colorbrewer.Palette;
+import geovista.colorbrewer.UnivariatePalette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierPicker;
-import geovista.common.color.Palette;
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.ColorArrayEvent;
 import geovista.common.event.ColorArrayListener;
@@ -47,11 +45,9 @@ import geovista.common.event.DataSetListener;
 import geovista.common.event.PaletteEvent;
 import geovista.common.event.PaletteListener;
 import geovista.readers.example.GeoDataGeneralizedStates;
+import geovista.symbolization.ColorBrewerPicker;
 import geovista.symbolization.ColorRampPicker;
-import geovista.symbolization.ColorSymbolClassification;
 import geovista.symbolization.ColorSymbolClassificationSimple;
-import geovista.symbolization.ColorSymbolizer;
-import geovista.symbolization.ColorSymbolizerLinear;
 import geovista.symbolization.event.ColorClassifierEvent;
 import geovista.symbolization.event.ColorClassifierListener;
 
@@ -64,7 +60,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	// Jin Chen: for extending purpose, change private to protected for
 	// following fields:
 	// symbolizationPanel,colors,dataColors,colorerLinear,colorClasser,classPick
-	protected ColorRampPicker symbolizationPanel;
+	protected ColorBrewerPicker symbolizationPanel;
 
 	// XXX in future, we want to support much beyond colors.
 	protected transient Color[] colors;
@@ -91,13 +87,12 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	public static final int Y_AXIS = 1;
 	public transient boolean orientationInParentIsX = false;
 
-	protected ColorSymbolizerLinear colorerLinear;
 	protected ColorSymbolClassificationSimple colorClasser;
 
 	protected ClassifierPicker classPick;
 
-	private transient TexturePaint texPaint;
-	private transient int oldIndication = 0;
+	// private transient TexturePaint texPaint;
+	// private transient int oldIndication = 0;
 	final static Logger logger = Logger.getLogger(VisualClassifier.class
 			.getName());
 
@@ -105,7 +100,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		super();
 		addComponentListener(this);
 		colorClasser = new ColorSymbolClassificationSimple();
-		colorerLinear = new ColorSymbolizerLinear();
+		// colorerLinear = new ColorSymbolizerLinear();
 		setupFinished = false;
 		nClasses = ColorRampPicker.DEFAULT_NUM_SWATCHES;
 		update = true;
@@ -144,7 +139,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		makeTexPaint();
 	}
 
-	public void setPalette(String name) {
+	public void setPalette(ColorBrewer.BrewerNames name) {
 		symbolizationPanel.setPalette(name);
 		makeColors();
 	}
@@ -152,7 +147,8 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	private void makeTexPaint() {
 
 		int texSize = 4;
-		Rectangle2D.Float rect = new Rectangle2D.Float(0, 0, texSize, texSize);
+		// Rectangle2D.Float rect = new Rectangle2D.Float(0, 0, texSize,
+		// texSize);
 		BufferedImage buff = new BufferedImage(texSize, texSize,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = buff.createGraphics();
@@ -162,78 +158,62 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		g2.setColor(Color.blue);
 		g2.drawLine(0, 0, 32, 32);
 
-		texPaint = new TexturePaint(buff, rect);
+		// texPaint = new TexturePaint(buff, rect);
 
 	}
 
 	private void makeSymbolizationPanel() {
-		symbolizationPanel = new ColorRampPicker();
+		symbolizationPanel = new ColorBrewerPicker();
 		this.add(symbolizationPanel);
 		symbolizationPanel.addActionListener(this);
 	}
 
 	private void makeColors() {
-		if (logger.isLoggable(Level.FINEST)) {
-			logger.finest("VisClass, making colors...");
-		}
-		Color[] pickerColors = symbolizationPanel.getColors();
-		boolean[] pickerAnchors = symbolizationPanel.getAnchored();
-		// now we interpolate...linearly
-		int nPicks = pickerColors.length;
-		double picksPerColor = (double) nPicks / (double) nClasses;
-		if (colors == null) {
-			colors = new Color[nClasses];
-		} else if (colors.length != nClasses) {
-			colors = new Color[nClasses];
-		}
+		colors = symbolizationPanel.getColors();
 
-		for (int i = 0; i < nClasses; i++) {
-			double whichColor = i * picksPerColor;
-			int index = (int) Math.floor(whichColor);
-			if (logger.isLoggable(Level.FINEST)) {
-				logger.finest("i = " + i + "index = " + index);
-			}
-			colors[i] = pickerColors[index];
-
-		}
-		if (interpolate) {
-			// for each lock in the picker, find the class that is closest.
-			double colorsPerPick = (double) (nClasses - 1)
-					/ (double) (nPicks - 1);
-			// int[] newAnchors = new int[pickerAnchors.length];
-			Vector newAnchors = new Vector();
-			for (int i = 0; i < pickerAnchors.length; i++) {
-				double whichClass = i * colorsPerPick;
-				int aClass = (int) Math.round(whichClass);
-				if (pickerAnchors[i]) {
-					Integer Ind = new Integer(aClass);
-					newAnchors.add(Ind);
-				}
-			}
-
-			boolean[] colorAnchors = new boolean[nClasses];
-			if (newAnchors.size() > 2) {
-				for (Enumeration e = newAnchors.elements(); e.hasMoreElements();) {
-					Integer ind = (Integer) e.nextElement();
-					colorAnchors[ind.intValue()] = true;
-				}
-
-				colorAnchors[0] = true;
-				colorAnchors[colorAnchors.length - 1] = true;
-			} else if (newAnchors.size() == 2) {
-				colorAnchors[0] = true;
-				colorAnchors[colorAnchors.length - 1] = true;
-			} else if (newAnchors.size() == 1) {
-				colorAnchors[0] = true;
-			}
-			// now find those durn colors!
-			symbolizationPanel.getRamp().rampColors(colors, colorAnchors);
-			colorerLinear.setRampingColors(colors);
-			colorerLinear.setAnchors(colorAnchors);
-			colorClasser.setColorer(colorerLinear);
-		} // end if interpolate
 	}
 
+	private void makeColorClasser() {
+		colorClasser = new ColorSymbolClassificationSimple();
+		// colorClasser.setColorer(this.symbolizationPanel.getPalette());
+	}
+
+	/*
+	 * private void makeColors() { if (logger.isLoggable(Level.FINEST)) {
+	 * logger.finest("VisClass, making colors..."); } Color[] pickerColors =
+	 * symbolizationPanel.getColors(); boolean[] pickerAnchors =
+	 * symbolizationPanel.getAnchored(); // now we interpolate...linearly int
+	 * nPicks = pickerColors.length; double picksPerColor = (double) nPicks /
+	 * (double) nClasses; if (colors == null) { colors = new Color[nClasses]; }
+	 * else if (colors.length != nClasses) { colors = new Color[nClasses]; }
+	 * 
+	 * for (int i = 0; i < nClasses; i++) { double whichColor = i *
+	 * picksPerColor; int index = (int) Math.floor(whichColor); if
+	 * (logger.isLoggable(Level.FINEST)) { logger.finest("i = " + i + "index = "
+	 * + index); } colors[i] = pickerColors[index];
+	 * 
+	 * } if (interpolate) { // for each lock in the picker, find the class that
+	 * is closest. double colorsPerPick = (double) (nClasses - 1) / (double)
+	 * (nPicks - 1); // int[] newAnchors = new int[pickerAnchors.length]; Vector
+	 * newAnchors = new Vector(); for (int i = 0; i < pickerAnchors.length; i++)
+	 * { double whichClass = i * colorsPerPick; int aClass = (int)
+	 * Math.round(whichClass); if (pickerAnchors[i]) { Integer Ind = new
+	 * Integer(aClass); newAnchors.add(Ind); } }
+	 * 
+	 * boolean[] colorAnchors = new boolean[nClasses]; if (newAnchors.size() >
+	 * 2) { for (Enumeration e = newAnchors.elements(); e.hasMoreElements();) {
+	 * Integer ind = (Integer) e.nextElement(); colorAnchors[ind.intValue()] =
+	 * true; }
+	 * 
+	 * colorAnchors[0] = true; colorAnchors[colorAnchors.length - 1] = true; }
+	 * else if (newAnchors.size() == 2) { colorAnchors[0] = true;
+	 * colorAnchors[colorAnchors.length - 1] = true; } else if
+	 * (newAnchors.size() == 1) { colorAnchors[0] = true; } // now find those
+	 * durn colors! symbolizationPanel.getRamp().rampColors(colors,
+	 * colorAnchors); colorerLinear.setRampingColors(colors);
+	 * colorerLinear.setAnchors(colorAnchors);
+	 * colorClasser.setColorer(colorerLinear); } // end if interpolate }
+	 */
 	public Color[] findDataColors() {
 		if (logger.isLoggable(Level.FINEST)) {
 			logger.finest("VisClass, finding data colors...");
@@ -319,33 +299,32 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		}
 	}
 
-	public ColorRampPicker getSymbolizationPanel() {
+	public ColorBrewerPicker getSymbolizationPanel() {
 		return symbolizationPanel;
 	}
 
-	public void setSymbolizationPanel(ColorRampPicker symbolizationPanel) {
+	public void setSymbolizationPanel(ColorBrewerPicker symbolizationPanel) {
 		this.symbolizationPanel = symbolizationPanel;
 		makeColors();
 		logger.finest("VC, settingSymbolizationPanel");
 	}
 
-	public ColorSymbolClassification getColorSymbolClassification() {
+	public ColorSymbolClassificationSimple getColorClasser() {
 		return colorClasser;
 	}
 
-	public void setColorSymbolClassification(
-			ColorSymbolClassification colorClasser) {
-		this.colorClasser = (ColorSymbolClassificationSimple) colorClasser;
+	public void setColorClasser(ColorSymbolClassificationSimple colorClasser) {
+		this.colorClasser = colorClasser;
 	}
 
-	public ColorSymbolizer getColorSymbolizer() {
-		logger.finest("VC, gettingColorSymbolizer");
-		return colorerLinear;
-	}
+	// public ColorSymbolizer getColorSymbolizer() {
+	// logger.finest("VC, gettingColorSymbolizer");
+	// return colorerLinear;
+	// }
 
-	public void setColorSymbolizer(ColorSymbolizer colorerLinear) {
-		this.colorerLinear = (ColorSymbolizerLinear) colorerLinear;
-	}
+	// public void setColorSymbolizer(ColorSymbolizer colorerLinear) {
+	// this.colorerLinear = (ColorSymbolizerLinear) colorerLinear;
+	// }
 
 	public Color[] getColorForObservations() {
 		return findDataColors();
@@ -372,7 +351,8 @@ public class VisualClassifier extends JPanel implements ActionListener,
 
 	public void paletteChanged(PaletteEvent e) {
 		Palette pal = e.getPalette();
-		int maxColors = pal.getRecommendedMaxLength();
+		UnivariatePalette uPal = (UnivariatePalette) pal;
+		int maxColors = uPal.getMaxLength();
 		logger.finest("max colors = " + maxColors);
 
 		// we can't go over the max, or it blows null exceptions
@@ -381,12 +361,12 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		int numClasses = classPick.getNClasses();
 		Color[] cols = null;
 		if (numClasses <= maxColors) {
-			cols = pal.getColors(numClasses);
+			cols = uPal.getColors(numClasses);
 		} else {
 			// we have more colors wanted than the pallet can give us
 			// todo: make this work
 			// this.assignColors
-			cols = pal.getColors(numClasses);
+			cols = uPal.getColors(numClasses);
 		}
 
 		setColors(cols);
@@ -570,8 +550,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 				if (listeners[i] == ColorClassifierListener.class) {
 					// Lazily create the event:
 					if (e == null) {
-						e = new ColorClassifierEvent(this,
-								getColorSymbolClassification());
+						e = new ColorClassifierEvent(this, getColorClasser());
 					}
 					if (orientationInParentIsX == true) {
 						e.setOrientation(ColorClassifierEvent.SOURCE_ORIENTATION_X);
@@ -628,25 +607,22 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	}
 
 	public void setIndicatedClass(int indicClass) {
+		logger.finest("class = " + indicClass);
 		// clear old indication
 		// if it still exists
-		if (oldIndication < symbolizationPanel.getPanSet().length) {
-			symbolizationPanel.getPanSet()[oldIndication].setTexPaint(null);
-		}
-
-		if (indicClass < 0) { // used for null or out of range indication
-			this.repaint(); // clear old indication
-			return;
-		}
-		if (indicClass >= symbolizationPanel.getPanSet().length) {
-			this.repaint(); // clear old indication
-			return;
-		}
-
-		symbolizationPanel.getPanSet()[indicClass].setTexPaint(texPaint);
-
-		oldIndication = indicClass;
-		this.repaint();
+		/*
+		 * if (oldIndication < symbolizationPanel.getPanSet().length) {
+		 * symbolizationPanel.getPanSet()[oldIndication].setTexPaint(null); }
+		 * 
+		 * if (indicClass < 0) { // used for null or out of range indication
+		 * this.repaint(); // clear old indication return; } if (indicClass >=
+		 * symbolizationPanel.getPanSet().length) { this.repaint(); // clear old
+		 * indication return; }
+		 * 
+		 * symbolizationPanel.getPanSet()[indicClass].setTexPaint(texPaint);
+		 * 
+		 * oldIndication = indicClass; this.repaint();
+		 */
 	}
 
 	public boolean[] getAnchored() {
@@ -671,22 +647,6 @@ public class VisualClassifier extends JPanel implements ActionListener,
 
 	public void setClassPick(ClassifierPicker classPick) {
 		this.classPick = classPick;
-	}
-
-	public ColorSymbolClassificationSimple getColorClasser() {
-		return colorClasser;
-	}
-
-	public void setColorClasser(ColorSymbolClassificationSimple colorClasser) {
-		this.colorClasser = colorClasser;
-	}
-
-	public ColorSymbolizerLinear getColorerLinear() {
-		return colorerLinear;
-	}
-
-	public void setColorerLinear(ColorSymbolizerLinear colorerLinear) {
-		this.colorerLinear = colorerLinear;
 	}
 
 	public int getCurrOrientation() {
@@ -739,7 +699,8 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	}
 
 	public void setHighColor(Color c) {
-		symbolizationPanel.setHighColor(c);
+		logger.finest(c.toString());
+		// symbolizationPanel.setHighColor(c);
 	}
 
 	public void setOrientationInParentIsX(boolean orientationInParentIsX) {
@@ -792,6 +753,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		JFrame app = new JFrame();
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		VisualClassifier vc = new VisualClassifier();
+		vc.setPalette(ColorBrewer.BrewerNames.Greens);
 		GeoDataGeneralizedStates data = new GeoDataGeneralizedStates();
 		vc.setDataSet(data.getDataForApps());
 		app.add(vc);

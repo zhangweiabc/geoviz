@@ -35,6 +35,7 @@ public class DataSetTableModel extends AbstractTableModel {
 	@Override
 	public void setValueAt(Object arg0, int arg1, int arg2) {
 		// noop, we don't allow editing
+		logger.info("trying to set value, not permitted");
 
 	}
 
@@ -93,9 +94,8 @@ public class DataSetTableModel extends AbstractTableModel {
 			boolean[] booleanArray = (boolean[]) dataArray;
 			datum = new Boolean(booleanArray[rowIndex]);
 		} else {
-			logger
-					.severe("datasetforaps, getcolumnclass, hit unknown array type, type = "
-							+ dataArray.getClass());
+			logger.severe("datasetforaps, getcolumnclass, hit unknown array type, type = "
+					+ dataArray.getClass());
 		}
 
 		return datum;

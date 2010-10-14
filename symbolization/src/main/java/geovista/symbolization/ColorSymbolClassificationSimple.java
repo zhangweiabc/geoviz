@@ -22,7 +22,7 @@ public class ColorSymbolClassificationSimple implements
 	}
 
 	public Color[] symbolize(double[] data) {
-		Color[] colors = colorer.symbolize(colorer.getNumClasses());
+		Color[] colors = colorer.getColors(colorer.getNumClasses());
 		int[] classes = classer.classify(data, colorer.getNumClasses());
 		Color[] returnColors = new Color[data.length];
 		int myClass = 0;
