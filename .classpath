@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="coordination/src/main/resources"/>
+	<classpathentry kind="src" path="animation/src/main/resources"/>
 	<classpathentry kind="src" path="statistics/src/main/resources"/>
 	<classpathentry kind="src" path="statistics/src/main/java"/>
-	<classpathentry kind="src" path="geoviz/src/test/java"/>
 	<classpathentry kind="src" path="jxlayer/src/main/java"/>
-	<classpathentry kind="src" path="toolkitcore/src/test/java"/>
-	<classpathentry kind="src" path="coordination/src/test/java"/>
+	<classpathentry kind="src" path="coordination/src/main/resources"/>
+	<classpathentry kind="src" path="colorbrewer/src/main/resources"/>
 	<classpathentry kind="src" path="toolkitcore/src/main/java"/>
 	<classpathentry kind="src" path="matrix/src/main/java"/>
 	<classpathentry kind="src" path="common/src/main/java"/>
 	<classpathentry kind="src" path="sound/src/main/java"/>
-	<classpathentry kind="src" path="cartogram/src/main/resources"/>
 	<classpathentry kind="src" path="collaboration/src/main/resources"/>
 	<classpathentry kind="src" path="matrix/src/main/resources"/>
 	<classpathentry kind="src" path="coordination/src/main/java"/>
-	<classpathentry kind="src" path="rjava/src/main/java"/>
 	<classpathentry kind="src" path="image_blur/src/main/java"/>
 	<classpathentry kind="src" path="projection/src/main/java"/>
-	<classpathentry kind="src" path="cartogram/src/main/java"/>
 	<classpathentry kind="src" path="largedata/src/main/resources"/>
 	<classpathentry kind="src" path="readers/src/main/resources"/>
 	<classpathentry kind="src" path="projection/src/main/resources"/>
-	<classpathentry kind="src" path="animation/src/main/java"/>
-	<classpathentry kind="src" path="satscan/src/main/resources"/>
 	<classpathentry kind="src" path="geoviz/src/main/resources"/>
+	<classpathentry kind="src" path="satscan/src/main/resources"/>
 	<classpathentry kind="src" path="satscan/src/main/java"/>
 	<classpathentry kind="src" path="sound/src/main/resources"/>
 	<classpathentry kind="src" path="symbolization/src/main/resources"/>
@@ -36,25 +31,27 @@
 	<classpathentry kind="src" path="texture/src/main/java"/>
 	<classpathentry kind="src" path="common/src/main/resources"/>
 	<classpathentry kind="src" path="symbolization/src/main/java"/>
-	<classpathentry kind="src" path="animation/src/main/resources"/>
 	<classpathentry kind="src" path="texture/src/main/resources"/>
 	<classpathentry kind="src" path="geoviz/src/main/java"/>
+	<classpathentry kind="src" path="colorbrewer/src/main/java"/>
 	<classpathentry kind="src" path="touchgraph/src/main/resources"/>
 	<classpathentry kind="src" path="largedata/src/main/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
+	<classpathentry kind="src" path="cartogram/src/main/java"/>
+	<classpathentry kind="src" path="cartogram/src/main/resources"/>
+	<classpathentry kind="src" path="animation/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/colt.jar"/>
 	<classpathentry kind="lib" path="lib/gam-1.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/GexClient.jar"/>
 	<classpathentry kind="lib" path="lib/gt2-api-2.4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/gt2-main-2.4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/gt2-metadata-2.4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/gt2-shapefile-2.4-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/jdom.jar"/>
-	<classpathentry kind="lib" path="lib/jts-1.9.jar"/>
+	<classpathentry kind="lib" path="lib/jts-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/smack.jar"/>
 	<classpathentry kind="lib" path="lib/smackx.jar"/>
-	<classpathentry kind="lib" path="lib/xpp3_min-1.1.3.4.O.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.5-beta5-20090219.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
