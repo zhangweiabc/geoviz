@@ -42,7 +42,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/colt.jar"/>
 	<classpathentry kind="lib" path="lib/gam-1.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/GexClient.jar"/>
 	<classpathentry kind="lib" path="lib/gt2-api-2.4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/gt2-main-2.4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/gt2-metadata-2.4-SNAPSHOT.jar"/>
