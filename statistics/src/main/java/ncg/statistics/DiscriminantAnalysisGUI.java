@@ -6,6 +6,9 @@ package ncg.statistics;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -21,11 +24,13 @@ import java.util.logging.SimpleFormatter;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -60,6 +65,8 @@ public class DiscriminantAnalysisGUI extends JPanel
 	private transient JComboBox categoryCombo = null;
 	private transient VariablePicker indVarPicker = null;
 	private transient JTextArea outputInfo = null;
+	private transient JCheckBox doPCA = null;
+	private transient JCheckBox standardize = null;
 	
 	// array of indices of independent variables from the indVarPicker object
 	private transient int [] indVarIndices = new int[0];
@@ -91,12 +98,14 @@ public class DiscriminantAnalysisGUI extends JPanel
 		goButton = new JButton("Classify");
 		resetButton = new JButton("Reset");
 		categoryCombo = new JComboBox();
+		doPCA = new JCheckBox("PCA");
+		standardize = new JCheckBox("Standarize");
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
 		outputInfo = new JTextArea();
+				
+		// set class variable specific properties
 		outputInfo.setEditable(false);
 		outputInfo.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		
-		// set class variable specific properties
 		outputInfo.setLayout(new BoxLayout(outputInfo, BoxLayout.Y_AXIS));
 		indVarPicker.setPreferredSize(new Dimension(180, 400));
 		indVarPicker.setBorder(BorderFactory.createTitledBorder("Independent Variables"));
@@ -106,21 +115,36 @@ public class DiscriminantAnalysisGUI extends JPanel
 		resetButton.addActionListener(this);
 		categoryCombo.addActionListener(this);
 		indVarPicker.addSubspaceListener(this);
+		doPCA.addActionListener(this);
+			
+		// create and add items to the menu pane
+		JPanel menuArea = new JPanel(new GridBagLayout());
 		
-		// make the outputInfo JPanel scrollable
+		GridBagConstraints constraints = new GridBagConstraints(0,0,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
+		menuArea.add(new JLabel("Category : "),constraints);
+		constraints = new GridBagConstraints(1,0,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
+		menuArea.add(categoryCombo,constraints);
+		constraints = new GridBagConstraints(0,1,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
+		menuArea.add(doPCA,constraints);
+		constraints = new GridBagConstraints(1,1,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
+		menuArea.add(standardize,constraints);
+		constraints = new GridBagConstraints(0,2,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
+		menuArea.add(goButton,constraints);
+		constraints = new GridBagConstraints(1,2,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
+		menuArea.add(resetButton,constraints);
+		
+		// make the outputInfo JTextArea scrollable
 		JScrollPane outputInfoSPane = new JScrollPane(outputInfo);
 		
-		// create and add items to the bottom panel
-		JPanel bottomPanel = new JPanel();
-		bottomPanel.add(new JLabel("Category : "));
-		bottomPanel.add(categoryCombo);
-		bottomPanel.add(goButton);
-		bottomPanel.add(resetButton);
-
+		// create a tabbed pane and add the JTextArea and 
+		// the menu pane to it
+		JTabbedPane tabs = new JTabbedPane();		
+		tabs.add("Menu",menuArea);
+		tabs.add("Output",outputInfoSPane);
+			
 		// add all gui items to the current window
-		this.add(outputInfoSPane, BorderLayout.CENTER);
 		this.add(indVarPicker, BorderLayout.LINE_START);
-		this.add(bottomPanel, BorderLayout.PAGE_END);
+		this.add(tabs,BorderLayout.CENTER);
 
 	}
 		
@@ -233,20 +257,33 @@ public class DiscriminantAnalysisGUI extends JPanel
 			}
 						
 			try {
-								
-				// set the independent variables
-				daTask.setPredictorVariables(data,false);
+				
+				 if ( doPCA.isSelected() == true ) {
+					
+					// do a PCA transformation on the independent
+					// variables prior to the discriminant analysis
+					PCA pcaTask = new PCA();
+					pcaTask.setObservations(data, false, true);
+					pcaTask.transform();
+					data = pcaTask.getPrincipalComponents();
+					
+				}
+				
+				// set the independent variables and standardize if required
+				daTask.setPredictorVariables(data,false,standardize.isSelected());
 					
 				// set the dependent variable (category)
 				daTask.setClassification(categories);
 
 				// set the prior probabilities to the default (equal)
-				daTask.setPriorProbabilities();;
+				daTask.setPriorProbabilities();
 					
 				// classify the data
 				daTask.classify();
 								
 			} catch (DiscriminantAnalysisException e ){
+				throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
+			} catch (PCAException e) {
 				throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
 			}
 		}
@@ -467,7 +504,15 @@ public class DiscriminantAnalysisGUI extends JPanel
 			// ready for broadcast in a separate  thread
 			(new ClassifierThread()).execute();
 			
-		} else if (e.getSource() == resetButton) {
+		} else if (e.getSource() == doPCA ) {
+			
+			// when the PCA button is clicked standardization
+			// is performed automatically prior to the 
+			// transformation
+			standardize.setSelected(false);
+			standardize.setEnabled(!doPCA.isSelected());
+			
+		}else if (e.getSource() == resetButton) {
 			
 			// reset the java bean to it's initial status
 			// need to rebroadcast the DataSetForApps object if it has been modified by a previous 
@@ -479,6 +524,8 @@ public class DiscriminantAnalysisGUI extends JPanel
 				indVarIndices = new int[0];
 				categoryIndex = -1;
 				numClassifications = 0;
+				doPCA.setSelected(false);
+				standardize.setSelected(false);
 			}
 		}
 	}

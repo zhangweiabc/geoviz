@@ -30,13 +30,14 @@ public class PCA {
 	private transient RealMatrix principalComponents = null;
 	private transient RealMatrix eigenVectors = null;
 	private transient RealVector eigenValues = null;
+	private transient boolean rowOrder = true;
 	
 	//logger object
 	protected final static Logger logger = 
 		Logger.getLogger(PCA.class.getName());
 	
 	// empty constructor
-	public PCA() {};
+	public PCA() {}
 	
 	// reset all member variables
 	public void reset() {
@@ -137,6 +138,10 @@ public class PCA {
 					MatrixUtils.createRealMatrix(observations).transpose();
 			}
 			
+			// save the rowOrder - principal components are 
+			// returned in the same format
+			this.rowOrder = rowOrder;
+			
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
@@ -159,7 +164,14 @@ public class PCA {
 	//*************************************************************************
 	public double[][] getObservations() throws PCAException {		
 		validateObservations();
-		return observations.getData();		
+		
+		double[][] obs = null;
+		if (rowOrder == true) {
+			obs = observations.getData();
+		} else {
+			obs = observations.transpose().getData();
+		}
+		return obs;		
 	}
 	
 	//*************************************************************************
@@ -173,7 +185,15 @@ public class PCA {
 	//*************************************************************************
 	public double[][] getPrincipalComponents() throws PCAException {		
 		validatePrincipalComponents();
-		return principalComponents.getData();		
+		
+		double[][] pcs = null;
+		
+		if (rowOrder == true) {
+			pcs = principalComponents.getData();
+		} else {
+			pcs = principalComponents.transpose().getData();
+		}
+		return pcs;		
 	}
 	
 	//*************************************************************************

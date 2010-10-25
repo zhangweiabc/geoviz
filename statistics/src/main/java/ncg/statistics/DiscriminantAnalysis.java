@@ -27,28 +27,28 @@ import org.apache.commons.math.linear.InvalidMatrixException;
 public class DiscriminantAnalysis {
 	
 	// array to hold predictor variables
-	private transient RealMatrix predictorVariables = null;
+	protected transient RealMatrix predictorVariables = null;
 	
 	// array to hold classification variable
-	private transient int[] classification = null;
+	protected transient int[] classification = null;
 	
 	// array to hold prior probabilities
-	private transient RealVector priorProbabilities = null;
+	protected transient RealVector priorProbabilities = null;
 	
 	// array to hold unique class labels
-	private transient int[] uniqueClasses = null;
+	protected transient int[] uniqueClasses = null;
 
 	// array to hold unique class frequencies
-	private transient int[] classFrequencies = null;
+	protected transient int[] classFrequencies = null;
 	
 	// output variables
-	private transient int[] classified = null;
-	private transient RealMatrix posteriorProbabilities = null;
-	private transient RealMatrix parameters = null;
-	private transient RealMatrix mahalanobisDistance2 = null;
+	protected transient int[] classified = null;
+	protected transient RealMatrix posteriorProbabilities = null;
+	protected transient RealMatrix parameters = null;
+	protected transient RealMatrix mahalanobisDistance2 = null;
 	
 	// classification accuracy
-	private transient double classificationAccuracy = -1;
+	protected transient double classificationAccuracy = -1;
 	
 	//logger object
 	protected final static Logger logger = 
@@ -175,9 +175,17 @@ public class DiscriminantAnalysis {
 	// rowOrder is set to true if the first dimension of the input array
 	// contains the rows (observations). If rowOrder is set to false
 	// the first dimension of the input array refers to columns (attributes)
+	// if standardize is set to true, also standardize the input
+	// variables
 	public void setPredictorVariables(double[][] predictorVariables,
-					boolean rowOrder) {
+					boolean rowOrder, boolean standardize) {
 		try {
+			
+			// may also need to standardize the input variables
+			if (standardize == true) {
+				predictorVariables = NCGStatUtils.standardize(predictorVariables, rowOrder);
+			}
+			
 			if (rowOrder == true) {
 				this.predictorVariables =  
 					MatrixUtils.createRealMatrix(predictorVariables);
@@ -196,7 +204,7 @@ public class DiscriminantAnalysis {
 		}
 		
 	}
-
+	
 	// get the predictor variables 
 	// throws a DiscriminantAnalysisException object if not set
 	public double[][] getPredictorVariables() throws DiscriminantAnalysisException {		
@@ -263,7 +271,7 @@ public class DiscriminantAnalysis {
 		int numClasses = uniqueClasses.length;
 		
 		try{
-			this.priorProbabilities = new ArrayRealVector(numClasses, (1.0 / (double)numClasses));
+			this.priorProbabilities = new ArrayRealVector(numClasses, (1 / (double)numClasses));
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
@@ -401,7 +409,7 @@ public class DiscriminantAnalysis {
 			int i = 0;
 			while( classesIt.hasNext() ) {
 				uniqueClasses[i++] = 
-					((Integer)classesIt.next()).intValue();
+					classesIt.next().intValue();
 			}
 			
 		} catch (NullPointerException e) {
@@ -676,7 +684,7 @@ public class DiscriminantAnalysis {
 				
 				// compute the degrees of freedom for the class with index
 				// classIndex in the array returned by getClasses()
-				double degreesFreedom = (double)(classFrequencies[classIndex] -1);
+				double degreesFreedom = (classFrequencies[classIndex] -1);
 			
 				// compute sum of squares for the class with index
 				// classIndex in the array returned by getClasses()
