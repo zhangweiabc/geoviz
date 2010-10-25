@@ -57,7 +57,7 @@ public class DiscriminantAnalysisTest {
 			DiscriminantAnalysis da = new DiscriminantAnalysis();
 			
 			// set the predictor variables
-			da.setPredictorVariables(predictorVars,true);
+			da.setPredictorVariables(predictorVars,true,false);
 
 			// set the classification variable
 			da.setClassification(classification);
