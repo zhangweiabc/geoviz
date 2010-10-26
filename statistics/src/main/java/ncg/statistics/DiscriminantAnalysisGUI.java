@@ -35,6 +35,7 @@ import javax.swing.JTextArea;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.border.TitledBorder;
 
 import geovista.common.data.DataSetBroadcaster;
 import geovista.common.data.DataSetForApps;
@@ -66,7 +67,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 	private transient VariablePicker indVarPicker = null;
 	private transient JTextArea outputInfo = null;
 	private transient JCheckBox doPCA = null;
+	private transient JComboBox numPCAVars = null;
 	private transient JCheckBox standardize = null;
+	private transient JCheckBox doGWDA = null;
 	
 	// array of indices of independent variables from the indVarPicker object
 	private transient int [] indVarIndices = new int[0];
@@ -98,8 +101,10 @@ public class DiscriminantAnalysisGUI extends JPanel
 		goButton = new JButton("Classify");
 		resetButton = new JButton("Reset");
 		categoryCombo = new JComboBox();
-		doPCA = new JCheckBox("PCA");
-		standardize = new JCheckBox("Standarize");
+		doPCA = new JCheckBox("Use Principal Components Analysis");
+		numPCAVars = new JComboBox();
+		standardize = new JCheckBox("Standarize Independent Variables");
+		doGWDA = new JCheckBox("Use Geographically Weighted Discriminant Analysis");
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
 		outputInfo = new JTextArea();
 				
@@ -109,6 +114,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 		outputInfo.setLayout(new BoxLayout(outputInfo, BoxLayout.Y_AXIS));
 		indVarPicker.setPreferredSize(new Dimension(180, 400));
 		indVarPicker.setBorder(BorderFactory.createTitledBorder("Independent Variables"));
+		numPCAVars.setEnabled(false);
 		
 		// add this bean a listener for the following events types:
 		goButton.addActionListener(this);
@@ -116,22 +122,65 @@ public class DiscriminantAnalysisGUI extends JPanel
 		categoryCombo.addActionListener(this);
 		indVarPicker.addSubspaceListener(this);
 		doPCA.addActionListener(this);
-			
+		
+		/*
+		 * GridBagConstraints Constructor :
+		 * gridx, gridy, gridwidth, gridheight, weightx, weighty, anchor, fill, insets, padx, pady
+		 */
+		
+		// create the classification area
+		JPanel classArea = new JPanel(new GridBagLayout());
+		classArea.setBorder(BorderFactory.createTitledBorder("Classification"));
+		classArea.add(new JLabel("Category : "),
+				new GridBagConstraints(0,0,1,1,0.0,0.0,GridBagConstraints.FIRST_LINE_START,
+						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		classArea.add(categoryCombo,
+				new GridBagConstraints(1,0,1,1,0.0,0.0,GridBagConstraints.FIRST_LINE_END,
+						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		classArea.add(goButton,
+				new GridBagConstraints(0,1,1,1,0.0,0.0,GridBagConstraints.LAST_LINE_START,
+						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		classArea.add(resetButton,
+				new GridBagConstraints(1,1,1,1,0.0,0.0,GridBagConstraints.LAST_LINE_END,
+						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		
+		// create PCA area
+		JPanel pcaArea = new JPanel(new GridBagLayout());
+		pcaArea.setBorder(BorderFactory.createTitledBorder("Principal Components Analysis"));
+		pcaArea.add(doPCA,
+				new GridBagConstraints(0,0,2,1,0.0,0.0,GridBagConstraints.FIRST_LINE_START,
+						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		pcaArea.add(new JLabel("Number of Principal Components"),
+				new GridBagConstraints(0,1,1,1,0.0,0.0,GridBagConstraints.LINE_START,
+						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		pcaArea.add(numPCAVars,
+				new GridBagConstraints(1,1,1,1,0.0,0.0,GridBagConstraints.LINE_END,
+						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		
+		// create standardization area
+		JPanel stdArea = new JPanel();
+		stdArea.setBorder(BorderFactory.createTitledBorder("Standardization"));
+		stdArea.add(standardize, BorderLayout.WEST);
+		
+		// create GWDA area
+		JPanel gwdaArea = new JPanel();
+		gwdaArea.setBorder(BorderFactory.createTitledBorder("Geographically Weighted Discriminant Analysis"));
+		gwdaArea.add(doGWDA, BorderLayout.WEST);
+		
 		// create and add items to the menu pane
 		JPanel menuArea = new JPanel(new GridBagLayout());
-		
-		GridBagConstraints constraints = new GridBagConstraints(0,0,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
-		menuArea.add(new JLabel("Category : "),constraints);
-		constraints = new GridBagConstraints(1,0,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
-		menuArea.add(categoryCombo,constraints);
-		constraints = new GridBagConstraints(0,1,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
-		menuArea.add(doPCA,constraints);
-		constraints = new GridBagConstraints(1,1,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
-		menuArea.add(standardize,constraints);
-		constraints = new GridBagConstraints(0,2,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
-		menuArea.add(goButton,constraints);
-		constraints = new GridBagConstraints(1,2,1,1,0.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0);
-		menuArea.add(resetButton,constraints);
+		menuArea.add(classArea,
+				new GridBagConstraints(0,0,1,1,1.0,0.0,GridBagConstraints.FIRST_LINE_START,
+						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
+		menuArea.add(pcaArea,
+				new GridBagConstraints(0,1,1,1,1.0,0.0,GridBagConstraints.LINE_START,
+						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
+		menuArea.add(stdArea,
+				new GridBagConstraints(0,2,1,1,1.0,0.0,GridBagConstraints.LINE_START,
+						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
+		menuArea.add(gwdaArea,
+				new GridBagConstraints(0,3,1,1,1.0,0.0,GridBagConstraints.LAST_LINE_START,
+						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
 		
 		// make the outputInfo JTextArea scrollable
 		JScrollPane outputInfoSPane = new JScrollPane(outputInfo);
@@ -266,6 +315,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 					pcaTask.setObservations(data, false, true);
 					pcaTask.transform();
 					data = pcaTask.getPrincipalComponents();
+					//numPCAVars.getSelectedIndex();
 					
 				}
 				
@@ -508,9 +558,15 @@ public class DiscriminantAnalysisGUI extends JPanel
 			
 			// when the PCA button is clicked standardization
 			// is performed automatically prior to the 
-			// transformation
-			standardize.setSelected(false);
+			// transformation so disable the standarize button
+			if (standardize.isSelected() == true) {
+				standardize.setSelected(false);
+			}		
 			standardize.setEnabled(!doPCA.isSelected());
+			
+			// enable the number of pca variables
+			numPCAVars.setEnabled(doPCA.isSelected());
+			
 			
 		}else if (e.getSource() == resetButton) {
 			
@@ -549,6 +605,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 		// remove all existing items in the category combo box
 		categoryCombo.removeAllItems();
 		
+		// remove all existing items in the pca variables box
+		numPCAVars.removeAllItems();
+		
 		// remove all existing items in the outputInfo text area
 		outputInfo.setText("");
 		
@@ -561,6 +620,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 			if (dataSet.getColumnType(i) == DataSetForApps.TYPE_INTEGER) {
 				categoryCombo.addItem(dataSet.getColumnName(i));
 				categoryIndexMap.put(Integer.valueOf(categoryIndexMap.size()),Integer.valueOf(i));
+				numPCAVars.addItem(Integer.valueOf(categoryIndexMap.size()));
 			} else if ( dataSet.getColumnType(i) == DataSetForApps.TYPE_DOUBLE ) {
 				indVarIndexMap.put(Integer.valueOf(indVarIndexMap.size()), Integer.valueOf(i));
 			}
