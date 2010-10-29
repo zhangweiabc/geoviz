@@ -118,5 +118,39 @@ public class NCGStatUtils {
 		return dataTransposed;
 	}
 	
+	//*************************************************************************
+	// Name    : getMin
+	// 
+	// Purpose : return the index of the minimum element in the items array
+	//           input array is an an array of all objects implementing the 
+	//           comparable interface
+	// 
+	// Notes   : returns -1 if the input array is null
+	// 
+	//*************************************************************************
+	public static int getMin(double[] items) {
+		
+		int minIndex = -1;
+				
+		if (items != null) {
+		
+			if ( items.length > 0) {
+				
+				minIndex = 0;
+	
+				for (int i = 1; i < items.length; i++) {
+					
+					// check to see if the current item is less
+					// than the minimum
+					if (items[i] < items[minIndex] ) {
+						minIndex = i;
+					}
+				}
+			}
+		}
+	
+		return minIndex;
+	
+	}	
 
 }

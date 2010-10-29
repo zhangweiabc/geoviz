@@ -35,7 +35,6 @@ import javax.swing.JTextArea;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.border.TitledBorder;
 
 import geovista.common.data.DataSetBroadcaster;
 import geovista.common.data.DataSetForApps;
@@ -104,7 +103,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 		doPCA = new JCheckBox("Use Principal Components Analysis");
 		numPCAVars = new JComboBox();
 		standardize = new JCheckBox("Standarize Independent Variables");
-		doGWDA = new JCheckBox("Use Geographically Weighted Discriminant Analysis");
+		doGWDA = new JCheckBox("Use Geographical Weighting");
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
 		outputInfo = new JTextArea();
 				
@@ -164,7 +163,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		// create GWDA area
 		JPanel gwdaArea = new JPanel();
-		gwdaArea.setBorder(BorderFactory.createTitledBorder("Geographically Weighted Discriminant Analysis"));
+		gwdaArea.setBorder(BorderFactory.createTitledBorder("Geographical Weighting"));
 		gwdaArea.add(doGWDA, BorderLayout.WEST);
 		
 		// create and add items to the menu pane

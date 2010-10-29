@@ -1,7 +1,15 @@
 package ncg.statistics;
+
 /* 
-Implementation of Global Discriminant Analysis
-Peter Foley, 19.07.2010
+* Implementation of Linear Discriminant Analysis
+*
+* Author : Peter Foley, 19.07.2010
+*
+* Method taken from 'Geographically Weighted Discriminant Analysis' by Chris Brundson,
+* Stewart Fotheringham and Martin Charlton, Geographical Analysis, Volum 39, Issue 4 pp376-96 2007
+* 
+* Note that the use of biased covariance matrices follows the instructions in the above paper
+* 
 */
 
 import java.util.Arrays;
@@ -12,6 +20,7 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.apache.commons.math.stat.correlation.Covariance;
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.LUDecomposition;
 import org.apache.commons.math.linear.LUDecompositionImpl;
 import org.apache.commons.math.linear.DecompositionSolver;
@@ -26,39 +35,84 @@ import org.apache.commons.math.linear.InvalidMatrixException;
 
 public class DiscriminantAnalysis {
 	
-	// array to hold predictor variables
-	protected transient RealMatrix predictorVariables = null;
+	/*
+	 * input variables
+	 */
 	
-	// array to hold classification variable
+	// RealMatrix (array) to hold predictor (independent) variables
+	// rows contain observations and columns contain attributes
+	protected transient RealMatrix predictorVariables = null;
+		
+	// classification array represents the actual classes that 
+	// the observation belong to
 	protected transient int[] classification = null;
 	
-	// array to hold prior probabilities
+	// RealVector (array) to hold prior probabilities
+	// the length of this vector is equal to the total number of classes
 	protected transient RealVector priorProbabilities = null;
 	
-	// array to hold unique class labels
+	/*
+	 * variables derived from the input variables
+	 */
+	
+	// predictorVariablesRowOrder is set to true if the first dimension of the  input
+	// predictor variables represent rows. Set to false if they represent columns
+	// this is used by the getPredictorVariables method to return predictorVariables
+	// in the same format that they were read in as.
+	protected transient boolean predictorVariablesRowOrder = false;
+	
+    // array to hold unique class labels
+	// the length of this vector is equal to the total number of classes
+	// (derived from classification array)
 	protected transient int[] uniqueClasses = null;
 
 	// array to hold unique class frequencies
+	// the length of this vector is equal to the total number of classes
+	// (derived from classification array)
 	protected transient int[] classFrequencies = null;
 	
-	// output variables
+	/*
+	 * output variables
+	 */
+	
+	// classified is an integer array containing the classes assigned by the 
+	// discriminant analysis
 	protected transient int[] classified = null;
+	
+	// the columns of posteriorProbabilities refer to classes and the rows observations
 	protected transient RealMatrix posteriorProbabilities = null;
 	protected transient RealMatrix parameters = null;
+	
+	// mahalanobisDistance2 contains the mahalanobis distance squared from each observation to the
+	// mean of all the other classes
+	// the columns of mahalanobisDistance2 refer to classes and the rows observations
 	protected transient RealMatrix mahalanobisDistance2 = null;
 	
-	// classification accuracy
+	// classification accuracy (proportion of correct classifications)
 	protected transient double classificationAccuracy = -1;
 	
 	//logger object
 	protected final static Logger logger = 
 		Logger.getLogger(DiscriminantAnalysis.class.getName());
 	
-	// empty constructor
-	public DiscriminantAnalysis(){
-	}
+	//*************************************************************************
+	// Name    : DiscriminantAnalysis
+	// 
+	// Purpose : empty constructor (java bean requirement)
+	// 
+	// Notes   : 
+	// 
+	//*************************************************************************
+	public DiscriminantAnalysis() {}
 	
-	// reset all member variables & try to free up memory
+	//*************************************************************************
+	// Name    : reset
+	// 
+	// Purpose : reset all input variables 
+	// 
+	// Notes   : also frees up memory by running the java garbage collector
+	// 
+	//*************************************************************************
 	public void reset() {
 		
 		// input variables, arrays & objects
@@ -89,16 +143,34 @@ public class DiscriminantAnalysis {
 	 * if they are not set then a DiscriminantAnalysisException object is thrown
 	 */
 	
-	// check to see if the classification attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	
+	//*************************************************************************
+	// Name    : validateClassification
+	// 
+	// Purpose : check to see if the classification attribute has been set
+	// 
+	// Notes   : classification is an integer array holding the actual classes
+	//           that the observations belong to
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validateClassification() throws DiscriminantAnalysisException {		
 		if ( classification == null ) {
 			throw new DiscriminantAnalysisException("input classification variable not set");
 		}
 	}
 	
-	// check to see if the uniqueClasses attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validateUniqueClasses
+	// 
+	// Purpose : check to see if the uniqueClasses attribute has been set
+	//        
+	// 
+	// Notes   : uniqueClasses is an integer array holding the unique class labels
+	//           it is derived from the classification array
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validateUniqueClasses() throws DiscriminantAnalysisException {
 			
 		if ( uniqueClasses == null ) {
@@ -106,40 +178,84 @@ public class DiscriminantAnalysis {
 		}
 	}
 	
-	// check to see if the classFrequencies attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validateClassFrequencies
+	// 
+	// Purpose : check to see if the classFrequencies attribute has been set
+	// 
+	// Notes   : classFrequencies is an integer array holding the number of observations
+	//           in each class
+	//           it is derived from the classification array
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validateClassFrequencies() throws DiscriminantAnalysisException {		
 		if ( classFrequencies == null ) {
 			throw new DiscriminantAnalysisException("class frequencies not computed (set input classification variable)");
 		}
 	}
 	
-	// check to see if the predictorVariables attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validatePredictorVariables
+	// 
+	// Purpose : check to see if the predictorVariables attribute has been set
+	// 
+	// Notes   : the columns of predictorVariables contain the attributes
+	//           the rows of predictorVariables contain the observations
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validatePredictorVariables() throws DiscriminantAnalysisException {	
 		if ( predictorVariables == null ) {
 			throw new DiscriminantAnalysisException("input predictor variables not set");
 		}
 	}
 	
-	// check to see if the priorProbabilities attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validatePriorProbabilities
+	// 
+	// Purpose : check to see if the priorProbabilities attribute has been set
+	// 
+	// Notes   : priorProbabilities is a RealVector holding the prior probabilities
+	//           of class membership
+	//           its length is equal to the number of unique classes
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validatePriorProbabilities() throws DiscriminantAnalysisException {
 		if ( priorProbabilities== null ) {
 			throw new DiscriminantAnalysisException("input prior probabilities not set");
 		}
 	}
 	
-	// check to see if the uniqueClasses attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validateClassified
+	// 
+	// Purpose : check to see if the classified attribute has been set
+	//       
+	// Notes   : classified is an integer array containing the classes assigned to
+	//           each observation by the discriminant analysis. it is set by the
+	//           classify method
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validateClassified() throws DiscriminantAnalysisException {
 		if ( classified == null ) {
 			throw new DiscriminantAnalysisException("output classification not set");
 		}
 	}
 	
-	// check to see if classificationAccuracy has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validateClassificationAccuracy
+	// 
+	// Purpose : check to see if the classificationAccuracy has been set
+	// 
+	// Notes   : classificationAccuracy is a scalar containing the proportion
+	//           of correctly assigned observations
+	//           it is set by the confusionMatrix method
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validateClassificationAccuracy() throws DiscriminantAnalysisException {
 		
 		if ( classificationAccuracy == -1 ) {
@@ -147,36 +263,69 @@ public class DiscriminantAnalysis {
 		}
 	}
 	
-	// check to see if the posteriorProbabilities attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validatePosteriorProbabilities
+	// 
+	// Purpose : check to see if the posteriorProbabilities attribute has been set
+	//
+	// Notes   : posteriorProbablilities is a RealMatrix where the rows of refer to 
+	//           observations and the columns contain the posterior probabilities
+	//           for each class
+	//           posteriorProbabilities is set by the classify method
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validatePosteriorProbabilities() throws DiscriminantAnalysisException {
 		if ( posteriorProbabilities == null ) {
 			throw new DiscriminantAnalysisException("output posterior probabilities not set");
 		}
 	}
 	
-	// check to see if the parameters attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validateParameters
+	// 
+	// Purpose : check to see if the parameters attribute has been set
+	// 
+	// Notes   : parameters is a RealMatrix - the columns refer to the classes
+	//           and the rows, the classification function coefficients
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validateParameters() throws DiscriminantAnalysisException {
 		if ( parameters == null ) {
 			throw new DiscriminantAnalysisException("output parameters not set");
 		}
 	}
 	
-	// check to see if the mahalanobisDistance2 attribute has been set
-	// throw a new DiscriminantAnalysisException if it has not been set
+	//*************************************************************************
+	// Name    : validateMahalanobisDistance2
+	// 
+	// Purpose : check to see if the mahalanobisDistance2 attribute has been set
+	// 
+	// Notes   : mahalanobisDistance2 is a RealMatrix containing the mahalanobis
+	//           distance squared for each observation. The rows of mahalanobisDistance2
+	//           refer to observations and the columns refer to the classes
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
 	public void validateMahalanobisDistance2() throws DiscriminantAnalysisException {
 		if ( mahalanobisDistance2 == null ) {
 			throw new DiscriminantAnalysisException("output mahalanobis distance squared not set");
 		}
 	}
 	
-	// set the predictor variables
-	// rowOrder is set to true if the first dimension of the input array
-	// contains the rows (observations). If rowOrder is set to false
-	// the first dimension of the input array refers to columns (attributes)
-	// if standardize is set to true, also standardize the input
-	// variables
+	//*************************************************************************
+	// Name    : setPredictorVariables
+	// 
+	// Purpose : set the predictor (independent) variables.
+	// 
+	// Notes   : rowOrder is set to true if the first dimension of predictorVariables
+	//           contains the rows (observations). If rowOrder is set to false
+	//           the first dimension of predictorVariables refers to columns (attributes)
+	//           if standardize is set to true, also standardize predictorVariables
+	//           create array of size zero in case of an error 
+	// 
+	//*************************************************************************
 	public void setPredictorVariables(double[][] predictorVariables,
 					boolean rowOrder, boolean standardize) {
 		try {
@@ -193,41 +342,86 @@ public class DiscriminantAnalysis {
 				this.predictorVariables =  
 					MatrixUtils.createRealMatrix(predictorVariables).transpose();
 			}
+			
+			// save the rowOrder for use by getPredictorVariables
+			// want to return the predictorVariables in the same format that
+			// they were read in
+			predictorVariablesRowOrder = rowOrder;
+						
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			this.predictorVariables = null;
+			this.predictorVariables = new Array2DRowRealMatrix(0,0);
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			this.predictorVariables = null;
+			this.predictorVariables = new Array2DRowRealMatrix(0,0);
 		}
 		
 	}
-	
-	// get the predictor variables 
-	// throws a DiscriminantAnalysisException object if not set
+	 
+	//*************************************************************************
+	// Name    : getPredictorVariables
+	// 
+	// Purpose : returns a copy of the predictor (independent) variables
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if predictorVariables
+	//           are not set
+	// 
+	//*************************************************************************
 	public double[][] getPredictorVariables() throws DiscriminantAnalysisException {		
 		validatePredictorVariables();
-		return predictorVariables.getData();		
+		
+		double[][] predictorVariablesReordered = null;
+		
+		if (predictorVariablesRowOrder == true) {
+			predictorVariablesReordered = predictorVariables.getData();
+		} else {
+			predictorVariablesReordered = predictorVariables.transpose().getData();
+		}
+		return	predictorVariablesReordered;	
 	}
 
-	// return the number of independent variables (attributes)
-	// throws a DiscriminantAnalysisException object if not set
+	//*************************************************************************
+	// Name    : getNumAttributes
+	// 
+	// Purpose : returns the number of predictor (independent) variables
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if predictorVariables 
+	//           are not set
+	// 
+	//*************************************************************************
 	public int getNumAttributes() throws DiscriminantAnalysisException {
 		validatePredictorVariables();
 		return predictorVariables.getColumnDimension();
 	}
 	
-	// return the number of observations (rows)
-	// throws a DiscriminantAnalysisException object if not set
+	//*************************************************************************
+	// Name    : getNumObservations
+	// 
+	// Purpose : returns the number of observations/objects to classify
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if predictorVariables 
+	//           are not set
+	// 
+	//*************************************************************************
 	public int getNumObservations() throws DiscriminantAnalysisException {
 		validatePredictorVariables();
 		return predictorVariables.getRowDimension();
 	}
 	
-	// set the classification
-	// throws a DiscriminantAnalysisException if not set
+	//*************************************************************************
+	// Name    : setClassification
+	// 
+	// Purpose : set the classification attribute. This represents the actual
+	//           class to which each object belongs. Also computes the uniqueClasses 
+	//           and classFrequencies which are based on the contents of the classification
+	//           array
+	// 
+	// Notes   :  throws a DiscriminantAnalysisException object if there is an error
+	//            setting either uniqueClasses or classFrequencies
+	// 
+	//*************************************************************************
 	public void setClassification(int[] classification) throws DiscriminantAnalysisException {
 		
 		this.classification = classification;
@@ -240,31 +434,53 @@ public class DiscriminantAnalysis {
 		
 	}
 	
-	// get the (input) classification 
-	// throws a DiscriminantAnalysisException if not set
+	//*************************************************************************
+	// Name    : getClassification
+	// 
+	// Purpose : returns a copy of the classification array (actual classes)
+	// 
+	// Notes   :  throws a DiscriminantAnalysisException object if the classification
+	//            is not set
+	// 
+	//*************************************************************************
 	public int[] getClassification() throws DiscriminantAnalysisException {
 		validateClassification();
 		return Arrays.copyOf(classification,classification.length);
 	}
-	
-	// set prior probabilities
+
+	//*************************************************************************
+	// Name    : setPriorProbabilities
+	// 
+	// Purpose : sets the prior probabilities based on the contents of the 
+	//           input array
+	// 
+	// Notes   : creates zero length vector in case of an error
+	// 
+	//*************************************************************************
 	public void setPriorProbabilities(double[] priorProbabilities) {
 		try{
 			this.priorProbabilities = new ArrayRealVector(priorProbabilities);
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			this.priorProbabilities = null;
+			this.priorProbabilities = new ArrayRealVector();
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			this.priorProbabilities = null;
+			this.priorProbabilities = new ArrayRealVector();
 		}
 	}
 	
-	// set the prior probabilities to be equal by default
-	// this relies on the uniqueClasses attributes having been set
-	// if this is not set then a DiscriminantAnalysisException object is thrown
+	//*************************************************************************
+	// Name    : setPriorProbabilities
+	// 
+	// Purpose : sets the prior probabilities to be equal (1 / number of classes)
+	//
+	// Notes   : throws a DiscriminantAnalysisException if uniqueClasses has not 
+	//           set
+	//           creates zero length vector in case of an error
+	// 
+	//*************************************************************************
 	public void setPriorProbabilities() throws DiscriminantAnalysisException {
 		
 		validateUniqueClasses();
@@ -275,24 +491,57 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			this.priorProbabilities = null;
+			this.priorProbabilities = new ArrayRealVector();
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			this.priorProbabilities = null;
+			this.priorProbabilities = new ArrayRealVector();
 		}
 	}
 
-	// get prior probabilities
-	// throws a DiscriminantAnalysisException object if not set
+	//*************************************************************************
+	// Name    : getPriorProbabilities
+	// 
+	// Purpose : returns a copy of the prior probabilities array
+	// 
+	// Notes   : throws a DiscriminantAnalysisException if the posteriorProbabilies
+	//           are not set
+	// 
+	//*************************************************************************
 	public double[] getPriorProbabilities() throws DiscriminantAnalysisException {
 		validatePriorProbabilities();
 		return priorProbabilities.getData();
 	}
 	
-	// return posterior probabilities for class 'classIndex'
-	// throws a DiscriminantAnalysisException object if not set
-	// if 'classIndex' is out of range then return a zero length array of doubles
+	/*
+	 * get methods for output of classification : classified, posteriorProbabilities, parameters
+	 * and mahalanobisDistance2
+	 */
+	
+	//*************************************************************************
+	// Name    : getPosteriorProbabilities
+	// 
+	// Purpose : return a copy of the posterior probabilities array
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if posterior
+	//           probabilities are not set
+	// 
+	//*************************************************************************
+	public double[][] getPosteriorProbabilities() throws DiscriminantAnalysisException {
+		validatePosteriorProbabilities();
+		return posteriorProbabilities.getData();
+	}
+	
+	//*************************************************************************
+	// Name    : getPosteriorProbabilities
+	// 
+	// Purpose : return a copy of the column 'classIndex' of posteriorProbabilities
+	//           this corresponds to the posterior probabilities for 'classIndex'
+	//  
+	// Notes   : throws a DiscriminantAnalysisException object if posterior
+	//           probabilities are not set or if 'classIndex' is out of range
+	// 
+	//*************************************************************************
 	public double[] getPosteriorProbabilities(int classIndex) throws DiscriminantAnalysisException {
 	
 		validatePosteriorProbabilities();
@@ -304,30 +553,113 @@ public class DiscriminantAnalysis {
 		} catch (MatrixIndexException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			col = new double[0];
+			throw new DiscriminantAnalysisException("Class Index " + classIndex  + 
+							" for Posterior Probabilities is out of range");
 		}
 				
 		return col;
 	}
+		
 	
-	/*
-	 * get methods for output of classification : classified, posteriorProbabilities, parameters
-	 * and mahalanobisDistance2
-	 */
-	
-	// get classification output (copy)
-	// throws a DiscriminantAnalysisException object if not set
+	//*************************************************************************
+	// Name    : getClassified
+	// 
+	// Purpose : returns a copy of the classified array. This holds the assigned
+	//           classification by the discriminant analysis algorithm
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if classified is
+	//           not set
+	// 
+	//*************************************************************************
 	public int[] getClassified() throws DiscriminantAnalysisException {
 		validateClassified();
 		return Arrays.copyOf(classified,classified.length);
 	}
-	// return the classification accuracy (number of correct classifications)
+
+		
+	//*************************************************************************
+	// Name    : getParameters
+	// 
+	// Purpose : returns copy of parameters (coefficients) of classification functions
+	//           rows of parameters refer to the coefficients, columns refer to
+	//           classes
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if parameters 
+	//           are not set
+	// 
+	//*************************************************************************
+	public double[][] getParameters() throws DiscriminantAnalysisException {
+		validateParameters();
+		return parameters.getData();
+	}
+	
+	//*************************************************************************
+	// Name    : getMahalanobisDistance2
+	// 
+	// Purpose : return a copy of the mahalanobisDistanse2 array (Mahalanobis
+	//           Distance Squared).
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if 
+	//           mahalanobisDistance2 is not set
+	// 
+	//*************************************************************************
+	public double[][] getMahalanobisDistance2() throws DiscriminantAnalysisException {		
+		validateMahalanobisDistance2();
+		return mahalanobisDistance2.getData();
+	}
+	
+	//*************************************************************************
+	// Name    : getMahalanobisDistance2
+	// 
+	// Purpose : get mahalanobis distance squared for class 'classIndex'
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if not set
+	//           or if classIndex is out of range
+	// 
+	//*************************************************************************
+	public double[] getMahalanobisDistance2(int classIndex) throws DiscriminantAnalysisException {
+			
+		validateMahalanobisDistance2();
+		double[] col = null;
+				
+		try {
+			col = mahalanobisDistance2.getColumn(classIndex);
+		} catch (MatrixIndexException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			throw new DiscriminantAnalysisException("Class Index " + classIndex  + 
+						" for Mahalanobis Distance Squared is out of range");
+		}
+					
+		return col;
+		
+	}
+	
+	//*************************************************************************
+	// Name    : getClassificationAccuracy
+	// 
+	// Purpose : returns the classification accuracy (proportion of correct
+	//           classifications)
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if 
+	//           classificationAccuracy is not set
+	// 
+	//*************************************************************************
 	public double getClassificationAccuracy() throws DiscriminantAnalysisException {
 		validateClassificationAccuracy();
 		return classificationAccuracy;
 	}
 	
-	// return the random classification accuracy ( result of classification based on class frequencies)
+	//*************************************************************************
+	// Name    : getRandomClassificationAccuracy
+	// 
+	// Purpose : return the random classification accuracy ( result of 
+	//           classification based solely on class frequencies)
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if the classification
+	//           or classFrequencies arrays are not set
+	// 
+	//*************************************************************************
 	public double getRandomClassificationAccuracy() throws DiscriminantAnalysisException {
 		
 		validateClassification();
@@ -342,52 +674,20 @@ public class DiscriminantAnalysis {
 		return randomClassAccuracy;
 	}
 	
-	// get full 2d array of posterior probabilities
-	// throws a DiscriminantAnalysisException object if not set
-	public double[][] getPosteriorProbabilities() throws DiscriminantAnalysisException {
-		validatePosteriorProbabilities();
-		return posteriorProbabilities.getData();
-	}
-	
-	// return parameters (coefficients) of classification functions
-	// throws a DiscriminantAnalysisException object if not set
-	public double[][] getParameters() throws DiscriminantAnalysisException {
-		validateParameters();
-		return parameters.getData();
-	}
-	
-	// return full 2d array of mahalanobis distance
-	// throws a DiscriminantAnalysisException object if not set
-	public double[][] getMahalanobisDistance2() throws DiscriminantAnalysisException {		
-		validateMahalanobisDistance2();
-		return mahalanobisDistance2.getData();
-	}
-	
-	// get mahalanobis distance squared for class 'classIndex'
-	// throws a DiscriminantAnalysisException object if not set 
-	// if 'classIndex' is out of range return a zero length array of doubles
-	public double[] getMahalanobisDistance2(int classIndex) throws DiscriminantAnalysisException {
-			
-		validateMahalanobisDistance2();
-		double[] col = null;
-				
-		try {
-			col = mahalanobisDistance2.getColumn(classIndex);
-		} catch (MatrixIndexException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			col = new double[0];
-		}
-					
-		return col;
-		
-	}
-	
 	/*
 	 * get and set methods for internal variables - uniqueClasses and classFrequencies	
 	 */
 	
-	//compute unique classes labels from classification array
+	//*************************************************************************
+	// Name    : setUniqueClasses
+	// 
+	// Purpose : compute the uniqueClasses (class labels) from the classification array
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if 
+	//           the classification array is not set
+	//           uniqueClasses set to zero length array if an error occurs
+	// 
+	//*************************************************************************
 	private void setUniqueClasses() throws DiscriminantAnalysisException {
 		
 		// check to see if the classification attribute has been set
@@ -415,18 +715,35 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			uniqueClasses = null;
+			uniqueClasses = new int[0];
 		}
 	}
 	
-	// get unique class labels 
-	// throws a DiscriminantAnalysisException object if not set
+	//*************************************************************************
+	// Name    : getUniqueClasses
+	// 
+	// Purpose : returns a  copy of the uniqueClasses array (unique class labels)
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if uniqueClasses
+	//           are not set
+	// 
+	//*************************************************************************
 	public int[] getUniqueClasses() throws DiscriminantAnalysisException {	
 		validateUniqueClasses();
 		return Arrays.copyOf(uniqueClasses,uniqueClasses.length);
 	}
 	
-	// compute class frequencies
+	//*************************************************************************
+	// Name    : setClassFrequencies
+	// 
+	// Purpose : compute the classFrequencies array which is derived from the
+	//           classification and uniqeclasses arrays
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if the classification
+	//           and uniqueClasses arrays are not set. Sets the classFrequencies
+	//           array to zero length array in case of an error.
+	// 
+	//*************************************************************************
 	private void setClassFrequencies() throws DiscriminantAnalysisException {
 		
 		// check to see if the classification and uniqueClasses attributes have been set
@@ -452,28 +769,41 @@ public class DiscriminantAnalysis {
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			classFrequencies = null;
+			classFrequencies = new int[0];
 			
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			classFrequencies = null;
+			classFrequencies = new int[0];
 		}
 	}
 
-	
-	// get class frequencies 
-	// throws a DiscriminantAnalysisException object  if not set
+	//*************************************************************************
+	// Name    : getClassFrequencies
+	// 
+	// Purpose : return a copy of the classFrequencies array.
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if classFrequencies
+	//           is not set
+	// 
+	//*************************************************************************
 	public int[] getClassFrequencies() throws DiscriminantAnalysisException {
 		validateClassFrequencies();
 		return Arrays.copyOf(classFrequencies,classFrequencies.length);
 	}
 
-	// return integer array of row indices for the classIndex th class
-	// classIndex is the index of the classIndex th class in the 
-	// integer array returned by uniqueClasses
-	// throws a DiscriminantAnalysisException object or returns a zero length array of ints in case of an error
-	private int[] computeClassIndices(int classIndex) throws DiscriminantAnalysisException {
+	//*************************************************************************
+	// Name    : computeClassIndices
+	// 
+	// Purpose : return integer array of row indices for the classIndex th class in the
+	//           uniqueClasses array
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if classification/uniqueClasses or 
+	//           classFrequencies are not set
+	//           returns a zero length array of ints in case of an error
+	// 
+	//*************************************************************************
+	protected int[] computeClassIndices(int classIndex) throws DiscriminantAnalysisException {
 		
 		// check to see if the classification, uniqueClasses & classFrequencies attributes have been set
 		// cannot continue until they are set
@@ -509,9 +839,16 @@ public class DiscriminantAnalysis {
 		return classRowIndices;
 	}	
 	
-	// return integer array of column (field) indices
-	// throws DiscriminantAnalysisException object or returns zero length array
-	// in case of an error
+	//*************************************************************************
+	// Name    : computeFieldIndices
+	// 
+	// Purpose : return integer array of column (field) indices
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if predictor 
+	//           variables are not set
+	//           returns zero length array in case of an error
+	// 
+	//*************************************************************************
 	private int[] computeFieldIndices() throws DiscriminantAnalysisException {
 		
 		// check to see if predictorVariables have been set
@@ -537,9 +874,16 @@ public class DiscriminantAnalysis {
 		return colIndices;
 	}
 	
-	// compute group means for class with index classIndex in the
-	// array uniqueClasses
-	// return null in case of an error
+	//*************************************************************************
+	// Name    : getClassMean
+	// 
+	// Purpose : compute mean vector for class with index classIndex in the
+	//           uniqueClasse array.
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if not set. 
+	//           returns zero length vector in case of an error
+	// 
+	//*************************************************************************
 	private RealVector getClassMean(int classIndex) throws DiscriminantAnalysisException {
 		
 		// check to see if predictorVariables have been set
@@ -573,15 +917,15 @@ public class DiscriminantAnalysis {
 		} catch (MatrixIndexException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			classMeansVector = null;
+			classMeansVector = new ArrayRealVector();
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			classMeansVector = null;
+			classMeansVector = new ArrayRealVector();
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			classMeansVector = null;
+			classMeansVector = new ArrayRealVector();
 		}
 	
 		return classMeansVector;
@@ -591,6 +935,17 @@ public class DiscriminantAnalysis {
 	// compute covariance matrix for the class with index classIndex
 	// in the array uniqueClases
 	// return null in case of an error
+	//*************************************************************************
+	// Name    : getCovarianceMatrix
+	// 
+	// Purpose : compute covariance matrix for the class with index classIndex
+	//           in the array unique classes. 
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if the predictor variables
+	//           are not set or if there are less than two observations/objects.
+	//           Return zero length matrix in case of an error
+	// 
+	//*************************************************************************
 	private RealMatrix getCovarianceMatrix(int classIndex) throws DiscriminantAnalysisException {
 		
 		// check to see if predictorVariables have been set
@@ -635,23 +990,32 @@ public class DiscriminantAnalysis {
 		} catch (MatrixIndexException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			covMatrix = null;
+			covMatrix = new Array2DRowRealMatrix(0,0);
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			covMatrix = null;
+			covMatrix = new Array2DRowRealMatrix(0,0);
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			covMatrix = null;
+			covMatrix = new Array2DRowRealMatrix(0,0);
 		}
 				
 		return covMatrix;
 			
 	}
 
-	// compute the pooled class covariance matrix
-	// return null in case of an error
+	//*************************************************************************
+	// Name    : getPooledCovMatrix
+	// 
+	// Purpose : compute the pooled class covariance matrix. Return null if an 
+	//           error occurs
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if predictor 
+	//           variables/unique classes/class frequencies are not set
+	//           returns zero size matrix in case of an error
+	// 
+	//*************************************************************************
 	private RealMatrix getPooledCovMatrix() throws DiscriminantAnalysisException {
 		
 		// check to see if predictorVariables, uniqueClasses & classFrequencies have been set
@@ -703,44 +1067,31 @@ public class DiscriminantAnalysis {
 				
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();				
+			e.printStackTrace();
+			pooledCovMatrix = new Array2DRowRealMatrix(0,0);
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			pooledCovMatrix = new Array2DRowRealMatrix(0,0);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			pooledCovMatrix = new Array2DRowRealMatrix(0,0);
 		}
 	
 		return pooledCovMatrix;
 	}
 	
-	// return the index of the minimum element in the items array
-	private int getMin(double[] items) {
-		
-		int minIndex = -1;
-		
-		if (items != null) {
-		
-			if ( items.length > 0) {
-				
-				minIndex = 0;
-	
-				for (int i = 1; i < items.length; i++) {
-					
-					if (items[i] < items[minIndex] ) {
-						minIndex = i;
-					}
-				}
-			}
-		}
-	
-		return minIndex;
-	
-	}
 
-	// compute confusion matrix
-	// return 2d array of zeros in case of an error
+	//*************************************************************************
+	// Name    : confusionMatrix
+	// 
+	// Purpose : compute the confusion matrix. 
+	// 
+	// Notes   : throws a DiscriminantAnalysisException Object if not set
+	//           returns a 2d array of zeros in case of an error
+	// 
+	//*************************************************************************
 	public int[][] confusionMatrix() throws DiscriminantAnalysisException {
 		
 		
@@ -798,7 +1149,17 @@ public class DiscriminantAnalysis {
 		return cMatrix;
 	}
 		
-	// do the classification
+	//*************************************************************************
+	// Name    : classify
+	// 
+	// Purpose : classify the predictor (independent) variables
+	// 
+	// Notes   : throws a DiscriminantAnalysisException Object if not set
+	//           sets classifed array, parameters matrix, posteriorProbabilites matrix and 
+	//           mahalanobisDistance2 matrix to empty zero length arrays
+	//           in case of an error.
+	// 
+	//*************************************************************************
 	public void classify() throws DiscriminantAnalysisException {
 		
 		// check to see if predictorVariables, priorProbabilites and uniqueClasses have been set
@@ -896,7 +1257,7 @@ public class DiscriminantAnalysis {
 						mh2Classes = mahalanobisDistance2.getRowVector(i).mapDivide(2).getData();
 					}
 				
-					int classIndex = getMin(mh2Classes);
+					int classIndex = NCGStatUtils.getMin(mh2Classes);
 					classified[i] = uniqueClasses[classIndex];
 				}
 			} else {
@@ -904,22 +1265,51 @@ public class DiscriminantAnalysis {
 				logger.severe(message);
 				throw new DiscriminantAnalysisException(message);
 			}
-			
+					
 		} catch (NullPointerException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			
+			classified = new int[0];
+			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
+			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
+			parameters = new Array2DRowRealMatrix(0,0);
+			
 		} catch(InvalidMatrixException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			
+			classified = new int[0];
+			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
+			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
+			parameters = new Array2DRowRealMatrix(0,0);
+			
 		} catch (IllegalArgumentException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			
+			classified = new int[0];
+			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
+			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
+			parameters = new Array2DRowRealMatrix(0,0);
+			
 		} catch (MatrixIndexException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			
+			classified = new int[0];
+			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
+			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
+			parameters = new Array2DRowRealMatrix(0,0);
+			
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.severe(e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
+			
+			classified = new int[0];
+			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
+			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
+			parameters = new Array2DRowRealMatrix(0,0);
 		} 
 	}
 }
