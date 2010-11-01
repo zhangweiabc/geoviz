@@ -69,6 +69,10 @@ public class DiscriminantAnalysisGUI extends JPanel
 	private transient JComboBox numPCAVars = null;
 	private transient JCheckBox standardize = null;
 	private transient JCheckBox doGWDA = null;
+	private transient JCheckBox useCrossValidation = null;
+	private transient JComboBox crossValidationMethod = null;
+	private transient JComboBox kernelFunctionType = null;
+	private transient JComboBox numNearestNeighbours = null;
 	
 	// array of indices of independent variables from the indVarPicker object
 	private transient int [] indVarIndices = new int[0];
@@ -104,6 +108,10 @@ public class DiscriminantAnalysisGUI extends JPanel
 		numPCAVars = new JComboBox();
 		standardize = new JCheckBox("Standarize Independent Variables");
 		doGWDA = new JCheckBox("Use Geographical Weighting");
+		useCrossValidation = new JCheckBox("Use Cross Validation");
+		crossValidationMethod = new JComboBox();
+		numNearestNeighbours = new JComboBox();
+		kernelFunctionType = new JComboBox();
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
 		outputInfo = new JTextArea();
 				
@@ -115,12 +123,27 @@ public class DiscriminantAnalysisGUI extends JPanel
 		indVarPicker.setBorder(BorderFactory.createTitledBorder("Independent Variables"));
 		numPCAVars.setEnabled(false);
 		
+		// gwda specific properties
+		doGWDA.setSelected(false);
+		crossValidationMethod.addItem("Cross Validation Likelihood");
+		crossValidationMethod.addItem("Cross Validation Score");
+		kernelFunctionType.addItem("Bisquare Kernel");
+		kernelFunctionType.addItem("Moving Window");
+		useCrossValidation.setSelected(false);
+		useCrossValidation.setEnabled(false);
+		numNearestNeighbours.setEnabled(false);
+		crossValidationMethod.setEnabled(false);
+		kernelFunctionType.setEnabled(false);
+		
+		
+		
 		// add this bean a listener for the following events types:
 		goButton.addActionListener(this);
 		resetButton.addActionListener(this);
 		categoryCombo.addActionListener(this);
 		indVarPicker.addSubspaceListener(this);
 		doPCA.addActionListener(this);
+		doGWDA.addActionListener(this);
 		
 		/*
 		 * GridBagConstraints Constructor :
@@ -162,9 +185,21 @@ public class DiscriminantAnalysisGUI extends JPanel
 		stdArea.add(standardize, BorderLayout.WEST);
 		
 		// create GWDA area
-		JPanel gwdaArea = new JPanel();
+		JPanel gwdaArea = new JPanel(new GridBagLayout());
 		gwdaArea.setBorder(BorderFactory.createTitledBorder("Geographical Weighting"));
-		gwdaArea.add(doGWDA, BorderLayout.WEST);
+		gwdaArea.add(doGWDA, new GridBagConstraints(0,0,2,1,0.0,0.0,
+				GridBagConstraints.FIRST_LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		gwdaArea.add(useCrossValidation, new GridBagConstraints(0,1,2,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		gwdaArea.add(new JLabel("Number of Neighbours"), new GridBagConstraints(0,2,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		gwdaArea.add(numNearestNeighbours, new GridBagConstraints(1,2,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		gwdaArea.add(crossValidationMethod, new GridBagConstraints(0,3,2,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		gwdaArea.add(kernelFunctionType, new GridBagConstraints(0,4,2,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+		//gwdaArea.add(doGWDA, BorderLayout.WEST);
 		
 		// create and add items to the menu pane
 		JPanel menuArea = new JPanel(new GridBagLayout());
@@ -567,7 +602,23 @@ public class DiscriminantAnalysisGUI extends JPanel
 			numPCAVars.setEnabled(doPCA.isSelected());
 			
 			
-		}else if (e.getSource() == resetButton) {
+		} else if (e.getSource() == doGWDA ) {
+			
+			
+			if (useCrossValidation.isSelected() == true ) {
+				useCrossValidation.setSelected(false);
+			}
+					
+			// when the gwda button is clicked enable / disable
+			// the other gwda options
+			useCrossValidation.setEnabled(doGWDA.isSelected());
+			crossValidationMethod.setEnabled(doGWDA.isSelected());
+			kernelFunctionType.setEnabled(doGWDA.isSelected());
+			numNearestNeighbours.setEnabled(doGWDA.isSelected());
+			
+			
+			
+		} else if (e.getSource() == resetButton) {
 			
 			// reset the java bean to it's initial status
 			// need to rebroadcast the DataSetForApps object if it has been modified by a previous 
