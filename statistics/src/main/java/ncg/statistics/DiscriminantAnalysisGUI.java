@@ -115,35 +115,54 @@ public class DiscriminantAnalysisGUI extends JPanel
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
 		outputInfo = new JTextArea();
 				
-		// set class variable specific properties
+		/*
+		 * output info pane specific properties 
+		 */
 		outputInfo.setEditable(false);
 		outputInfo.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		outputInfo.setLayout(new BoxLayout(outputInfo, BoxLayout.Y_AXIS));
+		
+		/*
+		 * independent variable picker specific properties
+		 */
 		indVarPicker.setPreferredSize(new Dimension(180, 400));
 		indVarPicker.setBorder(BorderFactory.createTitledBorder("Independent Variables"));
-		numPCAVars.setEnabled(false);
 		
-		// gwda specific properties
-		doGWDA.setSelected(false);
-		crossValidationMethod.addItem("Cross Validation Likelihood");
-		crossValidationMethod.addItem("Cross Validation Score");
-		kernelFunctionType.addItem("Bisquare Kernel");
-		kernelFunctionType.addItem("Moving Window");
-		useCrossValidation.setSelected(false);
-		useCrossValidation.setEnabled(false);
-		numNearestNeighbours.setEnabled(false);
-		crossValidationMethod.setEnabled(false);
-		kernelFunctionType.setEnabled(false);
+		/*
+		 * principal components analysis specific properties
+		 */
+		doPCA.setSelected(false);     // pca is unchecked by default
+		numPCAVars.setEnabled(false); // numPCAVarsis disabled when pca is unchecked
+		
+		/*
+		 * standardization specific properties
+		 */
+		standardize.setSelected(false); // standardization is unchecked by default
+		
+		/*
+		 * Geographically weighed discriminant analysis specific properties
+		 */
+		doGWDA.setSelected(false);                                    // default action is not to use gwda
+		crossValidationMethod.addItem("Cross Validation Likelihood"); // index 0 - matches GWDiscriminantAnalysis.CROSS_VALIDATION_LIKELIHOOD
+		crossValidationMethod.addItem("Cross Validation Score");      // index 1 - matches GWDiscriminantAnalysis.CROSS_VALIDATION_SCORE
+		kernelFunctionType.addItem("Bisquare Kernel");                // index 0 - matches GWDiscriminantAnalysis.BISQARE_KERNEL
+		kernelFunctionType.addItem("Moving Window");                  // index 1 - matches GWDiscriminantAnalysis.MOVING_WINDOW
+		useCrossValidation.setSelected(false);                        // cross validation is turned off by default
+		useCrossValidation.setEnabled(false);                         // cross validation is not enabled when gwda is unchecked
+		numNearestNeighbours.setEnabled(false);                       //number of nearest neighbours is not enabled when gwda is unchecked
+		crossValidationMethod.setEnabled(false);                      // cross validation method is not enabled when gwda is unchecked
+		kernelFunctionType.setEnabled(false);                         // kernel function type is not enabled when gwda is unchecked
 		
 		
 		
-		// add this bean a listener for the following events types:
+		// add this bean a listener for ActionEvents from the following components:
 		goButton.addActionListener(this);
 		resetButton.addActionListener(this);
 		categoryCombo.addActionListener(this);
 		indVarPicker.addSubspaceListener(this);
 		doPCA.addActionListener(this);
 		doGWDA.addActionListener(this);
+		useCrossValidation.addActionListener(this);
 		
 		/*
 		 * GridBagConstraints Constructor :
@@ -155,29 +174,29 @@ public class DiscriminantAnalysisGUI extends JPanel
 		classArea.setBorder(BorderFactory.createTitledBorder("Classification"));
 		classArea.add(new JLabel("Category : "),
 				new GridBagConstraints(0,0,1,1,0.0,0.0,GridBagConstraints.FIRST_LINE_START,
-						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		classArea.add(categoryCombo,
 				new GridBagConstraints(1,0,1,1,0.0,0.0,GridBagConstraints.FIRST_LINE_END,
-						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		classArea.add(goButton,
 				new GridBagConstraints(0,1,1,1,0.0,0.0,GridBagConstraints.LAST_LINE_START,
-						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		classArea.add(resetButton,
 				new GridBagConstraints(1,1,1,1,0.0,0.0,GridBagConstraints.LAST_LINE_END,
-						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		
 		// create PCA area
 		JPanel pcaArea = new JPanel(new GridBagLayout());
 		pcaArea.setBorder(BorderFactory.createTitledBorder("Principal Components Analysis"));
 		pcaArea.add(doPCA,
 				new GridBagConstraints(0,0,2,1,0.0,0.0,GridBagConstraints.FIRST_LINE_START,
-						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		pcaArea.add(new JLabel("Number of Principal Components"),
 				new GridBagConstraints(0,1,1,1,0.0,0.0,GridBagConstraints.LINE_START,
-						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		pcaArea.add(numPCAVars,
 				new GridBagConstraints(1,1,1,1,0.0,0.0,GridBagConstraints.LINE_END,
-						GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		
 		// create standardization area
 		JPanel stdArea = new JPanel();
@@ -188,33 +207,42 @@ public class DiscriminantAnalysisGUI extends JPanel
 		JPanel gwdaArea = new JPanel(new GridBagLayout());
 		gwdaArea.setBorder(BorderFactory.createTitledBorder("Geographical Weighting"));
 		gwdaArea.add(doGWDA, new GridBagConstraints(0,0,2,1,0.0,0.0,
-				GridBagConstraints.FIRST_LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
-		gwdaArea.add(useCrossValidation, new GridBagConstraints(0,1,2,1,0.0,0.0,
-				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+				GridBagConstraints.FIRST_LINE_START,GridBagConstraints.HORIZONTAL,new Insets(1,1,1,1),0,0));
+		
+		gwdaArea.add(new JLabel("Kernel Function"),new GridBagConstraints(0,1,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));	
+		gwdaArea.add(kernelFunctionType, new GridBagConstraints(1,1,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		
 		gwdaArea.add(new JLabel("Number of Neighbours"), new GridBagConstraints(0,2,1,1,0.0,0.0,
-				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		gwdaArea.add(numNearestNeighbours, new GridBagConstraints(1,2,1,1,0.0,0.0,
-				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
-		gwdaArea.add(crossValidationMethod, new GridBagConstraints(0,3,2,1,0.0,0.0,
-				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
-		gwdaArea.add(kernelFunctionType, new GridBagConstraints(0,4,2,1,0.0,0.0,
-				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0));
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		
+		gwdaArea.add(useCrossValidation, new GridBagConstraints(0,3,2,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.HORIZONTAL,new Insets(1,1,1,1),0,0));
+		
+		gwdaArea.add(new JLabel("CV Method"),new GridBagConstraints(0,4,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		gwdaArea.add(crossValidationMethod, new GridBagConstraints(1,4,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		
 		//gwdaArea.add(doGWDA, BorderLayout.WEST);
 		
 		// create and add items to the menu pane
 		JPanel menuArea = new JPanel(new GridBagLayout());
 		menuArea.add(classArea,
 				new GridBagConstraints(0,0,1,1,1.0,0.0,GridBagConstraints.FIRST_LINE_START,
-						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.HORIZONTAL,new Insets(1,1,1,1),0,0));
 		menuArea.add(pcaArea,
 				new GridBagConstraints(0,1,1,1,1.0,0.0,GridBagConstraints.LINE_START,
-						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.HORIZONTAL,new Insets(1,1,1,1),0,0));
 		menuArea.add(stdArea,
 				new GridBagConstraints(0,2,1,1,1.0,0.0,GridBagConstraints.LINE_START,
-						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.HORIZONTAL,new Insets(1,1,1,1),0,0));
 		menuArea.add(gwdaArea,
 				new GridBagConstraints(0,3,1,1,1.0,0.0,GridBagConstraints.LAST_LINE_START,
-						GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0));
+						GridBagConstraints.HORIZONTAL,new Insets(1,1,1,1),0,0));
 		
 		// make the outputInfo JTextArea scrollable
 		JScrollPane outputInfoSPane = new JScrollPane(outputInfo);
@@ -246,10 +274,24 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		private DiscriminantAnalysis daTask = null;
 		private DataSetForApps newDataSet = null;
+		private boolean stdIndVars = false; // set tot true if we are standardizing the independent variables
+		private boolean pcaIndVars = false; // set to true if we will use pca on the  independent variables
+		private int numPCs = -1;     // this is set to the number of principal components to use
 		
 		public ClassifierThread() {
 			super();
 			daTask = new DiscriminantAnalysis();
+			
+			// is standardization required?
+			stdIndVars = standardize.isSelected();
+			
+			// is pca required?
+			pcaIndVars = doPCA.isSelected();
+			if ( pcaIndVars == true ) {
+				numPCs = (numPCAVars.getSelectedIndex() + 1);
+			}
+			
+			// is gwda required ?
 		}
 		
 		@Override
@@ -341,20 +383,21 @@ public class DiscriminantAnalysisGUI extends JPanel
 						
 			try {
 				
-				 if ( doPCA.isSelected() == true ) {
+				 if ( pcaIndVars == true ) {
 					
 					// do a PCA transformation on the independent
 					// variables prior to the discriminant analysis
 					PCA pcaTask = new PCA();
 					pcaTask.setObservations(data, false, true);
 					pcaTask.transform();
-					data = pcaTask.getPrincipalComponents();
-					//numPCAVars.getSelectedIndex();
+									
+					// return the first numPCs principal components
+					data = pcaTask.getPrincipalComponents(numPCs);
 					
 				}
 				
 				// set the independent variables and standardize if required
-				daTask.setPredictorVariables(data,false,standardize.isSelected());
+				daTask.setPredictorVariables(data,false,stdIndVars);
 					
 				// set the dependent variable (category)
 				daTask.setClassification(categories);
@@ -396,9 +439,18 @@ public class DiscriminantAnalysisGUI extends JPanel
 				
 				outputInfo.append("\nClassification " + Integer.toString(++numClassifications));
 				outputInfo.append("\n\nClassification Category : " + categoryName);
+				
 				outputInfo.append("\nIndependent Variables (" + Integer.toString(indVarIndices.length) + ") : ");
 				for (int i=0; i < indVarIndices.length; i++) {
 					outputInfo.append("\n" + dataSet.getColumnName(indVarIndices[i]));
+				}
+				
+				if ( stdIndVars == true ) {
+					outputInfo.append("\n\nIndpendent variables are standardized prior to classification\n");
+				}
+				
+				if (pcaIndVars == true) {
+					outputInfo.append("\n\nClassification uses the first " + numPCs + " Prinicpal Components\n");
 				}
 				
 				// confusion matrix and percentages correctly classified		
@@ -441,7 +493,12 @@ public class DiscriminantAnalysisGUI extends JPanel
 					if (i == 0) {
 						classFuncParams += String.format("%-12s", "Intercept");
 					} else {
-						classFuncParams += String.format("%-12s", dataSet.getColumnName(indVarIndices[i-1]));
+						
+						if ( pcaIndVars == false ) {
+							classFuncParams += String.format("%-12s", dataSet.getColumnName(indVarIndices[i-1]));
+						} else {
+							classFuncParams += String.format("%-8s %3d", "PC", i);
+						}
 					}
 					
 					
@@ -604,21 +661,28 @@ public class DiscriminantAnalysisGUI extends JPanel
 			
 		} else if (e.getSource() == doGWDA ) {
 			
+			// gwd checkbox is checked / unchecked
 			
-			if (useCrossValidation.isSelected() == true ) {
-				useCrossValidation.setSelected(false);
-			}
-					
-			// when the gwda button is clicked enable / disable
-			// the other gwda options
-			useCrossValidation.setEnabled(doGWDA.isSelected());
-			crossValidationMethod.setEnabled(doGWDA.isSelected());
+			// reset all the gwda options to the default
+			kernelFunctionType.setSelectedIndex(0);    // GWDiscriminantAnalysis.BISQUARE_KERNEL
+			//numNearestNeighbours.setSelectedIndex(0); 
+			useCrossValidation.setSelected(false);
+			crossValidationMethod.setSelectedIndex(0); // GWDiscriminantAnalysis.CROSS_VALIDATION_LIKELIHOOD
+								
+			// when the gwda button is clicked enable/disable gwda options
 			kernelFunctionType.setEnabled(doGWDA.isSelected());
 			numNearestNeighbours.setEnabled(doGWDA.isSelected());
+			useCrossValidation.setEnabled(doGWDA.isSelected());
+			crossValidationMethod.setEnabled(false);
+								
+		} else if (e.getSource() == useCrossValidation ) {
 			
+			// useCrossValidation checkbox is checked / unchecked 
+			// this can only ever be checked when doGWDA checkbox is selected
+			crossValidationMethod.setEnabled(useCrossValidation.isSelected());
+			numNearestNeighbours.setEnabled(!useCrossValidation.isSelected());
 			
-			
-		} else if (e.getSource() == resetButton) {
+		} else if (e.getSource() == resetButton ) {
 			
 			// reset the java bean to it's initial status
 			// need to rebroadcast the DataSetForApps object if it has been modified by a previous 

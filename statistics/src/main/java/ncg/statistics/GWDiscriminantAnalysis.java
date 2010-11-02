@@ -26,12 +26,13 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	// (proportion of correct classifications)
 	// cross validation likelihood maximizes the sum of the logs of the 
 	// posterior probabilities for the correct classes
+	public static final int CROSS_VALIDATION_LIKELIHOOD = 0;
 	public static final int CROSS_VALIDATION_SCORE = 1;
-	public static final int CROSS_VALIDATION_LIKELIHOOD = 2;
+
 	
 	// type of kernel function to use for gwda weights
+	public static final int BISQUARE_KERNEL = 0;
 	public static final int MOVING_WINDOW = 1;
-	public static final int BISQUARE_KERNEL = 2;
 	
 	/*
 	 * Input variables

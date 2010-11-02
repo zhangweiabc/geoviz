@@ -12,6 +12,7 @@ package ncg.statistics;
 
 import java.util.logging.Logger;
 
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.ArrayRealVector;
 import org.apache.commons.math.linear.EigenDecomposition;
 import org.apache.commons.math.linear.EigenDecompositionImpl;
@@ -194,6 +195,52 @@ public class PCA {
 			pcs = principalComponents.transpose().getData();
 		}
 		return pcs;		
+	}
+	
+	//*************************************************************************
+	// Name    : getPrincipalComponents
+	// 
+	// Purpose : returns a copy of the first n principalComponents as a
+	//           2d array of doubles
+	// 
+	// Notes   : returns a zero length 2d array of doubles if an error occurs
+	//           throws a new PCAException if principalComponents is not set
+	// 
+	//*************************************************************************
+	public double[][] getPrincipalComponents(int n) throws PCAException {		
+		validatePrincipalComponents();
+		
+		double[][] pcs = null;
+		
+		RealMatrix pcsM = null;
+		
+		try {
+			pcsM = principalComponents.getSubMatrix(0, principalComponents.getRowDimension()-1, 0, n-1);
+		} catch (MatrixIndexException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			pcsM = new Array2DRowRealMatrix(0,0);
+		}
+		
+		if (rowOrder == true) {
+			pcs = pcsM.getData();
+		} else {
+			pcs = pcsM.transpose().getData();
+		}
+		return pcs;		
+	}
+	
+	//*************************************************************************
+	// Name    : getPrincipalComponent
+	// 
+	// Purpose : returns the nth principal component
+	// 
+	// Notes   : throws a new PCAException if principalComponents is not set
+	// 
+	//*************************************************************************
+	public double[] getPrincipalComponent(int n) throws PCAException {		
+		validatePrincipalComponents();
+		return principalComponents.getColumn(n);		
 	}
 	
 	//*************************************************************************
