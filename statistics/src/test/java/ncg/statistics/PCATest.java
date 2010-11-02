@@ -63,6 +63,9 @@ public class PCATest {
 			// get the principal components
 			double[][] principalComponents = pcaTask.getPrincipalComponents();
 			
+			// get the first four principal components
+			double[][] nPrincipalComponents = pcaTask.getPrincipalComponents(4);
+			
 			// get the eigen values
 			double[] eValues = pcaTask.getEigenValues();
 			
@@ -82,6 +85,7 @@ public class PCATest {
 			assertArrayEquals(eValues,comparisionEigenValues);
 			assertArrayEquals(comparisonEigenVectors,eVectors,delta);
 			assertArrayEquals(principalComponents,comparisonTransformedVariables, delta);
+			assertArrayEquals(principalComponents,nPrincipalComponents, delta);
 						
 		} catch (IOException e) {
 			logger.severe("Unable to read test data from [" + testFileName.getFile() + "]");
