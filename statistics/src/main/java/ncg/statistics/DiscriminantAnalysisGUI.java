@@ -98,7 +98,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 	public DiscriminantAnalysisGUI() {
 
 		super(new BorderLayout());
-		setPreferredSize(new Dimension(500, 400));
+		//setPreferredSize(new Dimension(500, 400));
 		
 		// create the class variables
 		goButton = new JButton("Classify");
@@ -274,9 +274,15 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		private DiscriminantAnalysis daTask = null;
 		private DataSetForApps newDataSet = null;
-		private boolean stdIndVars = false; // set tot true if we are standardizing the independent variables
+		private boolean stdIndVars = false; // set to true if we are standardizing the independent variables
 		private boolean pcaIndVars = false; // set to true if we will use pca on the  independent variables
-		private int numPCs = -1;     // this is set to the number of principal components to use
+		private int numPCs = -1;            // this is set to the number of principal components to use
+		private boolean gwda = false;       // set to true if we are using gwda instead of lda
+		private int kernel = -1;            // specify the kernel function type (moving window or bisquare kernel)
+		private int numNN= -1;              // specify the number of nearest neighbours to use for adaptive bandwidth
+		private boolean cv = false;         // set to true if cross validation is used to select the optimum number of nearest neighbours
+		private int cvMethod = -1;          // specify the cross validation method (cross validation likelihood or cross validation score)
+		
 		
 		public ClassifierThread() {
 			super();
@@ -286,12 +292,32 @@ public class DiscriminantAnalysisGUI extends JPanel
 			stdIndVars = standardize.isSelected();
 			
 			// is pca required?
-			pcaIndVars = doPCA.isSelected();
-			if ( pcaIndVars == true ) {
+			if ( (pcaIndVars = doPCA.isSelected()) == true ) {
 				numPCs = (numPCAVars.getSelectedIndex() + 1);
 			}
 			
 			// is gwda required ?
+			if ( (gwda = doGWDA.isSelected()) == true) {
+				
+				// get the kernel function type (moving window or bisquare kernel)
+				kernel = kernelFunctionType.getSelectedIndex();
+				
+				// is cross-validation required to selecte the optimum
+				// number of nearest neighbours
+				if ( (cv = useCrossValidation.isSelected()) == true) {
+					cvMethod = crossValidationMethod.getSelectedIndex();
+				} else {
+					
+					// set the number of nearest neighbours
+					numNN = (numNearestNeighbours.getSelectedIndex()  + 1);
+				}
+			}
+			
+			System.out.println("gwda is set to " + ((gwda == true) ? "TRUE" : "FALSE") );
+			System.out.println("number nearest neighboubours is set to  " + numNN);
+			System.out.println("cv is set to " + ((cv == true) ? "TRUE" : "FALSE") );
+			System.out.println("kernel function is set to " + kernel );
+			System.out.println("cross validation method is set to " + cvMethod );
 		}
 		
 		@Override
@@ -638,7 +664,54 @@ public class DiscriminantAnalysisGUI extends JPanel
 
 
 		if (e.getSource() == categoryCombo) {
+			
+			// a class has been chosen - set the category index
 			setCategoryIndex(categoryCombo.getSelectedIndex());
+			
+			// populate the number of neighbours combo box - but only
+			// if the categoryIndex has been set
+			if (categoryIndex > -1 ) {
+				
+				// compute the category class frequencies in a worker thread
+				// these are used to populate the number of nearest neighbours combo box
+				(new SwingWorker<Integer,Void>() {
+										
+					@Override
+					public Integer doInBackground() {
+												
+						// get an array containing the categories
+						int[] categories = (int[])dataSet.getColumnValues(categoryIndex);
+						
+						// compute the minimum category frequency
+						int[] categoryFrequencies = NCGStatUtils.getFrequencies(categories);
+						int categoryMinIndex = NCGStatUtils.getMin(categoryFrequencies);
+						int categoryMinFrequency = categoryFrequencies[categoryMinIndex];
+						
+						return Integer.valueOf(categoryMinFrequency);
+					}
+					
+					@Override
+					public void done() {
+						try {
+							// get the category minimum class frequency
+							int categoryMinFrequency = get();
+							
+							// populate the contents of the numNearestNeighbours combo box
+							numNearestNeighbours.removeAllItems();
+							for (int i = 0;i <= categoryMinFrequency; i++) {
+								numNearestNeighbours.addItem(Integer.valueOf(i));
+							}
+							
+						} catch (ExecutionException e) {
+							logger.severe("unable to population nearest neighbours combo box : " + e.getMessage());
+						}
+						catch (InterruptedException e) {
+							logger.severe("unable to population nearest neighbours combo box : " + e.getMessage());
+						}	
+					}
+				}).execute();									
+			}
+	
 		} else if (e.getSource() == goButton) {
 			
 			// perform the classification, update the gui with diagnostics and create a new DataSetForApps object
@@ -674,7 +747,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 			numNearestNeighbours.setEnabled(doGWDA.isSelected());
 			useCrossValidation.setEnabled(doGWDA.isSelected());
 			crossValidationMethod.setEnabled(false);
-								
+										
 		} else if (e.getSource() == useCrossValidation ) {
 			
 			// useCrossValidation checkbox is checked / unchecked 
@@ -739,7 +812,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 				indVarIndexMap.put(Integer.valueOf(indVarIndexMap.size()), Integer.valueOf(i));
 			}
 		}
-		
+					
 		// send the dataset to the independent variable picker
 		indVarPicker.dataSetChanged(e);
 	}

@@ -1,5 +1,11 @@
 package ncg.statistics;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import org.apache.commons.math.stat.Frequency;
 import org.apache.commons.math.stat.StatUtils;
 
 /*
@@ -10,6 +16,10 @@ import org.apache.commons.math.stat.StatUtils;
  */
 
 public class NCGStatUtils {
+	
+	//logger object
+	private final static Logger logger = 
+		Logger.getLogger(NCGStatUtils.class.getName());
 	
 	//*************************************************************************
 	// Name    : standardize
@@ -122,8 +132,7 @@ public class NCGStatUtils {
 	// Name    : getMin
 	// 
 	// Purpose : return the index of the minimum element in the items array
-	//           input array is an an array of all objects implementing the 
-	//           comparable interface
+	//           items is an array of doubles
 	// 
 	// Notes   : returns -1 if the input array is null
 	// 
@@ -151,6 +160,109 @@ public class NCGStatUtils {
 	
 		return minIndex;
 	
-	}	
+	}
+	
+	//*************************************************************************
+	// Name    : getMin
+	// 
+	// Purpose : return the index of the minimum element in the items array 
+	//           items is an array of ints
+	// 
+	// Notes   : returns -1 if the input array is null
+	// 
+	//*************************************************************************
+	public static int getMin(int[] items) {
+		
+		double[] doubleItems = new double[items.length];
+		for (int i = 0; i < items.length; i++) {
+			doubleItems[i] = items[i];
+		}
+	
+		return getMin(doubleItems);	
+	}
+	
+	//*************************************************************************
+	// Name    : getUniqueItems
+	// 
+	// Purpose : returns array containing unique items in the data array
+	// 
+	// Notes   : returns zero length array of ints if an error occurs
+	// 
+	//*************************************************************************
+	public static int[] getUniqueItems(int[] data) {
+		
+		int[] uniqueItems = null;
+			
+		try {
+					
+			// compute unique classes in the classification array using a set
+			Set<Integer> classes = new HashSet<Integer>();
+			for (int i = 0; i < data.length; i++ ) {
+				classes.add(data[i]);
+			}
+		
+			// convert the classes set to an array of ints
+			uniqueItems = new int[classes.size()];
+			Iterator<Integer> classesIt = classes.iterator();
+		
+			int i = 0;
+			while( classesIt.hasNext() ) {
+				uniqueItems[i++] = 
+					classesIt.next().intValue();
+			}
+				
+		} catch (NullPointerException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			uniqueItems = new int[0];
+		}
+			
+		return uniqueItems;
+	}
+	
+	//*************************************************************************
+	// Name    : getFrequencies
+	// 
+	// Purpose : returns array containing frequencies with which unique items 
+	//           in the data array occur
+	// 
+	// Notes   : returns zero length array of ints if an error occurs
+	// 
+	//*************************************************************************
+	public static int[] getFrequencies(int[] data) {
+		
+		int[] itemFrequencies = null;
+		
+		// get the unique items in the data array
+		int[] uniqueItems = getUniqueItems(data);
+		
+		try {
+			
+			// compute the frequency of each unique item
+			Frequency classFrequency = new Frequency();
+			for (int i = 0; i < data.length; i++ ) {
+				classFrequency.addValue(data[i]);
+			}
+
+			// save the item frequencies to an array of ints	
+			itemFrequencies = new int[uniqueItems.length];
+			for(int i = 0; i < uniqueItems.length; i++) {
+				itemFrequencies[i] = 
+					(int)classFrequency.getCount(uniqueItems[i]);
+			}
+			
+		} catch (NullPointerException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			itemFrequencies = new int[0];
+			
+		} catch (ArrayIndexOutOfBoundsException e) {
+			logger.severe(e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			itemFrequencies = new int[0];
+		}
+		
+		return itemFrequencies;
+	}
 
 }

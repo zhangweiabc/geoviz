@@ -693,30 +693,8 @@ public class DiscriminantAnalysis {
 		// check to see if the classification attribute has been set
 		// cannot execute this method until it has been set
 		validateClassification();
+		uniqueClasses = NCGStatUtils.getUniqueItems(classification);
 		
-		try {
-			
-			// compute unique classes in the classification array using a set
-			Set<Integer> classes = new HashSet<Integer>();
-			for (int i = 0; i < classification.length; i++ ) {
-				classes.add(classification[i]);
-			}
-		
-			// convert the classes set to an array of ints
-			uniqueClasses = new int[classes.size()];
-			Iterator<Integer> classesIt = classes.iterator();
-		
-			int i = 0;
-			while( classesIt.hasNext() ) {
-				uniqueClasses[i++] = 
-					classesIt.next().intValue();
-			}
-			
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			uniqueClasses = new int[0];
-		}
 	}
 	
 	//*************************************************************************
@@ -746,36 +724,11 @@ public class DiscriminantAnalysis {
 	//*************************************************************************
 	private void setClassFrequencies() throws DiscriminantAnalysisException {
 		
-		// check to see if the classification and uniqueClasses attributes have been set
-		// cannot continue if these are not set
-		validateClassification();
-		validateUniqueClasses();
+		// check to see if the classification array has been set
+		// cannot continue if this is not set
+		validateClassification();		
+		classFrequencies = NCGStatUtils.getFrequencies(classification);
 		
-		try {
-			
-			// compute the frequency of each class label
-			Frequency classFrequency = new Frequency();
-			for (int i = 0; i < classification.length; i++ ) {
-				classFrequency.addValue(classification[i]);
-			}
-
-			// save the class frequencies to an int array	
-			classFrequencies = new int[uniqueClasses.length];
-			for(int i = 0; i < uniqueClasses.length; i++) {
-				classFrequencies[i] = 
-					(int)classFrequency.getCount(uniqueClasses[i]);
-			}
-			
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			classFrequencies = new int[0];
-			
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			classFrequencies = new int[0];
-		}
 	}
 
 	//*************************************************************************
