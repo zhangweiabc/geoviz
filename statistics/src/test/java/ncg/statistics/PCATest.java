@@ -82,10 +82,10 @@ public class PCATest {
 			double[] comparisionEigenValues = comparisonEigenData.getColumn(0);
 			double[][] comparisonEigenVectors = comparisonEigenData.getSubMatrix(eVectorIndices);
 			
-			assertArrayEquals(eValues,comparisionEigenValues);
-			assertArrayEquals(comparisonEigenVectors,eVectors,delta);
-			assertArrayEquals(principalComponents,comparisonTransformedVariables, delta);
-			assertArrayEquals(principalComponents,nPrincipalComponents, delta);
+			NCGTestUtils.assertArrayEquals(eValues,comparisionEigenValues,delta);
+			NCGTestUtils.assertArrayEquals(comparisonEigenVectors,eVectors,delta);
+			NCGTestUtils.assertArrayEquals(principalComponents,comparisonTransformedVariables, delta);
+			NCGTestUtils.assertArrayEquals(principalComponents,nPrincipalComponents, delta);
 						
 		} catch (IOException e) {
 			logger.severe("Unable to read test data from [" + testFileName.getFile() + "]");
@@ -103,36 +103,4 @@ public class PCATest {
 			e.printStackTrace();
 		}
 	}
-
-	/*
-	 * Compare an array of doubles
-	 */
-	private void assertArrayEquals(double[] init,
-			double[] comparison) {
-		// TODO Auto-generated method stub
-		assertTrue(init.length == comparison.length);
-		
-		for ( int i = 0; i < init.length; i++) {
-			//System.out.println("[" + init[i] + "] : [" + comparison[i] + "]");
-			assertTrue((init[i] - comparison[i]) < delta);
-		}	
-	}
-	
-	/*
-	 * Compare a 2d array of doubles
-	 */
-	private void assertArrayEquals(double[][] init,
-			double[][] comparison, double delta) {
-		// TODO Auto-generated method stub
-		assertTrue(init.length == comparison.length);
-		assertTrue(init[0].length == comparison[0].length);
-		
-		for ( int i = 0; i < init.length; i++) {
-			for(int j=0; j < init[0].length; j++) {
-				//System.out.println("[" + init[i][j] + "] : [" + comparison[i][j] + "]");
-				assertTrue((init[i][j] - comparison[i][j]) < delta);
-			}
-		}	
-	}
-
 }

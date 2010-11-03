@@ -117,9 +117,9 @@ public class DiscriminantAnalysisTest {
 			assertArrayEquals(uniqueClasses,comparisonUniqueClasses);
 			assertArrayEquals(confMatrix,comparisonConfMatrix);
 			assertArrayEquals(classified,comparisonClassified);
-			assertArrayDoubleEquals(params,comparisonParams,delta);
-			assertArrayDoubleEquals(mhDistance2,comparisonMhDistance2,delta);
-			assertArrayDoubleEquals(postProb,comparisonPostProb,delta);
+			NCGTestUtils.assertArrayEquals(params,comparisonParams,delta);
+			NCGTestUtils.assertArrayEquals(mhDistance2,comparisonMhDistance2,delta);
+			NCGTestUtils.assertArrayEquals(postProb,comparisonPostProb,delta);
 						
 		} catch (IOException e) {
 			logger.severe("Unable to read test data from [" + testFileName.getFile() + "]");
@@ -135,19 +135,6 @@ public class DiscriminantAnalysisTest {
 			logger.severe(e.getMessage());
 			e.printStackTrace();
 		}
-	}
-
-	private void assertArrayDoubleEquals(double[][] init,
-			double[][] comparison, double delta) {
-		// TODO Auto-generated method stub
-		assertTrue(init.length == comparison.length);
-		assertTrue(init[0].length == comparison[0].length);
-		
-		for ( int i = 0; i < init.length; i++) {
-			for(int j=0; j < init[0].length; j++) {
-				assertTrue((init[i][j] - comparison[i][j]) < delta);
-			}
-		}	
 	}
 
 }

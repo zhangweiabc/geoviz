@@ -43,19 +43,70 @@ public class NCGStatUtilsTest {
 			
 			// extract the variables to be transformed
 			int[] varCols = {1,2,3,4};
-			double[][] data = testData.getSubMatrix(varCols);
+			int categoryCol = 11;
+			
+			// get the columns associated with varCols
+			double[][] testVarData = testData.getSubMatrix(varCols);
+			
+			// get the colum associated with categoryCol
+			int[] testCategory = testData.getColumnAsInt(categoryCol);
+			
+			//test array of doubles
+			double[] testDoubleArray = {3.5,7.8,-9.6,-19.3};
+			
+			// test array of ints
+			int[] testIntArray = {3,7,-9,-19};
 						
 			// standardize the first four variables (data are in row order)
-			double[][] dataZScores = NCGStatUtils.standardize(data, true);
-						
+			double[][] testDataZScores = NCGStatUtils.standardize(testVarData, true);
+			
+			// get the comparison z scores
+			double[][] comparisonZScores = comparisonData.getSubMatrix(varCols);
+			
+			// get test index for array of doubles
+			int testDoubleIndex = NCGStatUtils.getMin(testDoubleArray);
+				
+			// set comparison index for array of doubles
+			int comparisonDoubleIndex = 3;
+			
+			// get test index for array of ints
+			int testIntIndex = NCGStatUtils.getMin(testIntArray);
+			
+			// set comparison index for array of ints
+			int comparisonIntIndex = 3;
+			
+			// get the test unique categories
+			int[] testUniqueCategories = NCGStatUtils.getUniqueItems(testCategory);
+			
+			// set the comparison unique categories
+			int[] comparisonUniqueCategories = {1,2,3};
+			
+			// get the test category frequencies
+			int[] testFreqCategories = NCGStatUtils.getFrequencies(testCategory);
+			
+			// set the comparison category frequencies
+			int[] comparisonFreqCategories = {50,50,50};
+			
 			//******************************************************
 			// do tests
 			//******************************************************
 			
+			// test z score calculations
+			NCGTestUtils.assertArrayEquals(testDataZScores,comparisonZScores,delta);
 			
-			double[][] comparisonZScores = comparisonData.getSubMatrix(varCols);
+			// test transposition of matrices
 			
-			assertArrayEquals(dataZScores,comparisonZScores,delta);
+			// test get minimum function for array of ints
+			assertTrue(testIntIndex== comparisonIntIndex);
+			
+			// test get minimum function for array of doubles
+			assertTrue(testDoubleIndex== comparisonDoubleIndex);
+			
+			// test get unique categories in array
+			assertArrayEquals(testUniqueCategories,comparisonUniqueCategories);
+			
+			// test get category frequencies
+			assertArrayEquals(testFreqCategories,comparisonFreqCategories);
 						
 		} catch (IOException e) {
 			logger.severe("Unable to read test data from [" + testFileName.getFile() + "]");
@@ -71,20 +122,5 @@ public class NCGStatUtilsTest {
 		}
 	}
 	
-	/*
-	 * Compare a 2d array of doubles
-	 */
-	private void assertArrayEquals(double[][] init,
-			double[][] comparison, double delta) {
-		// TODO Auto-generated method stub
-		assertTrue(init.length == comparison.length);
-		assertTrue(init[0].length == comparison[0].length);
-		
-		for ( int i = 0; i < init.length; i++ ) {
-			for ( int j = 0; j < init[0].length; j++ ) {
-				assertTrue((init[i][j] - comparison[i][j]) < delta);
-			}
-		}	
-	}
 
 }
