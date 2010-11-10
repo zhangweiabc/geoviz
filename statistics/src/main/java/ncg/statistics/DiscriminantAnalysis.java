@@ -13,9 +13,6 @@ package ncg.statistics;
 */
 
 import java.util.Arrays;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import java.util.logging.Logger;
 
@@ -29,9 +26,7 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.MatrixUtils;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.linear.ArrayRealVector;
-import org.apache.commons.math.stat.Frequency;
 import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.linear.InvalidMatrixException;
 
 public class DiscriminantAnalysis {
 	
@@ -348,16 +343,11 @@ public class DiscriminantAnalysis {
 			// they were read in
 			predictorVariablesRowOrder = rowOrder;
 						
-		} catch (IllegalArgumentException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			this.predictorVariables = new Array2DRowRealMatrix(0,0);
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			this.predictorVariables = new Array2DRowRealMatrix(0,0);
-		}
-		
+		} 	
 	}
 	 
 	//*************************************************************************
@@ -460,15 +450,11 @@ public class DiscriminantAnalysis {
 	public void setPriorProbabilities(double[] priorProbabilities) {
 		try{
 			this.priorProbabilities = new ArrayRealVector(priorProbabilities);
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			this.priorProbabilities = new ArrayRealVector();
-		} catch (IllegalArgumentException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			this.priorProbabilities = new ArrayRealVector();
-		}
+		} 
 	}
 	
 	//*************************************************************************
@@ -488,12 +474,8 @@ public class DiscriminantAnalysis {
 		
 		try{
 			this.priorProbabilities = new ArrayRealVector(numClasses, (1 / (double)numClasses));
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			this.priorProbabilities = new ArrayRealVector();
-		} catch (IllegalArgumentException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			this.priorProbabilities = new ArrayRealVector();
 		}
@@ -550,13 +532,17 @@ public class DiscriminantAnalysis {
 			
 		try {
 			col = posteriorProbabilities.getColumn(classIndex);
-		} catch (MatrixIndexException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			throw new DiscriminantAnalysisException("Class Index " + classIndex  + 
-							" for Posterior Probabilities is out of range");
-		}
-				
+			col = new double[0];
+			
+			if (e instanceof MatrixIndexException ) {
+				throw new DiscriminantAnalysisException("Class Index " + classIndex  + 
+						" for Posterior Probabilities is out of range");
+			}
+		} 
+						
 		return col;
 	}
 		
@@ -614,7 +600,8 @@ public class DiscriminantAnalysis {
 	// Purpose : get mahalanobis distance squared for class 'classIndex'
 	// 
 	// Notes   : throws a DiscriminantAnalysisException object if not set
-	//           or if classIndex is out of range
+	//           or if classIndex is out of range. returns a zero length
+	//           array of doubles if an error occurs
 	// 
 	//*************************************************************************
 	public double[] getMahalanobisDistance2(int classIndex) throws DiscriminantAnalysisException {
@@ -624,13 +611,17 @@ public class DiscriminantAnalysis {
 				
 		try {
 			col = mahalanobisDistance2.getColumn(classIndex);
-		} catch (MatrixIndexException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			throw new DiscriminantAnalysisException("Class Index " + classIndex  + 
+			col = new double[0];
+			
+			if (e instanceof MatrixIndexException ) {
+				throw new DiscriminantAnalysisException("Class Index " + classIndex  + 
 						" for Mahalanobis Distance Squared is out of range");
-		}
-					
+			}
+		} 
+						
 		return col;
 		
 	}
@@ -779,16 +770,12 @@ public class DiscriminantAnalysis {
 					classRowIndices[j++] = i;
 				}
 			}
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			classRowIndices = new int[0];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			classRowIndices = new int[0];
-		} 
-		
+		}
+				
 		return classRowIndices;
 	}	
 	
@@ -802,7 +789,7 @@ public class DiscriminantAnalysis {
 	//           returns zero length array in case of an error
 	// 
 	//*************************************************************************
-	private int[] computeFieldIndices() throws DiscriminantAnalysisException {
+	protected int[] computeFieldIndices() throws DiscriminantAnalysisException {
 		
 		// check to see if predictorVariables have been set
 		// cannot continue unti this has been set
@@ -818,12 +805,12 @@ public class DiscriminantAnalysis {
 				colIndices[j] = j; 
 			}
 			
-		} catch ( NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			colIndices = new int[0];
-		}
-	
+		} 
+		
 		return colIndices;
 	}
 	
@@ -837,7 +824,7 @@ public class DiscriminantAnalysis {
 	//           returns zero length vector in case of an error
 	// 
 	//*************************************************************************
-	private RealVector getClassMean(int classIndex) throws DiscriminantAnalysisException {
+	protected RealVector getClassMean(int classIndex) throws DiscriminantAnalysisException {
 		
 		// check to see if predictorVariables have been set
 		// cannot continue unti this has been set
@@ -867,27 +854,16 @@ public class DiscriminantAnalysis {
 			
 			classMeansVector = new ArrayRealVector(groupMeans);
 				
-		} catch (MatrixIndexException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			classMeansVector = new ArrayRealVector();
-		} catch (IllegalArgumentException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			classMeansVector = new ArrayRealVector();
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			classMeansVector = new ArrayRealVector();
 		}
-	
+		
 		return classMeansVector;
 			
 	}
 
-	// compute covariance matrix for the class with index classIndex
-	// in the array uniqueClases
-	// return null in case of an error
 	//*************************************************************************
 	// Name    : getCovarianceMatrix
 	// 
@@ -940,20 +916,12 @@ public class DiscriminantAnalysis {
 				covMatrix.setEntry(0, 0, StatUtils.variance(predC.getColumn(0)));
 			}	
 					
-		} catch (MatrixIndexException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			covMatrix = new Array2DRowRealMatrix(0,0);
-		} catch (IllegalArgumentException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			covMatrix = new Array2DRowRealMatrix(0,0);
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			covMatrix = new Array2DRowRealMatrix(0,0);
 		}
-				
+						
 		return covMatrix;
 			
 	}
@@ -1018,20 +986,12 @@ public class DiscriminantAnalysis {
 			pooledCovMatrix = pooledSumSquares.scalarMultiply(
 								1.0 / predictorVariables.getRowDimension());
 				
-		} catch (IllegalArgumentException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			pooledCovMatrix = new Array2DRowRealMatrix(0,0);
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			pooledCovMatrix = new Array2DRowRealMatrix(0,0);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			pooledCovMatrix = new Array2DRowRealMatrix(0,0);
-		}
-	
+		} 
+		
 		return pooledCovMatrix;
 	}
 	
@@ -1089,17 +1049,94 @@ public class DiscriminantAnalysis {
 			}
 			classificationAccuracy = classAccuracy / numObjects;
 			
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			cMatrix = new int[0][0];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			cMatrix = new int[0][0];
-		}
+		} 
 
 		return cMatrix;
+	}
+	
+	//*************************************************************************
+	// Name    : computePosteriorProbability
+	// 
+	// Purpose : computes the posterior probabilities for a vector of 
+	//           mahalanobis distance squared values
+	// 
+	// Notes   : throws a DiscriminantAnalysisException Object if the prior
+	//           probabilites are not set. 
+	//           returns a zero length vector if an error occurs
+	// 
+	//*************************************************************************
+	protected RealVector computePosteriorProbabilities(RealVector mhDistance2) throws DiscriminantAnalysisException {
+		
+		validatePriorProbabilities();
+		
+		RealVector postProbs = null;
+		
+		try {
+			// compute the multivariate normal probability density values for the observations with
+			// mahalanobis distance square values in mhDistance2.
+			RealVector mvnD = mhDistance2.mapDivide(-2.0).mapExp().ebeMultiply(priorProbabilities);
+									
+			// since pdf values are in the range [0,1] computing the l1 norm (sum of absolute values) 
+			// is equivalent to summing the vector item values
+			// ( covariance matrix used to compute mahalanobis distance squared is positive semi-definite
+			// so x'C' >= 0) and pdf is therefore constrained to lie in range[0,1])
+			double sumMhd = mvnD.getL1Norm();
+			
+			postProbs = mvnD.mapDivide(sumMhd);	
+			
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			postProbs = new ArrayRealVector();
+		} 
+
+		return postProbs;
+	}
+	
+	//*************************************************************************
+	// Name    : classifyObservation
+	// 
+	// Purpose : classifies an observation with mahalanobis distances mhDistance2
+	//           returns the label of the assigned class as given in the 
+	//           uniqueClasses array
+	// 
+	// Notes   : throws a DiscriminantAnalysisException Object if the prior
+	//           probabilities are not set. 
+	//           returns -1 if an error occurs
+	// 
+	//************************************************************************
+	protected int classifyObservation(RealVector mhDistance2) throws DiscriminantAnalysisException {
+		
+		validatePriorProbabilities();
+		validateUniqueClasses();
+		
+		int classLabel = -1;
+		
+		try {
+			
+			// compute the log of the prior probabilities
+			RealVector logPriorProbabilites = priorProbabilities.mapLog();
+			
+			// subtract the log of the prior probabilities from the mahalanobis distance squared vector
+			double[] mh2Classes = mhDistance2.mapDivide(2).subtract(logPriorProbabilites).getData();
+			
+			// identify the class index
+			int classIndex = NCGStatUtils.getMin(mh2Classes);
+			
+			// identify the class label
+			classLabel = uniqueClasses[classIndex];
+			
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			classLabel = -1;
+		}
+		
+		return classLabel;
 	}
 		
 	//*************************************************************************
@@ -1120,7 +1157,7 @@ public class DiscriminantAnalysis {
 		validatePredictorVariables();
 		validateUniqueClasses();
 		validatePriorProbabilities();
-		
+				
 		try {
 			
 			int numObjects = predictorVariables.getRowDimension();
@@ -1156,15 +1193,14 @@ public class DiscriminantAnalysis {
 					// compute class means for the cth class
 					RealVector classMeans = getClassMean(c);
 	
-					// compute mahalanobis distance squared separately for 
-					// each object in the dataset
+					// compute mahalanobis distance squared separately for each object in the dataset
 					for (int i = 0; i < numObjects; i++) {
-	
-						RealVector meanDiff = 
-						predictorVariables.getRowVector(i).subtract(classMeans);
-					
-						double mh2 = pooledCovMatrixInv.preMultiply(meanDiff).dotProduct(meanDiff);
+		
+						double mh2 = NCGStatUtils.computeMahalanobisDistance2(
+															predictorVariables.getRowVector(i), 
+															pooledCovMatrixInv, classMeans);
 						mahalanobisDistance2.setEntry(i,c, mh2);
+						
 					}
 				
 					// compute parameters (coefficients) for the cth class
@@ -1175,94 +1211,38 @@ public class DiscriminantAnalysis {
 				
 				}
 				
-			
-				// assign memory for posterior probabilities for each class
-				posteriorProbabilities = MatrixUtils.createRealMatrix(numObjects,numClasses);
-			
-				// compute posterior probabilities for observation
-				for (int i = 0; i < numObjects; i++) {
-				
-					// compute the pdf values for the observations in row i
-					// covariance matrix C is positive semi-definite so x'C' >= 0
-					// pdf is therefore constrained to lie in range[0,1]
-					RealVector mvnD = mahalanobisDistance2.getRowVector(i).mapDivide(-2.0).mapExp().ebeMultiply(priorProbabilities);
-										
-					// since pdf values are in the range [0,1] computing
-					// the l1 norm (sum of absolute values) is equivalent to
-					// summing the vector item values
-					double sumMhd = mvnD.getL1Norm();
-					posteriorProbabilities.setRowVector(i, mvnD.mapDivide(sumMhd));
-				}
-				
 				// assign memory for classified array
 				classified = new int[numObjects];
 				
-				// now classify the data by assigning each object to the
-				// nearest class using the mahalanobis distance squared 
-				// metric together with the prior probabilities (if they are set)
+				// assign memory for posterior probabilities for each class
+				posteriorProbabilities = MatrixUtils.createRealMatrix(numObjects,numClasses);
+			
+				// classify each observation and compute posterior probabilities
 				for (int i = 0; i < numObjects; i++) {
 					
-					double[] mh2Classes = null;
-				
-					if (logPriorProbabilities != null ) {			
-						mh2Classes = mahalanobisDistance2.getRowVector(i).mapDivide(2).subtract(logPriorProbabilities).getData();
-					} else {
-						mh2Classes = mahalanobisDistance2.getRowVector(i).mapDivide(2).getData();
-					}
-				
-					int classIndex = NCGStatUtils.getMin(mh2Classes);
-					classified[i] = uniqueClasses[classIndex];
+					// classify the current observation
+					classified[i] = classifyObservation(mahalanobisDistance2.getRowVector(i));
+					
+					// compute the posterior probabilities for the current observation
+					RealVector postProbs = computePosteriorProbabilities(mahalanobisDistance2.getRowVector(i));			
+					posteriorProbabilities.setRowVector(i, postProbs);
+					
+					
 				}
+				
 			} else {
 				String message = "Singular pooled covariance matrix - unable to classify";
 				logger.severe(message);
 				throw new DiscriminantAnalysisException(message);
 			}
 					
-		} catch (NullPointerException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
-			
 			classified = new int[0];
 			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
 			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
 			parameters = new Array2DRowRealMatrix(0,0);
-			
-		} catch(InvalidMatrixException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			
-			classified = new int[0];
-			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
-			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
-			parameters = new Array2DRowRealMatrix(0,0);
-			
-		} catch (IllegalArgumentException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			
-			classified = new int[0];
-			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
-			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
-			parameters = new Array2DRowRealMatrix(0,0);
-			
-		} catch (MatrixIndexException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			
-			classified = new int[0];
-			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
-			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
-			parameters = new Array2DRowRealMatrix(0,0);
-			
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.severe(e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			
-			classified = new int[0];
-			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
-			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
-			parameters = new Array2DRowRealMatrix(0,0);
-		} 
+		}  
 	}
 }

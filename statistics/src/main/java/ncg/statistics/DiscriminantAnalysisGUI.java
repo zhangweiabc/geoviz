@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -286,7 +287,6 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		public ClassifierThread() {
 			super();
-			daTask = new DiscriminantAnalysis();
 			
 			// is standardization required?
 			stdIndVars = standardize.isSelected();
@@ -311,13 +311,16 @@ public class DiscriminantAnalysisGUI extends JPanel
 					// set the number of nearest neighbours
 					numNN = (numNearestNeighbours.getSelectedIndex()  + 1);
 				}
+				
+				// create GWDiscriminantAnalysis task
+				daTask = new GWDiscriminantAnalysis();
+				
+			} else {
+				
+				// create a DiscriminantAnalysis task
+				daTask = new DiscriminantAnalysis();
 			}
 			
-			System.out.println("gwda is set to " + ((gwda == true) ? "TRUE" : "FALSE") );
-			System.out.println("number nearest neighboubours is set to  " + numNN);
-			System.out.println("cv is set to " + ((cv == true) ? "TRUE" : "FALSE") );
-			System.out.println("kernel function is set to " + kernel );
-			System.out.println("cross validation method is set to " + cvMethod );
 		}
 		
 		@Override
@@ -430,6 +433,35 @@ public class DiscriminantAnalysisGUI extends JPanel
 
 				// set the prior probabilities to the default (equal)
 				daTask.setPriorProbabilities();
+				
+				// if we are doing a geographically weighted discriminant analysis
+				// we need to set some extra variables
+				if ( daTask instanceof GWDiscriminantAnalysis && gwda == true ) {
+					
+					//
+					// set the kernel function type
+					((GWDiscriminantAnalysis)daTask).setKernelFunctionType(kernel);
+						
+					if (cv == true) {
+						// tell the classification to use cross validation to decide the 
+						// number of nearest neighbours
+						((GWDiscriminantAnalysis)daTask).setUseCrossValidation(cv);
+						
+						// set the cross validation method
+						((GWDiscriminantAnalysis)daTask).setCrossValidationMethod(cvMethod);
+						
+					} else {
+						// set the number of nearest neighbours
+						((GWDiscriminantAnalysis)daTask).setNumNearestNeighbours(numNN);
+					}
+					
+					// compute the polygon centroids (or coordinates of points) 
+					// if we have a point data set. use these to calculate the distance
+					// matrix  - distance from each centroid to every other centroid
+					Point2D[] centroids = NCGStatUtils.computeCentroids(dataSet);
+					((GWDiscriminantAnalysis)daTask).setDistanceMatrix(centroids);
+					
+				} 
 					
 				// classify the data
 				daTask.classify();
@@ -618,9 +650,13 @@ public class DiscriminantAnalysisGUI extends JPanel
 			public DataSetForApps doInBackground() {
 				
 				// open the sample data file
-				URL testFileName = daGui.getClass().getResource("resources/iris_poly.shp");
+				URL testFileName = daGui.getClass().getResource("resources/iris_grid_petallength.shp");
+				//URL testFileName = daGui.getClass().getResource("resources/iris_poly.shp");
+
 				ShapeFileDataReader shpRead = new ShapeFileDataReader();
+								
 				shpRead.setFileName(testFileName.getFile());
+				//shpRead.setFileName("/Users/pfoley/TestGrid/TestGrid.shp");
 				
 				Object[] testDataArray = shpRead.getDataSet();
 				
@@ -698,7 +734,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 							
 							// populate the contents of the numNearestNeighbours combo box
 							numNearestNeighbours.removeAllItems();
-							for (int i = 0;i <= categoryMinFrequency; i++) {
+							for (int i = 1;i <= categoryMinFrequency; i++) {
 								numNearestNeighbours.addItem(Integer.valueOf(i));
 							}
 							

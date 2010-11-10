@@ -7,8 +7,15 @@ package ncg.statistics;
  * 
  */
 import static org.junit.Assert.*;
+import geovista.common.data.DataSetForApps;
+import geovista.readers.shapefile.ShapeFileDataReader;
+
+import java.util.logging.Logger;
 
 public class NCGTestUtils {
+	
+	// logger object
+	protected final static Logger logger = Logger.getLogger(NCGTestUtils.class.getPackage().getName());
 
 	/*
 	 * Compare an array of doubles
@@ -35,5 +42,35 @@ public class NCGTestUtils {
 				assertTrue((init[i][j] - comparison[i][j]) < delta);
 			}
 		}	
+	}
+	
+	/*
+	 * Name    : loadShapeFile
+	 * 
+	 * Purpose : load shape file with name shapeFileName. returns
+	 *           DataSetForApps object
+	 *           
+	 * Notes   : returns null pointer if an error occurs
+	 */
+	public static DataSetForApps loadShapeFile(String shapeFileName) {
+		
+		// dataset for apps object to return
+		DataSetForApps dataSet = null;
+		
+		ShapeFileDataReader shpRead = new ShapeFileDataReader();
+						
+		shpRead.setFileName(shapeFileName);
+		
+		Object[] shapeDataArray = shpRead.getDataSet();
+		
+
+		if (shapeDataArray != null) {
+			dataSet = new DataSetForApps(shapeDataArray);
+			logger.info("test data loaded from " + shapeFileName);
+		} else {
+			logger.severe("unable to read test data from file " + shapeFileName);
+		}
+		
+		return dataSet;
 	}
 }

@@ -1,5 +1,11 @@
 package ncg.statistics;
 
+/*
+ * Testing code for DiscriminantAnalysis.java
+ * 
+ * Author : Peter Foley, 04.11.2010
+ */
+
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -131,6 +137,7 @@ public class DiscriminantAnalysisTest {
 		} catch (AssertionError e) {
 			logger.severe(e.getMessage());
 			e.printStackTrace();
+			throw e;
 		} catch (DiscriminantAnalysisException e) {
 			logger.severe(e.getMessage());
 			e.printStackTrace();

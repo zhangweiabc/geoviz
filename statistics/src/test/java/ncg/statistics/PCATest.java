@@ -1,6 +1,10 @@
 package ncg.statistics;
 
-import static org.junit.Assert.*;
+/*
+ * Testing code for PCA.java
+ * 
+ * Author : Peter Foley, 04.11.2010
+ */
 
 import java.io.IOException;
 import java.net.URL;
