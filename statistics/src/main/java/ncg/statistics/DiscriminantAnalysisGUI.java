@@ -578,29 +578,71 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		private DataSetForApps getNewDataSet() throws DiscriminantAnalysisException {
 						
-			int numClasses = daTask.getUniqueClasses().length;					
+			int numClasses = daTask.getUniqueClasses().length;
+			
+			int numClassAttributes = daTask.getNumAttributes();
 			
 			int numAttributes = dataSet.getColumnCount();
-						
-			Object[] newData = new Object[numAttributes + (1 + (numClasses*2))];
-			String[] newFieldNames = new String[numAttributes + (1 + (numClasses*2))];
 			
+			
+			Object[] newData = null;
+			String[] newFieldNames = null;
+			
+			int  newDataSetSize = -1;
+			
+			if ( daTask instanceof GWDiscriminantAnalysis && gwda == true ) {		
+				newDataSetSize = (numAttributes + 1 + (numClasses*2) + (numClasses*(numAttributes+1)));		
+			} else {
+				newDataSetSize = (numAttributes + 1 + (numClasses*2));
+			}
+						
+			// allocate memory for the new data set
+			newData = new Object[newDataSetSize];
+			newFieldNames = new String[newDataSetSize];	
+			
+			// add the attributes
 			for ( int i = 0; i < numAttributes; i++) {
 				newData[i] = dataSet.getColumnValues(i);
 				newFieldNames[i] = dataSet.getColumnName(i);
 			}
 			
+			// add the classified column
 			newFieldNames[numAttributes] = "Classified";
 			newData[numAttributes] = daTask.getClassified();
 			
+			// add the mahalanobis distance squared columns			
 			for ( int i = 0; i < numClasses; i++) {
 				newFieldNames[i+(numAttributes+1)] = "MhDist2_" + String.valueOf(i);
 				newData[i+(numAttributes+1)] = daTask.getMahalanobisDistance2(i);
 			}
+			
+			// add the posterior probability columns
 			for ( int i = 0; i < numClasses; i++) {
 				newFieldNames[i+(numAttributes+numClasses+1)] = "PostProb_" + String.valueOf(i);
 				newData[i+(numAttributes+numClasses+1)] = daTask.getPosteriorProbabilities(i);
 			}
+			
+			if(daTask instanceof GWDiscriminantAnalysis && gwda == true) {
+				
+				// get the parameters
+				double[][] params = NCGStatUtils.transpose(daTask.getParameters());
+								
+				int startIndex = (numAttributes + 1 + (numClasses*2));
+				for (int i=0; i < numClasses; i++ ){
+					
+					for (int j=0; j < (numClassAttributes+1); j++) {
+						
+						int paramsIndex = (i*(numClassAttributes+1)+ j);
+						
+						int index = (startIndex + paramsIndex);
+						newFieldNames[index] = "P" + String.valueOf(i) + "_" + 
+																	String.valueOf(j);
+						newData[index] = params[paramsIndex];
+					}
+				}
+				
+			}
+			
 			
 			DataSetForApps newDataSetForApps = new DataSetForApps(newFieldNames, newData, dataSet.getShapeData());
 			

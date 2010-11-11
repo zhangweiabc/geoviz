@@ -39,6 +39,18 @@ public class NCGStatUtils {
 	private final static Logger logger = 
 		Logger.getLogger(NCGStatUtils.class.getName());
 	
+	/*
+	 * static fields
+	 */
+	// cross validation methods supported
+	public static final int CROSS_VALIDATION_LIKELIHOOD = 0;
+	public static final int CROSS_VALIDATION_SCORE = 1;
+
+	
+	// type of kernel function methods supported
+	public static final int BISQUARE_KERNEL = 0;
+	public static final int MOVING_WINDOW = 1;
+	
 	//*************************************************************************
 	// Name    : standardize
 	// 
@@ -540,7 +552,7 @@ public class NCGStatUtils {
 					// compute weighted covariance and save it
 					double biasedWeightedCovariance = weightedSumSquares / sumWeights;
 					weightedCovariance.setEntry(i, j, biasedWeightedCovariance);
-					weightedCovariance.setEntry(i, i, biasedWeightedCovariance);
+					weightedCovariance.setEntry(j, i, biasedWeightedCovariance);
 				}
 			
 			}
@@ -625,6 +637,81 @@ public class NCGStatUtils {
 		} 
 				
 		return mhd2;
+	}
+	
+	//*************************************************************************
+	// Name    : movingWindow
+	// 
+	// Purpose : computes a weights array based on an array of distances and a 
+	//           bandwidth using a moving window function
+	//
+	// 
+	// Notes   : returns zero length array in case of an error
+	// 
+	//*************************************************************************
+	public static double[] movingWindow(double[] distances, double bandwidth) {
+		
+		// reference to weights array
+		double[] weights = null;
+		
+		try {
+			
+			// create the weights array
+			weights = new double[distances.length];
+			
+			// compute weights for each distances
+			for (int i = 0; i < distances.length; i++) {
+				if (distances[i] < bandwidth) {
+					weights[i] = 1.0;
+				} else {
+					weights[i] = 0.0;
+				}
+			}
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			weights = new double[0];
+		} 
+		
+		return weights;
+	}
+	
+	//*************************************************************************
+	// Name    : bisquareKernel
+	// 
+	// Purpose : computes a weights array based on an array of distances and a 
+	//           bandwidth using a bisquare kernel function
+	//
+	// 
+	// Notes   : returns zero length array in case of an error
+	// 
+	//*************************************************************************
+	public static double[] bisquareKernel(double[] distances, double bandwidth) {
+		
+		// reference to weights array
+		double[] weights = null;
+		
+		try {
+			
+			// create the weights array
+			weights = new double[distances.length];
+			
+			// compute weights for each distances
+			for (int i = 0; i < distances.length; i++) {
+				if (distances[i] < bandwidth) {
+					weights[i] = Math.pow((1.0 - Math.pow((distances[i]/bandwidth), 2.0)),2.0);
+				} else {
+					weights[i] = 0.0;
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			weights = new double[0];
+		} 
+		
+		return weights;
 	}
 
 

@@ -608,7 +608,7 @@ public class DiscriminantAnalysis {
 			
 		validateMahalanobisDistance2();
 		double[] col = null;
-				
+		
 		try {
 			col = mahalanobisDistance2.getColumn(classIndex);
 		} catch (Exception e) {
@@ -1098,6 +1098,40 @@ public class DiscriminantAnalysis {
 	}
 	
 	//*************************************************************************
+	// Name    : computeLDAParameters
+	// 
+	// Purpose : computes the parameters for a linear discriminant analysis 
+	//           classifier 
+	// 
+	// Notes   : returns a zero length vector if an error occurs
+	// 
+	//*************************************************************************
+	protected RealVector computeLDAParameters(RealMatrix covInv, RealVector mean, double priorProbability)  {
+				
+		// reference to matrix containing the paramaters
+		RealVector params = null;
+		
+		try {
+			
+			int numVars = mean.getDimension();
+			
+			params = new ArrayRealVector(numVars+1);
+			
+			RealVector paramsNoIntercept = covInv.preMultiply(mean);
+			double intercept = (mean.dotProduct(paramsNoIntercept) * (-0.5)) + Math.log(priorProbability);
+			params.setEntry(0, intercept);
+			params.setSubVector(1, paramsNoIntercept);
+								
+		}  catch (Exception e) {
+			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
+			e.printStackTrace();
+			params = new ArrayRealVector();
+		} 
+		
+		return params;
+	}
+	
+	//*************************************************************************
 	// Name    : classifyObservation
 	// 
 	// Purpose : classifies an observation with mahalanobis distances mhDistance2
@@ -1163,10 +1197,7 @@ public class DiscriminantAnalysis {
 			int numObjects = predictorVariables.getRowDimension();
 			int numFields = predictorVariables.getColumnDimension();
 			int numClasses = uniqueClasses.length;
-			
-			// compute the log of the prior probabilities
-			RealVector logPriorProbabilities = priorProbabilities.mapLog();
-			
+						
 			// create pooled group covariance matrix (maximum likelihood version)
 			RealMatrix pooledCovMatrix = getPooledCovMatrix();
 
@@ -1200,15 +1231,14 @@ public class DiscriminantAnalysis {
 															predictorVariables.getRowVector(i), 
 															pooledCovMatrixInv, classMeans);
 						mahalanobisDistance2.setEntry(i,c, mh2);
-						
+												
 					}
-				
-					// compute parameters (coefficients) for the cth class
-					RealMatrix classMeansMatrix = MatrixUtils.createColumnRealMatrix(classMeans.getData());
-					RealMatrix pn = pooledCovMatrixInv.multiply(classMeansMatrix);
-					parameters.setSubMatrix(pn.getData(),1,c);
-					parameters.setEntry(0,c, ( (classMeans.dotProduct(pn.getColumnVector(0)) * (-0.5)) + logPriorProbabilities.getEntry(c)));
-				
+					
+					// compute the parameters (classification function coefficients)
+					RealVector params = computeLDAParameters(pooledCovMatrixInv,classMeans,
+													priorProbabilities.getEntry(c));
+					parameters.setColumnVector(c, params);
+								
 				}
 				
 				// assign memory for classified array

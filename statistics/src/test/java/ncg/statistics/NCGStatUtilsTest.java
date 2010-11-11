@@ -15,8 +15,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Logger;
 
+import org.apache.commons.math.linear.ArrayRealVector;
 import org.apache.commons.math.linear.MatrixUtils;
 import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math.linear.RealVector;
 import org.junit.Test;
 
 public class NCGStatUtilsTest {
@@ -125,10 +127,10 @@ public class NCGStatUtilsTest {
 			// compute the centroids of the testShapeData polygons and convert them to
 			// two separate arrays of doubles
 			Point2D[] testShapeDataCentroids = NCGStatUtils.computeCentroids(testShapeData);
-			int numCentroids = testShapeDataCentroids.length;
-			double[] testEastings = new double[numCentroids];
-			double[] testNorthings = new double[numCentroids];
-			for (int i = 0 ; i < numCentroids; i++ ) {
+			int numObservations = testShapeData.getNumObservations();
+			double[] testEastings = new double[numObservations];
+			double[] testNorthings = new double[numObservations];
+			for (int i = 0 ; i < numObservations; i++ ) {
 				testEastings[i] = testShapeDataCentroids[i].getX();
 				testNorthings[i] = testShapeDataCentroids[i].getY();
 			}
@@ -148,9 +150,9 @@ public class NCGStatUtilsTest {
 			RealMatrix testDistanceMatrix = NCGStatUtils.computeDistanceMatrix(testShapeDataCentroids);
 			
 			// compute comparison distance matrix for centroids
-			RealMatrix comparisonDistanceMatrix = MatrixUtils.createRealMatrix(numCentroids,numCentroids);
-			for (int i= 0; i  < numCentroids; i++) {
-				for(int j = 0; j < numCentroids; j++) {
+			RealMatrix comparisonDistanceMatrix = MatrixUtils.createRealMatrix(numObservations,numObservations);
+			for (int i= 0; i  < numObservations; i++) {
+				for(int j = 0; j < numObservations; j++) {
 					double dx = testEastings[i] - testEastings[j];
 					double dy = testNorthings[i] - testNorthings[j];
 					
@@ -159,6 +161,71 @@ public class NCGStatUtilsTest {
 				}
 			}
 			
+			//get attributes sepalLength and sepalWidth
+			double[] sepalLength = (double[])testShapeData.getColumnValues(2);
+			double[] sepalWidth = (double[])testShapeData.getColumnValues(3);
+			double[][] testAttributes = new double[2][0];
+			testAttributes[0] = sepalLength;
+			testAttributes[1] = sepalWidth;
+			
+			// create weights array - the first 100 items get weight of 1
+			// and the last get weights of 0
+			double[] weights = new double[numObservations];
+			for (int i = 0; i < numObservations; i++) {
+				
+				if (i  < 100) {
+					weights[i] = 1.0;
+				} else {
+					weights[i] = 0.0;
+				}
+			}
+			
+			// compute test weighted mean
+			RealVector testWeightedMean = NCGStatUtils.computeWeightedMean(testAttributes, weights);
+			
+			// comparison weighted mean
+			double[] comparisonWeightedMean = {6.0150,3.0430};
+	
+			
+			// compute test weighted covariance matrix
+			RealMatrix testWeightedCovMatrix = NCGStatUtils.computeWeightedCovarianceMatrix(
+													testAttributes, testWeightedMean.getData(), weights);
+			
+						
+			// comparison weighted covariance matrix
+			double[][] comparisonWeightedCovMatrix = {{0.7437,-0.0321},{-0.0321,0.1699}};
+			
+			
+			// compute test mahalanobis distance squared
+			// this is a bit of a cheat since the computeMahalanobisDistance2 method takes the
+			// INVERSE of the covariance matrix as an argument. This is simply a numerical test 
+			// however
+			double[] testVector = {4.8,3};
+			double testMahalanobisDistance2 = NCGStatUtils.computeMahalanobisDistance2(
+														new ArrayRealVector(testVector), 
+														testWeightedCovMatrix, testWeightedMean);
+
+			// comparison mahalanobis distance squared
+			double comparisonMahalanobisDistance2 = 1.0948;
+			
+			//
+			double[] testDoubleArrayPositive = {3.5,7.8,9.6,19.3};
+			double bandwidth = 10;
+			
+			// compute test bisquare kernel weights
+			double[] testBisquareKernelWeights = NCGStatUtils.bisquareKernel(
+													testDoubleArrayPositive, bandwidth);
+			
+			// comparison bisquare kernel weights
+			double[] comparisonBisquareKernelWeights = {0.7700,0.1534,0.0061,0.0};
+			
+			// compute test moving window weights
+			double[] testMovingWindowWeights = NCGStatUtils.movingWindow(
+													testDoubleArrayPositive, bandwidth);
+			
+			// comparison moving window weights
+			double[] comparisonMovingWindowWeights = {1.0, 1.0, 1.0, 0.0};
+						
 			//******************************************************
 			// do tests
 			//******************************************************
@@ -193,7 +260,22 @@ public class NCGStatUtilsTest {
 			
 			// test reverse array code
 			assertArrayEquals(testIntRevArrayReversed, comparisonIntArrayReversed);
-						
+			
+			// test weighted mean calculation
+			assertArrayEquals(testWeightedMean.getData(),comparisonWeightedMean,delta);
+			
+			// test weighted covariance matrix calculation
+			NCGTestUtils.assertArrayEquals(testWeightedCovMatrix.getData(), comparisonWeightedCovMatrix, delta);
+			
+			// test mahanlanobis distance squared calculation
+			assertTrue(Math.abs(testMahalanobisDistance2 - comparisonMahalanobisDistance2) < delta);
+			
+			// test moving window weights calculation
+			assertArrayEquals(testMovingWindowWeights,comparisonMovingWindowWeights,delta);
+			
+			// test bisquare kernel weights calculation
+			assertArrayEquals(testBisquareKernelWeights,comparisonBisquareKernelWeights,delta);
+			
 		} catch (IOException e) {
 			logger.severe("Unable to read test data from [" + testFileName.getFile() + "]");
 			logger.severe(e.getMessage());

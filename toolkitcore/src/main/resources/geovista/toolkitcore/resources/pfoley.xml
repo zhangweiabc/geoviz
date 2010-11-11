@@ -141,7 +141,7 @@
       </ToolkitBean>
     </beanSet>
   </beanSet>
-  <dataSource>statistics/src/main/resources/ncg/statistics/resources/iris_poly.shp</dataSource>
+  <dataSource>statistics/src/main/resources/ncg/statistics/resources/iris_grid_petallength.shp</dataSource>
   <indication>-1</indication>
   <subspace>
     <int>0</int>
