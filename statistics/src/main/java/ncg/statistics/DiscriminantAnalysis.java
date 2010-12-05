@@ -12,13 +12,14 @@ package ncg.statistics;
 * 
 */
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import java.util.logging.Logger;
 
 import org.apache.commons.math.stat.correlation.Covariance;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.LUDecomposition;
 import org.apache.commons.math.linear.LUDecompositionImpl;
 import org.apache.commons.math.linear.DecompositionSolver;
 import org.apache.commons.math.linear.MatrixIndexException;
@@ -34,15 +35,14 @@ public class DiscriminantAnalysis {
 	 * input variables
 	 */
 	
-	// RealMatrix (array) to hold predictor (independent) variables
+	// matrix to hold predictor (independent) variables
 	// rows contain observations and columns contain attributes
 	protected transient RealMatrix predictorVariables = null;
 		
-	// classification array represents the actual classes that 
-	// the observation belong to
+	// classification array represents the classes that each observation belongs to
 	protected transient int[] classification = null;
 	
-	// RealVector (array) to hold prior probabilities
+	// vector to hold prior probabilities
 	// the length of this vector is equal to the total number of classes
 	protected transient RealVector priorProbabilities = null;
 	
@@ -58,28 +58,51 @@ public class DiscriminantAnalysis {
 	
     // array to hold unique class labels
 	// the length of this vector is equal to the total number of classes
-	// (derived from classification array)
+	// it is derived from classification array
 	protected transient int[] uniqueClasses = null;
 
 	// array to hold unique class frequencies
 	// the length of this vector is equal to the total number of classes
-	// (derived from classification array)
+	// it is derived from classification array
 	protected transient int[] classFrequencies = null;
+	
+	// array to hold log of prior probabilities
+	protected transient RealVector logPriorProbabilities = null;
+		
+	// number of objects for classification (number of rows in predictorVariables matrix)
+	protected transient int numObjects = -1;
+	
+	// number of fields used as independent variables in the classification
+	// (number of rows in predictorVariables matrix)
+	protected transient int numFields = -1;
+	
+	// number of distinct classes for classification
+	// it is derived from the uniqueClasses array.
+	protected transient int numClasses = -1;
+	
+	// field indices are the indices of fields in the predictor variables matrix
+	protected transient int[] fieldIndices = null;
+	
+	// classIndices is a list of integer arrays which contain the indices of 
+	// items in each class. This is set by the setClassIndices method.
+	protected transient List<int[]> classIndices = null;
 	
 	/*
 	 * output variables
 	 */
 	
-	// classified is an integer array containing the classes assigned by the 
-	// discriminant analysis
+	// classified is an int array containing the assigned classes
 	protected transient int[] classified = null;
 	
 	// the columns of posteriorProbabilities refer to classes and the rows observations
 	protected transient RealMatrix posteriorProbabilities = null;
+	
+	// the rows of parameters refer to classification function coefficients and the 
+	// columns, the classes
 	protected transient RealMatrix parameters = null;
 	
-	// mahalanobisDistance2 contains the mahalanobis distance squared from each observation to the
-	// mean of all the other classes
+	// mahalanobisDistance2 contains the mahalanobis distance squared from each 
+	// observation to the mean of all the other classes
 	// the columns of mahalanobisDistance2 refer to classes and the rows observations
 	protected transient RealMatrix mahalanobisDistance2 = null;
 	
@@ -118,10 +141,17 @@ public class DiscriminantAnalysis {
 		// input dependent variables, arrays & objects
 		uniqueClasses = null;
 		classFrequencies = null;
+		logPriorProbabilities = null;
+		numObjects = -1;
+		numClasses = -1;
+		numFields = -1;
+		fieldIndices = null;
+		classIndices = null;
 		
 		// output variables, arrays & objects
 		classified = null;
 		posteriorProbabilities = null;
+		
 		parameters = null;
 		mahalanobisDistance2 = null;
 		classificationAccuracy = -1;
@@ -174,19 +204,102 @@ public class DiscriminantAnalysis {
 	}
 	
 	//*************************************************************************
+	// Name    : validateNumClasses
+	// 
+	// Purpose : check to see if the numClasses attribute has been set
+	//        
+	// 
+	// Notes   : numClasses holds the number of unique classes in the data set
+	//           it is derived from the uniqueClasses array
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
+	public void validateNumClasses() throws DiscriminantAnalysisException {
+			
+		if ( numClasses == -1 ) {
+			throw new DiscriminantAnalysisException("number of unique classes not computed (set input classification variable)");
+		}
+	}
+	
+	//*************************************************************************
+	// Name    : validateClassIndices
+	// 
+	// Purpose : check to see if the classIndices attribute has been set
+	// 
+	// Notes   : classIndices is a list of integer arrays whose length
+	//           is equal to the number of classes. Each integer array 
+	//           contains the indices of objects in the respective class
+	//           this allows indexing into the distance matrix and predictor
+	//           variables matrix. It is derived from the classification array
+	// 
+	//*************************************************************************
+	protected void validateClassIndices() throws DiscriminantAnalysisException {		
+		if ( classIndices == null ) {
+			throw new DiscriminantAnalysisException("class indices list not computed (set input classification variables)");
+		}
+	}
+	
+	//*************************************************************************
 	// Name    : validateClassFrequencies
 	// 
 	// Purpose : check to see if the classFrequencies attribute has been set
 	// 
-	// Notes   : classFrequencies is an integer array holding the number of observations
-	//           in each class
-	//           it is derived from the classification array
+	// Notes   : classFrequencies is an int array holding the number of observations
+	//           in each class. it is derived from the classification array
 	//           throws a new DiscriminantAnalysisException if it has not been  set
 	// 
 	//*************************************************************************
 	public void validateClassFrequencies() throws DiscriminantAnalysisException {		
 		if ( classFrequencies == null ) {
 			throw new DiscriminantAnalysisException("class frequencies not computed (set input classification variable)");
+		}
+	}
+	
+	//*************************************************************************
+	// Name    : validateNumObjects
+	// 
+	// Purpose : check to see if the numObjects attribute has been set
+	// 
+	// Notes   : numObjects is equal to the number of rows of the 
+	//           predictorVariables matrix
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
+	public void validateNumObjects() throws DiscriminantAnalysisException {	
+		if ( numObjects == -1 ) {
+			throw new DiscriminantAnalysisException("number of objects in dataset not computed (input predictor variables not set)");
+		}
+	}
+	
+	//*************************************************************************
+	// Name    : validateNumFields
+	// 
+	// Purpose : check to see if the numFields attribute has been set
+	// 
+	// Notes   : numFields is equal to the number of columns of the 
+	//           predictorVariables matrix (the number of attributes)
+	//           throws a new DiscriminantAnalysisException if it has not been  set
+	// 
+	//*************************************************************************
+	public void validateNumFields() throws DiscriminantAnalysisException {	
+		if ( numFields == -1 ) {
+			throw new DiscriminantAnalysisException("number of fields in predictor variables not computed (input predictor variables not set)");
+		}
+	}
+	
+	//*************************************************************************
+	// Name    : validateFieldIndices
+	// 
+	// Purpose : check to see if the fieldIndices array has been computed
+	// 
+	// Notes   : fieldIndices is an array containing the indices of fields in
+	//           the predictorVariables matrix
+	//           throws a new DiscriminantAnalysisException if it has not been set
+	// 
+	//*************************************************************************
+	public void validateFieldIndices() throws DiscriminantAnalysisException {	
+		if ( fieldIndices == null ) {
+			throw new DiscriminantAnalysisException("field indices not computed (input predictor variables not set)");
 		}
 	}
 	
@@ -218,7 +331,7 @@ public class DiscriminantAnalysis {
 	// 
 	//*************************************************************************
 	public void validatePriorProbabilities() throws DiscriminantAnalysisException {
-		if ( priorProbabilities== null ) {
+		if ( priorProbabilities== null || logPriorProbabilities == null ) {
 			throw new DiscriminantAnalysisException("input prior probabilities not set");
 		}
 	}
@@ -312,17 +425,20 @@ public class DiscriminantAnalysis {
 	//*************************************************************************
 	// Name    : setPredictorVariables
 	// 
-	// Purpose : set the predictor (independent) variables.
+	// Purpose : set the predictor (independent) variables, numObjects (number of objects),
+	//           numFields (the number of variables) and the fieldIndices array (holds
+	//           indices of each column)
 	// 
 	// Notes   : rowOrder is set to true if the first dimension of predictorVariables
 	//           contains the rows (observations). If rowOrder is set to false
 	//           the first dimension of predictorVariables refers to columns (attributes)
 	//           if standardize is set to true, also standardize predictorVariables
-	//           create array of size zero in case of an error 
+	//           create arrays of size zero and sets int fields to zero in case of an error 
 	// 
 	//*************************************************************************
 	public void setPredictorVariables(double[][] predictorVariables,
 					boolean rowOrder, boolean standardize) {
+	
 		try {
 			
 			// may also need to standardize the input variables
@@ -338,6 +454,18 @@ public class DiscriminantAnalysis {
 					MatrixUtils.createRealMatrix(predictorVariables).transpose();
 			}
 			
+			// compute the number of objects (rows)
+			numObjects = this.predictorVariables.getRowDimension();
+			
+			// compute the number of variables (columns)
+			numFields = this.predictorVariables.getColumnDimension();
+			
+			// compute the field indices array and populate it
+			fieldIndices = new int[numFields];		
+			for(int j = 0; j < numFields; j++) {
+				fieldIndices[j] = j; 
+			}
+			
 			// save the rowOrder for use by getPredictorVariables
 			// want to return the predictorVariables in the same format that
 			// they were read in
@@ -347,6 +475,9 @@ public class DiscriminantAnalysis {
 			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			this.predictorVariables = new Array2DRowRealMatrix(0,0);
+			fieldIndices = new int[0];
+			numObjects = 0;
+			numFields = 0;
 		} 	
 	}
 	 
@@ -377,13 +508,13 @@ public class DiscriminantAnalysis {
 	// 
 	// Purpose : returns the number of predictor (independent) variables
 	// 
-	// Notes   : throws a DiscriminantAnalysisException object if predictorVariables 
-	//           are not set
+	// Notes   : throws a DiscriminantAnalysisException object if numFields 
+	//           is not set
 	// 
 	//*************************************************************************
 	public int getNumAttributes() throws DiscriminantAnalysisException {
-		validatePredictorVariables();
-		return predictorVariables.getColumnDimension();
+		validateNumFields();
+		return numFields;
 	}
 	
 	//*************************************************************************
@@ -391,13 +522,13 @@ public class DiscriminantAnalysis {
 	// 
 	// Purpose : returns the number of observations/objects to classify
 	// 
-	// Notes   : throws a DiscriminantAnalysisException object if predictorVariables 
-	//           are not set
+	// Notes   : throws a DiscriminantAnalysisException object if numObjects 
+	//           is not set
 	// 
 	//*************************************************************************
 	public int getNumObservations() throws DiscriminantAnalysisException {
-		validatePredictorVariables();
-		return predictorVariables.getRowDimension();
+		validateNumObjects();
+		return numObjects;
 	}
 	
 	//*************************************************************************
@@ -422,6 +553,9 @@ public class DiscriminantAnalysis {
 		// compute class frequencies
 		setClassFrequencies();
 		
+		// compute class indices
+		setClassIndices();
+		
 	}
 	
 	//*************************************************************************
@@ -442,18 +576,25 @@ public class DiscriminantAnalysis {
 	// Name    : setPriorProbabilities
 	// 
 	// Purpose : sets the prior probabilities based on the contents of the 
-	//           input array
+	//           input array. Also sets the log prior probabilities vector.
 	// 
-	// Notes   : creates zero length vector in case of an error
+	// Notes   : creates zero length vectors in case of an error
 	// 
 	//*************************************************************************
 	public void setPriorProbabilities(double[] priorProbabilities) {
 		try{
+			
+			// set the prior probabilities vector
 			this.priorProbabilities = new ArrayRealVector(priorProbabilities);
+			
+			// compute the log of the prior probabilities
+			this.logPriorProbabilities = this.priorProbabilities.mapLog();
+				
 		} catch (Exception e) {
 			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			this.priorProbabilities = new ArrayRealVector();
+			this.logPriorProbabilities = new ArrayRealVector();
 		} 
 	}
 	
@@ -462,23 +603,19 @@ public class DiscriminantAnalysis {
 	// 
 	// Purpose : sets the prior probabilities to be equal (1 / number of classes)
 	//
-	// Notes   : throws a DiscriminantAnalysisException if uniqueClasses has not 
-	//           set
-	//           creates zero length vector in case of an error
+	// Notes   : throws a DiscriminantAnalysisException if numClasses has not 
+	//           been set. creates zero length vector in case of an error
 	// 
 	//*************************************************************************
 	public void setPriorProbabilities() throws DiscriminantAnalysisException {
 		
-		validateUniqueClasses();
-		int numClasses = uniqueClasses.length;
+		validateNumClasses();
 		
-		try{
-			this.priorProbabilities = new ArrayRealVector(numClasses, (1 / (double)numClasses));
-		} catch (Exception e) {
-			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			this.priorProbabilities = new ArrayRealVector();
-		}
+		double priorProb = (1 / (double)numClasses);
+		double[] priorProbs = new double[numClasses];
+		Arrays.fill(priorProbs, priorProb);
+			
+		setPriorProbabilities(priorProbs);
 	}
 
 	//*************************************************************************
@@ -647,18 +784,19 @@ public class DiscriminantAnalysis {
 	// Purpose : return the random classification accuracy ( result of 
 	//           classification based solely on class frequencies)
 	// 
-	// Notes   : throws a DiscriminantAnalysisException object if the classification
-	//           or classFrequencies arrays are not set
+	// Notes   : throws a DiscriminantAnalysisException object if the classification,
+	//           classFrequencies arrays or numClasses are not set
 	// 
 	//*************************************************************************
 	public double getRandomClassificationAccuracy() throws DiscriminantAnalysisException {
 		
 		validateClassification();
 		validateClassFrequencies();
+		validateNumClasses();
 			
 		double randomClassAccuracy = 0;
 		
-		for ( int i = 0; i < classFrequencies.length; i++) {
+		for ( int i = 0; i < numClasses; i++) {
 			randomClassAccuracy += Math.pow(( (double)classFrequencies[i] / (double)classification.length),2);
 		}
 		
@@ -673,18 +811,64 @@ public class DiscriminantAnalysis {
 	// Name    : setUniqueClasses
 	// 
 	// Purpose : compute the uniqueClasses (class labels) from the classification array
+	//           also compute the number of classes and the classIndices
 	// 
 	// Notes   : throws a DiscriminantAnalysisException object if 
 	//           the classification array is not set
 	//           uniqueClasses set to zero length array if an error occurs
+	//           numClasses set to zero
+	//           classIndices is a zero length array list
 	// 
 	//*************************************************************************
-	private void setUniqueClasses() throws DiscriminantAnalysisException {
+	protected void setUniqueClasses() throws DiscriminantAnalysisException {
 		
-		// check to see if the classification attribute has been set
-		// cannot execute this method until it has been set
 		validateClassification();
+		
 		uniqueClasses = NCGStatUtils.getUniqueItems(classification);
+		
+		// compute the number of unique classes
+		numClasses = uniqueClasses.length;
+		
+	}
+	
+	//*************************************************************************
+	// Name    : setClassIndices
+	// 
+	// Purpose : compute the classIndices (indices of each class in
+	//           the classification array)
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if the
+	//           classification, numClasses, classFrequences or uniqueClasses
+	//           attributes are not set
+	//           uniqueClasses set to zero length array if an error occurs
+	//           numClasses set to zero
+	//           classIndices is a zero length array list
+	// 
+	//*************************************************************************
+	protected void setClassIndices() throws DiscriminantAnalysisException {
+		
+		validateNumClasses();
+		validateClassFrequencies();
+		validateClassification();
+		validateUniqueClasses();
+		
+		// compute indices of items in each class and store in a list of int[] arrays
+		// this way we don't have to compute them each time
+		classIndices = new ArrayList<int[]>();
+		
+		for ( int c = 0; c < numClasses; c++ ) {
+			
+			int[] classIndicesArray = new int[classFrequencies[c]];
+			
+			int j=0;
+			for(int i = 0; i < classification.length; i++) {
+				if ( classification[i] == uniqueClasses[c] ) {
+					classIndicesArray[j++] = i;
+				}
+			}
+			
+			classIndices.add(classIndicesArray);		
+		}
 		
 	}
 	
@@ -706,20 +890,28 @@ public class DiscriminantAnalysis {
 	// Name    : setClassFrequencies
 	// 
 	// Purpose : compute the classFrequencies array which is derived from the
-	//           classification and uniqeclasses arrays
+	//           classification array
 	// 
 	// Notes   : throws a DiscriminantAnalysisException object if the classification
-	//           and uniqueClasses arrays are not set. Sets the classFrequencies
-	//           array to zero length array in case of an error.
+	//           array is not set or if any class contains less 
+	//           than two objects. Sets the classFrequencies array to zero length 
+	//           array in case of an error.
 	// 
 	//*************************************************************************
 	private void setClassFrequencies() throws DiscriminantAnalysisException {
 		
-		// check to see if the classification array has been set
-		// cannot continue if this is not set
-		validateClassification();		
+		validateClassification();
+		
 		classFrequencies = NCGStatUtils.getFrequencies(classification);
 		
+		// make sure that each class contains at least two observations
+		// cannot compute covariance matrix for less than two observations per class.
+		for (int j=0; j < classFrequencies.length; j++) {
+			if (classFrequencies[j] < 2) {
+				throw new DiscriminantAnalysisException("cannot compute covariance matrix for less than two observations");
+			}
+		}
+				
 	}
 
 	//*************************************************************************
@@ -742,15 +934,13 @@ public class DiscriminantAnalysis {
 	// Purpose : return integer array of row indices for the classIndex th class in the
 	//           uniqueClasses array
 	// 
-	// Notes   : throws a DiscriminantAnalysisException object if classification/uniqueClasses or 
-	//           classFrequencies are not set
+	// Notes   : throws a DiscriminantAnalysisException object if 
+	//           classification/uniqueClasses or classFrequencies are not set
 	//           returns a zero length array of ints in case of an error
 	// 
 	//*************************************************************************
-	protected int[] computeClassIndices(int classIndex) throws DiscriminantAnalysisException {
+	/*protected int[] computeClassIndices(int classIndex) throws DiscriminantAnalysisException {
 		
-		// check to see if the classification, uniqueClasses & classFrequencies attributes have been set
-		// cannot continue until they are set
 		validateClassification();
 		validateUniqueClasses();
 		validateClassFrequencies();
@@ -777,67 +967,31 @@ public class DiscriminantAnalysis {
 		}
 				
 		return classRowIndices;
-	}	
-	
-	//*************************************************************************
-	// Name    : computeFieldIndices
-	// 
-	// Purpose : return integer array of column (field) indices
-	// 
-	// Notes   : throws a DiscriminantAnalysisException object if predictor 
-	//           variables are not set
-	//           returns zero length array in case of an error
-	// 
-	//*************************************************************************
-	protected int[] computeFieldIndices() throws DiscriminantAnalysisException {
+	}*/	
 		
-		// check to see if predictorVariables have been set
-		// cannot continue unti this has been set
-		validatePredictorVariables();
-		
-		int[] colIndices = null;
-		
-		try {
-			
-			colIndices = new int[predictorVariables.getColumnDimension()];
-			
-			for(int j = 0; j < colIndices.length; j++) {
-				colIndices[j] = j; 
-			}
-			
-		} catch (Exception e) {
-			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
-			e.printStackTrace();
-			colIndices = new int[0];
-		} 
-		
-		return colIndices;
-	}
-	
 	//*************************************************************************
 	// Name    : getClassMean
 	// 
 	// Purpose : compute mean vector for class with index classIndex in the
 	//           uniqueClasse array.
 	// 
-	// Notes   : throws a DiscriminantAnalysisException object if not set. 
+	// Notes   : throws a DiscriminantAnalysisException object if the 
+	//           predictorVariables, fieldIndices, numFields or classIndices are not set. 
 	//           returns zero length vector in case of an error
 	// 
 	//*************************************************************************
 	protected RealVector getClassMean(int classIndex) throws DiscriminantAnalysisException {
 		
-		// check to see if predictorVariables have been set
-		// cannot continue unti this has been set
 		validatePredictorVariables();
+		validateFieldIndices();
+		validateNumFields();
+		validateClassIndices();
 		
 		// vector reference to hold class means
 		RealVector classMeansVector = null;
 		
-		// compute field indices
-		int[] fieldIndices = computeFieldIndices();
-
-		// compute row indices for class 'classIndex'
-		int[] classRowIndices = computeClassIndices(classIndex);
+		// get the row indices for class 'classIndex'
+		int[] classRowIndices = classIndices.get(classIndex);
 		
 		try {
 		
@@ -846,9 +1000,9 @@ public class DiscriminantAnalysis {
 				predictorVariables.getSubMatrix(classRowIndices,fieldIndices);
 	
 			// assign memory for group means
-			double[] groupMeans = new double[predC.getColumnDimension()];
+			double[] groupMeans = new double[numFields];
 				
-			for ( int j = 0; j < groupMeans.length; j++ ) {	
+			for ( int j = 0; j < numFields; j++ ) {	
 					groupMeans[j] = StatUtils.mean(predC.getColumn(j));
 			}
 			
@@ -870,43 +1024,32 @@ public class DiscriminantAnalysis {
 	// Purpose : compute covariance matrix for the class with index classIndex
 	//           in the array unique classes. 
 	// 
-	// Notes   : throws a DiscriminantAnalysisException object if the predictor variables
-	//           are not set or if there are less than two observations/objects.
+	// Notes   : throws a DiscriminantAnalysisException object if the
+	//           predictorVariables, fieldIndices, classIndices or numFields
+	//           are not set.
 	//           Return zero length matrix in case of an error
 	// 
 	//*************************************************************************
 	private RealMatrix getCovarianceMatrix(int classIndex) throws DiscriminantAnalysisException {
 		
-		// check to see if predictorVariables have been set
-		// cannot continue unti this has been set
 		validatePredictorVariables();
-				
-		// compute field indices
-		int[] fieldIndices = computeFieldIndices();
-		
-		// check to make sure that there are least two fields
-		//if ( fieldIndices.length < 2 ) {
-		//	throw new DiscriminantAnalysisException("cannot compute covariance matrix for less than two fields");
-		//}
-
-		// compute row indices for class 'classIndex'
-		int[] classRowIndices = computeClassIndices(classIndex);
-		
-		// check to make sure that there are least two observations
-		if ( classRowIndices.length < 2 ) {
-			throw new DiscriminantAnalysisException("cannot compute covariance matrix for less than two observations");
-		}
-		
+		validateFieldIndices();
+		validateClassIndices();
+		validateNumFields();
+					
 		// reference to covariance matrix
 		RealMatrix covMatrix = null;
 		
 		try {
-				
+			
+			// compute row indices for class 'classIndex'
+			int[] classRowIndices = classIndices.get(classIndex);
+							
 			// compute sub matrix for class 'classIndex'
 			RealMatrix predC = 
 				predictorVariables.getSubMatrix(classRowIndices,fieldIndices);
 			
-			if ( fieldIndices.length > 1) {
+			if ( numFields > 1) {
 				// compute covariance matrix for class 'classIndex' if we have more than 1 attribute
 				Covariance c = new Covariance(predC);
 				covMatrix = c.getCovarianceMatrix();
@@ -932,27 +1075,23 @@ public class DiscriminantAnalysis {
 	// Purpose : compute the pooled class covariance matrix. Return null if an 
 	//           error occurs
 	// 
-	// Notes   : throws a DiscriminantAnalysisException object if predictor 
-	//           variables/unique classes/class frequencies are not set
+	// Notes   : throws a DiscriminantAnalysisException object if the 
+	//           classFrequencies, numFields, numClasses or numObjects are not set
 	//           returns zero size matrix in case of an error
 	// 
 	//*************************************************************************
 	private RealMatrix getPooledCovMatrix() throws DiscriminantAnalysisException {
 		
-		// check to see if predictorVariables, uniqueClasses & classFrequencies have been set
-		// cannot continue until these have been set
-		validatePredictorVariables();
-		validateUniqueClasses();
 		validateClassFrequencies();
+		validateNumFields();
+		validateNumClasses();
+		validateNumObjects();
 		
 		// reference to pooled class covariance matrix
 		RealMatrix pooledCovMatrix = null;
 		
 		try {
 				
-			// get number of fields
-			int numFields = predictorVariables.getColumnDimension();
-
 			// assign memory for pooled sum of squares matrix
 			// java arrays values are automatically set to zero
 			RealMatrix pooledSumSquares = 
@@ -961,7 +1100,7 @@ public class DiscriminantAnalysis {
 			// get indices for each class in turn and compute the 
 			// total sum of squares (in order to compute the pooled
 			// class covariance matrix
-			for( int classIndex = 0; classIndex < uniqueClasses.length; classIndex++ ) {
+			for( int classIndex = 0; classIndex < numClasses; classIndex++ ) {
 			
 				// compute covariance matrix for the class with index
 				// classIndex in the array returned by getClasses()
@@ -984,7 +1123,7 @@ public class DiscriminantAnalysis {
 						
 			// compute the covariance matrix (maximum likelihood version)
 			pooledCovMatrix = pooledSumSquares.scalarMultiply(
-								1.0 / predictorVariables.getRowDimension());
+								(1.0 / numObjects));
 				
 		} catch (Exception e) {
 			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
@@ -1001,18 +1140,17 @@ public class DiscriminantAnalysis {
 	// 
 	// Purpose : compute the confusion matrix. 
 	// 
-	// Notes   : throws a DiscriminantAnalysisException Object if not set
+	// Notes   : throws a DiscriminantAnalysisException Object if 
+	//           classifed, classification, numClasses or numObjects are not set
 	//           returns a 2d array of zeros in case of an error
 	// 
 	//*************************************************************************
 	public int[][] confusionMatrix() throws DiscriminantAnalysisException {
 		
-		
-		// check to see if classification, classified and uniqueClasses have been set
-		// cannot continue until these have been set
 		validateClassification();
-		validateUniqueClasses();
 		validateClassified();
+		validateNumClasses();
+		validateNumObjects();
 		
 		int[][] cMatrix = null;
 		
@@ -1020,16 +1158,13 @@ public class DiscriminantAnalysis {
 			
 			// create the confusion matrix and set the 
 			// values are set to zero initially by default in java
-			cMatrix = new int[uniqueClasses.length][uniqueClasses.length];
-			
-			// number of objects classified
-			int numObjects = classified.length;
-				
+			cMatrix = new int[numClasses][numClasses];
+						
 			// compute confusion matrix
 			for ( int c = 0; c < numObjects; c++) {
 				
-				for ( int i = 0; i < uniqueClasses.length; i++) {
-					for ( int j = 0; j < uniqueClasses.length; j++) {
+				for ( int i = 0; i < numClasses; i++) {
+					for ( int j = 0; j < numClasses; j++) {
 						if ( classification[c] == uniqueClasses[i]) {		
 							// object in row c belongs to uniqueClasses[i]
 							if ( classified[c] == uniqueClasses[j]) {
@@ -1044,7 +1179,7 @@ public class DiscriminantAnalysis {
 			
 			// compute classification accuracy
 			double classAccuracy = 0.0;
-			for ( int i = 0; i < uniqueClasses.length; i++) {		
+			for ( int i = 0; i < numClasses; i++) {		
 				classAccuracy += cMatrix[i][i];
 			}
 			classificationAccuracy = classAccuracy / numObjects;
@@ -1103,22 +1238,25 @@ public class DiscriminantAnalysis {
 	// Purpose : computes the parameters for a linear discriminant analysis 
 	//           classifier 
 	// 
-	// Notes   : returns a zero length vector if an error occurs
+	// Notes   : throws a DiscriminantAnalysisException if the number of fields
+	//           is not set or prior probabilities are not set.
+	//           returns a zero length vector if an error occurs
 	// 
 	//*************************************************************************
-	protected RealVector computeLDAParameters(RealMatrix covInv, RealVector mean, double priorProbability)  {
+	protected RealVector computeLDAParameters(RealMatrix covInv, RealVector mean, int c) throws DiscriminantAnalysisException  {
 				
-		// reference to matrix containing the paramaters
+		validateNumFields();
+		validatePriorProbabilities();
+		
+		// reference to vector containing the new parameters
 		RealVector params = null;
 		
 		try {
-			
-			int numVars = mean.getDimension();
-			
-			params = new ArrayRealVector(numVars+1);
+				
+			params = new ArrayRealVector(numFields+1);
 			
 			RealVector paramsNoIntercept = covInv.preMultiply(mean);
-			double intercept = (mean.dotProduct(paramsNoIntercept) * (-0.5)) + Math.log(priorProbability);
+			double intercept = (mean.dotProduct(paramsNoIntercept) * (-0.5)) + logPriorProbabilities.getEntry(c);
 			params.setEntry(0, intercept);
 			params.setSubVector(1, paramsNoIntercept);
 								
@@ -1132,7 +1270,7 @@ public class DiscriminantAnalysis {
 	}
 	
 	//*************************************************************************
-	// Name    : classifyObservation
+	// Name    : assignObservationToClass
 	// 
 	// Purpose : classifies an observation with mahalanobis distances mhDistance2
 	//           returns the label of the assigned class as given in the 
@@ -1143,7 +1281,7 @@ public class DiscriminantAnalysis {
 	//           returns -1 if an error occurs
 	// 
 	//************************************************************************
-	protected int classifyObservation(RealVector mhDistance2) throws DiscriminantAnalysisException {
+	protected int assignObservationToClass(RealVector mhDistance2) throws DiscriminantAnalysisException {
 		
 		validatePriorProbabilities();
 		validateUniqueClasses();
@@ -1151,12 +1289,9 @@ public class DiscriminantAnalysis {
 		int classLabel = -1;
 		
 		try {
-			
-			// compute the log of the prior probabilities
-			RealVector logPriorProbabilites = priorProbabilities.mapLog();
-			
+						
 			// subtract the log of the prior probabilities from the mahalanobis distance squared vector
-			double[] mh2Classes = mhDistance2.mapDivide(2).subtract(logPriorProbabilites).getData();
+			double[] mh2Classes = mhDistance2.mapDivide(2).subtract(logPriorProbabilities).getData();
 			
 			// identify the class index
 			int classIndex = NCGStatUtils.getMin(mh2Classes);
@@ -1172,51 +1307,70 @@ public class DiscriminantAnalysis {
 		
 		return classLabel;
 	}
+	
+	//*************************************************************************
+	// Name    : createOutputArrays
+	// 
+	// Purpose : assign memory for the output arrays / matrices 
+	//           (mahalanobisDistance2, posteriorProbabilities, parameters
+	//           and classified)
+	// 
+	// Notes   : throws any exceptions encountered during the assignment
+	// 
+	//*************************************************************************
+	protected void createOutputArrays() throws Exception {
+		
+		validateNumObjects();
+		validateNumFields();
+		
+		// assign memory or mahalanobis distance squared matrix
+		mahalanobisDistance2 = MatrixUtils.createRealMatrix(numObjects,numClasses);
+		
+		// assign memory for parameters (coefficients)
+		parameters = MatrixUtils.createRealMatrix(numFields+1,numClasses);
+			
+		// assign memory for classified array
+		classified = new int[numObjects];
+			
+		// assign memory for posterior probabilities for each class
+		posteriorProbabilities = MatrixUtils.createRealMatrix(numObjects,numClasses);
+			
+	}
 		
 	//*************************************************************************
 	// Name    : classify
 	// 
 	// Purpose : classify the predictor (independent) variables
 	// 
-	// Notes   : throws a DiscriminantAnalysisException Object if not set
-	//           sets classifed array, parameters matrix, posteriorProbabilites matrix and 
-	//           mahalanobisDistance2 matrix to empty zero length arrays
+	// Notes   : throws a DiscriminantAnalysisException Object if 
+	//           predictorVariables, numObjects or numClasses are not set
+	//           sets classified array, parameters matrix, posteriorProbabilites matrix 
+	//           and mahalanobisDistance2 matrix to empty zero length arrays
 	//           in case of an error.
 	// 
 	//*************************************************************************
 	public void classify() throws DiscriminantAnalysisException {
 		
-		// check to see if predictorVariables, priorProbabilites and uniqueClasses have been set
-		// cannot continue until these have been set
-		validatePredictorVariables();
-		validateUniqueClasses();
-		validatePriorProbabilities();
+		validatePredictorVariables();		
+		validateNumObjects();
+		validateNumClasses();
 				
 		try {
-			
-			int numObjects = predictorVariables.getRowDimension();
-			int numFields = predictorVariables.getColumnDimension();
-			int numClasses = uniqueClasses.length;
 						
+			//assign memory for output variables	 
+			createOutputArrays();
+									
 			// create pooled group covariance matrix (maximum likelihood version)
 			RealMatrix pooledCovMatrix = getPooledCovMatrix();
 
-			// compute inverse of pooled group covariance matrix
-			// (if it exists!)
-			LUDecomposition inv = new LUDecompositionImpl(pooledCovMatrix);	
-			DecompositionSolver solver = inv.getSolver();
+			// compute inverse of pooled group covariance matrix (if it exists)
+			DecompositionSolver solver = (new LUDecompositionImpl(pooledCovMatrix)).getSolver();
 			
+			// check to see if covariance matrix is invertible
 			if ( solver.isNonSingular() ) {
 				
-				RealMatrix pooledCovMatrixInv = inv.getSolver().getInverse();
-
-				
-				// assign memory for mahalanobis distance squared
-				mahalanobisDistance2 = 
-					MatrixUtils.createRealMatrix(numObjects,numClasses);
-			
-				// assign memory for parameters (coefficients)
-				parameters = MatrixUtils.createRealMatrix(numFields+1,numClasses);
+				// compute the inverse of the pooled class covariance matrix
+				RealMatrix pooledCovMatrixInv = solver.getInverse();
 
 				// compute mahalanobis distance squared for each class
 				for( int c = 0; c < numClasses; c++ ) {
@@ -1235,29 +1389,21 @@ public class DiscriminantAnalysis {
 					}
 					
 					// compute the parameters (classification function coefficients)
-					RealVector params = computeLDAParameters(pooledCovMatrixInv,classMeans,
-													priorProbabilities.getEntry(c));
+					RealVector params = computeLDAParameters(pooledCovMatrixInv,classMeans,c);
 					parameters.setColumnVector(c, params);
 								
 				}
-				
-				// assign memory for classified array
-				classified = new int[numObjects];
-				
-				// assign memory for posterior probabilities for each class
-				posteriorProbabilities = MatrixUtils.createRealMatrix(numObjects,numClasses);
-			
+							
 				// classify each observation and compute posterior probabilities
 				for (int i = 0; i < numObjects; i++) {
 					
 					// classify the current observation
-					classified[i] = classifyObservation(mahalanobisDistance2.getRowVector(i));
+					classified[i] = assignObservationToClass(mahalanobisDistance2.getRowVector(i));
 					
 					// compute the posterior probabilities for the current observation
 					RealVector postProbs = computePosteriorProbabilities(mahalanobisDistance2.getRowVector(i));			
 					posteriorProbabilities.setRowVector(i, postProbs);
-					
-					
+						
 				}
 				
 			} else {

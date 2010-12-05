@@ -2,7 +2,9 @@ package ncg.statistics;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -33,19 +35,19 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	 */
 	
 	// matrix to hold distances from each object to every other object
-	protected RealMatrix distanceMatrix = null;
+	protected transient RealMatrix distanceMatrix = null;
 	
 	// number of nearest neighbours to use for gwda
-	protected int numNearestNeighbours = DEFAULT_NUM_NEAREST_NEIGHBOURS;
+	protected transient int numNearestNeighbours = DEFAULT_NUM_NEAREST_NEIGHBOURS;
 	
 	// set to true if number of nearest neighbours is to be chosen using cross validation
-	protected boolean useCrossValidation = false;
+	protected transient boolean useCrossValidation = false;
 	
 	// holds type of cross validation method to use for gwda
-	protected int crossValidationMethod = NCGStatUtils.CROSS_VALIDATION_LIKELIHOOD;
+	protected transient int crossValidationMethod = NCGStatUtils.CROSS_VALIDATION_LIKELIHOOD;
 	
 	// kernel function to use for gwda
-	protected int kernelFunctionType = NCGStatUtils.BISQUARE_KERNEL;
+	protected transient int kernelFunctionType = NCGStatUtils.BISQUARE_KERNEL;
 	
 	/*
 	 * internal variables
@@ -53,7 +55,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	
 	// classIndices is a list of integer arrays which contain the indices of 
 	// items in each class. This is set by the setClassIndices method.
-	protected List<int[]> classIndices = null;
+	//protected transient List<int[]> classIndices = null;
 	
 	//logger object
 	protected final static Logger logger = 
@@ -97,23 +99,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	 * if they are not set then a DiscriminantAnalysisException object is thrown
 	 */
 	
-	//*************************************************************************
-	// Name    : validateClassIndices
-	// 
-	// Purpose : check to see if the classIndices attribute has been set
-	// 
-	// Notes   : classIndices is a list of integer arrays whose length
-	//           is equal to the number of classes. Each integer array 
-	//           contains the indices of objects in the respecive class
-	//           this allows indexing into the distance matrix and predictor
-	//           variables matrix
-	// 
-	//*************************************************************************
-	protected void validateClassIndices() throws DiscriminantAnalysisException {		
-		if ( classIndices == null ) {
-			throw new DiscriminantAnalysisException("class indices list not set");
-		}
-	}
+	
 	
 	//*************************************************************************
 	// Name    : validateDistanceMatrix
@@ -201,29 +187,6 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	 * methods to set class variables
 	 */
 	
-	//*************************************************************************
-	// Name    : setClassIndices
-	// 
-	// Purpose : sets the classIndices list. 
-	// 
-	// Notes   : This is a list of int arrays. The
-	//           size of the classIndices list is equal to the number of classes.
-	//           the int array contains the indices of items in that class. 
-	//           these indices are required to index into the distance matrix
-	//           and the predictor variables matrix
-	//
-	//*************************************************************************
-	protected void setClassIndices() throws DiscriminantAnalysisException {
-		
-		validateUniqueClasses();
-		
-		// compute indices of items in each class and store in a list of int[] arrays
-		// this way we dont' have to comput them each time
-		classIndices = new ArrayList<int[]>();
-		for ( int j = 0; j < uniqueClasses.length; j++ ) {
-			classIndices.add(computeClassIndices(j));		
-		}
-	}
 	
 	//*************************************************************************
 	// Name    : setDistanceMatrix
@@ -344,7 +307,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	// 
 	// Notes   : crossValidationMethod defines the method used to select
 	//           the optimum number of nearest neighbours ( cross validation
-	//           score or cross validation liklihood)
+	//           score or cross validation likelihood)
 	//           throws a DiscrimiantAnalysisException if invalid cross validation method
 	//           is set
 	// 
@@ -353,14 +316,14 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 		validateCrossValidationMethod();
 		return crossValidationMethod;
 	}
-	
+		
 	//*************************************************************************
 	// Name    : getKernelFunctionType
 	// 
 	// Purpose : returns the value of the kernelFunctionType attribute
 	// 
 	// Notes   : kernelFunctionType defines the kernel function used to select
-	//           weights for the geographially weighted discriminanat analysis
+	//           weights for the geographically weighted discriminant analysis
 	//           (moving window or gaussian kernel)
 	//           throws a DiscriminantAnalysisException if an invalid kernel
 	//           function type is set
@@ -370,21 +333,22 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 		validateKernelFunctionType();
 		return kernelFunctionType;
 	}
-	
+		
 	//*************************************************************************
 	// Name    : computeBandwidth
 	// 
 	// Purpose : computes the bandwidth required to enclose at least numNearestNeighbours
 	//           of objectIndex in all classes
 	// 
-	// Notes   : throws a DiscriminantAnalysisException Object if uniqueClasses
-	//           or numNearestNeighbours is not set. Returns -1 if an exception
-	//           occurs
+	// Notes   : throws a DiscriminantAnalysisException Object if uniqueClasses,
+	//           numClasses, distanceMatrix, classIndices or numNearestNeighbours
+	//           are not set. Returns -1 if an exception occurs
 	// 
 	//*************************************************************************
 	protected double computeBandwidth( int objectIndex) throws DiscriminantAnalysisException {
 		
 		validateUniqueClasses();
+		validateNumClasses();
 		validateNumNearestNeighbours();
 		validateDistanceMatrix();
 		validateClassIndices();
@@ -397,7 +361,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 						
 			int[] objectIndexArr = {objectIndex};
 		
-			for ( int c = 0; c < uniqueClasses.length; c++ ) {
+			for ( int c = 0; c < numClasses; c++ ) {
 					
 				// get the distances from objectIndex to all other objects in the same class
 			 	double[] distances = distanceMatrix.getSubMatrix(objectIndexArr, classIndices.get(c)).getRow(0);
@@ -406,11 +370,21 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 			 	// note that the first distance will be 0 - the distance of objectIndex to itself
 			 	int[] distanceIndicesSorted = NCGStatUtils.sort(distances, false);
 			
-			 	// get the bandwidth required to enclose numNearestNeighbours of object with index
-			 	// objectIndex in the current class
-				int bandwithObjectIndex = distanceIndicesSorted[numNearestNeighbours+1];
+			 	// get the bandwidth required to enclose numNearestNeighbours of current object 
+			 	// this means that the bandwidth will equal the distance corresponding to the 
+			 	// (numNearestNeighbours +1) neighbour
+			 	int neighIndex = numNearestNeighbours+1;
+			 	if (neighIndex >= distanceIndicesSorted.length) {
+			 		
+			 		// first make sure that the number of nearest neighbours + 1 does not
+				 	// exceed the number of items in this class
+			 		logger.warning("class " + uniqueClasses[c] + " does not contain " + neighIndex + " neighbours" );
+			 		neighIndex = (distanceIndicesSorted.length+1 -1);
+			 	} 
+			 	
+			 	int bandwithObjectIndex = distanceIndicesSorted[neighIndex];
 				double currentBandwidth = distances[bandwithObjectIndex];
-				
+			 					
 				// is the currentBandwidth greater than the previous value?
 				if (currentBandwidth > bandwidth) {
 					bandwidth = currentBandwidth;
@@ -434,7 +408,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	//           class classIndex
 	// 
 	// Notes   : throws a DiscriminantAnalysisException Object if the 
-	//           crossValidationMethod attribute or the distanceMatrix 
+	//           crossValidationMethod, distanceMatrix or classIndices
 	//           attributes are not set. Returns a zero length array
 	//           of doubles if an exception occurs
 	// 
@@ -476,26 +450,125 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	}
 	
 	//*************************************************************************
-	// Name    : setClassification
+	// Name    : createOutputArrays
 	// 
-	// Purpose : set the classification attribute. This represents the actual
-	//           class to which each object belongs. Also computes the uniqueClasses 
-	//           and classFrequencies which are based on the contents of the classification
-	//           array
+	// Purpose : assign memory for the output arrays / matrices 
+	//           (mahalanobisDistance2, posteriorProbabilities, parameters
+	//           and classified)
 	// 
-	// Notes   :  throws a DiscriminantAnalysisException object if there is an error
-	//            setting either uniqueClasses or classFrequencies or setClassIndices
-	//            this method overrides setClassification in the super class
+	// Notes   : overridden super class method
+	//           throws any exceptions encountered during the assignment
 	// 
 	//*************************************************************************
 	@Override
-	public void setClassification(int[] classification) throws DiscriminantAnalysisException {
+	protected void createOutputArrays() throws Exception {
 		
-		// call the super class method
-		super.setClassification(classification);
+		validateNumClasses();
+		validateNumObjects();
 		
-		// set the class indices
-		setClassIndices();
+		// assign memory for mahalanobis distance squared
+		mahalanobisDistance2 = 	MatrixUtils.createRealMatrix(numObjects,numClasses);
+		
+		// assign memory for posterior probabilities for each class
+		posteriorProbabilities = MatrixUtils.createRealMatrix(numObjects,numClasses);
+		
+		// assign memory for the classification parameters
+		parameters = MatrixUtils.createRealMatrix(numObjects,(numClasses*(numFields+1))); 
+		
+		// assign memory for classified array
+		classified = new int[numObjects];
+	}
+	
+	
+	//*************************************************************************
+	// Name    : crossValidate
+	// 
+	// Purpose : performs cross validation to select optimum number of nearest
+	//           neighbours
+	// 
+	// Notes   : throws a DiscriminantAnalysisException object if the 
+	//           cross validation method is not selected
+	// 
+	//*************************************************************************
+	public void crossValidate() throws DiscriminantAnalysisException {
+		
+		if (useCrossValidation == true) {
+			
+			//validateCrossValidationMethod();
+			//validateClassification();
+			validateClassFrequencies();
+			validatePredictorVariables();
+			validateNumObjects();
+			
+			try {
+				int maxClassSizeIndex = NCGStatUtils.getMax(classFrequencies);
+				int maxClassSize = classFrequencies[maxClassSizeIndex];
+				
+				double[] classificationAccuracies = new double[maxClassSize];
+				
+				double[] sumLogPosteriorProbs = new double[maxClassSize];
+				
+				
+				// map class labels to class indices
+				Map classLabelsToIndicesMap = new HashMap();
+				for (int k=0; k < numClasses; k++) {
+					classLabelsToIndicesMap.put(Integer.valueOf(uniqueClasses[k]), 
+											Integer.valueOf(k));
+				}	
+				// classify the dataset for each of these neighbour values
+				// and compute the optimum number of nearest neighbours
+				for (int i=1; i < maxClassSize; i++) {
+					
+					// set the sum of the logs of the posterior probabilites
+					// to zero for the current observation
+					sumLogPosteriorProbs[i] = 0.0;
+					
+					// classify the data set for the current nearest neighbour
+					numNearestNeighbours = i;
+					
+					// allocate memory
+					createOutputArrays();
+					
+					// now classify each observation 
+					for ( int j = 0; j < numObjects; j++ ) {
+						
+						// we don't include the current object in the computation
+						// of the covariance matrix by setting the distance to itself
+						// to positive infinity. This falls outside all bandwidths
+						distanceMatrix.setEntry(j,j,Double.POSITIVE_INFINITY);
+						classifyObject(j);
+						
+						// set the distance for the current object to itself back to zero
+						distanceMatrix.setEntry(j,j,0.0);
+						
+						// get the index corresponding to the class label for the current
+						// object
+						Integer classLabel = Integer.valueOf(classification[j]);
+						int classIndex = ((Integer)classLabelsToIndicesMap.get(classLabel)).intValue();
+						sumLogPosteriorProbs[i] += Math.log(posteriorProbabilities.getEntry(j, classIndex));
+						
+					}
+					
+					// compute classification accuracy
+					// (requires computing confusion matrix)
+					confusionMatrix();
+					
+					// save the classification accuracy for the current bandwidth
+					classificationAccuracies[i] = classificationAccuracy;
+						
+				
+				}
+			} catch (Exception e) {
+				logger.severe(e.toString() + " : " + e.getMessage());
+				e.printStackTrace();
+			}
+			//classFrequencies
+			//int[] nearestNeighbourValues = ;
+			// go through each object in the data set and classify it for a 
+			// range of nearest neighbour values
+			//numNearestNeighbours = 99;
+		}
+		
 	}
 		
 	//*************************************************************************
@@ -512,142 +585,152 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	@Override
 	public void classify() throws DiscriminantAnalysisException {
 		
-		// check to see if predictorVariables, uniqueClasses and classIndices have been set
-		// cannot continue until these have been set
-		validatePredictorVariables();
-		validateClassIndices();
-		validateUniqueClasses();
+		validateNumObjects();
 		
+		int i = 0;
+			
 		try {
 						
-			int numObjects = predictorVariables.getRowDimension();
-			int numFields = predictorVariables.getColumnDimension();
-			int numClasses = uniqueClasses.length;
-									
-			// compute indices of fields in the predictorVariables matrix
-			int[] fieldIndices = computeFieldIndices();
+			 // assign memory for output array
+			createOutputArrays();
 			
-			/*
-			 * Assign memory for output arrays
-			 */
-			
-			// assign memory for mahalanobis distance squared
-			mahalanobisDistance2 = 	MatrixUtils.createRealMatrix(numObjects,numClasses);
-			
-			// assign memory for posterior probabilities for each class
-			posteriorProbabilities = MatrixUtils.createRealMatrix(numObjects,numClasses);
-			
-			// assign memory for the classification parameters
-			parameters = MatrixUtils.createRealMatrix(numObjects,(numClasses*(numFields+1))); 
-			
-			// assign memory for classified array
-			classified = new int[numObjects];
-			
-			/*
-			 * classify each object 
-			 */
-			for ( int i = 0; i < numObjects; i++ ) {
-								
-				// compute the bandwidth that encloses at least numNearestNeighbours neighbours
-				// of the ith object in every class
-				double bandwidth = computeBandwidth(i);									
-								
-				// create a matrix to hold the pooled geographically weighted covariance
-				// matrix for observation for ith object
-				RealMatrix pooledGWCovarianceMatrix = new Array2DRowRealMatrix(numFields,numFields);
-				
-				// create a list of vectors to hold the geographically weighted means for observation i
-				List<RealVector> gwMeans = new ArrayList<RealVector>();
-								
-				// for each class, identify all the objects around i that are enclosed within 
-				// the bandwidth and compute geographically weighted mean vectors and covariance matrices
-				for( int c = 0; c < numClasses; c++ ) {
-					
-					// get indices of items in the current class
-					int[] currentClassIndices = classIndices.get(c);
-					
-					// get current class size
-					int currentClassSize = currentClassIndices.length;
-															
-				 	// compute weights for all items in the current class based on their
-					// proximity to i, the bandwidth and the kernel function type
-				 	double[] weights = computeWeights(i, c, bandwidth);
-				 	
-				 	// get the predictor variables for items in the current class
-					RealMatrix classPredictorVariables = 
-							predictorVariables.getSubMatrix(currentClassIndices, fieldIndices);
-				 	
-				 	// get the class predictor variables in form where
-				 	// the rows are the fields and the columns are the observations
-				 	double[][] classData = classPredictorVariables.transpose().getData();
-				 	
-				 	// compute geographically weighted means 
-				 	gwMeans.add(NCGStatUtils.computeWeightedMean(classData,weights));
-				 	
-				 	// compute geographically weighted covariance matrices
-				 	RealMatrix gwCovarianceMatrix = NCGStatUtils.computeWeightedCovarianceMatrix(
-				 										classData, gwMeans.get(c).getData(), weights);
-				 	
-				 	// compute pooled geographically weighted covariance matrix iteratively
-				 	pooledGWCovarianceMatrix = pooledGWCovarianceMatrix.add(gwCovarianceMatrix.scalarMultiply(currentClassSize));
-				 	
-				}
-				
-				// fully compute pooled class covariance matrix
-				pooledGWCovarianceMatrix = pooledGWCovarianceMatrix.scalarMultiply(1.0 /numObjects);
-				
-				// compute inverse of pooled class covariance matrix (if it exists)
-				DecompositionSolver solver = (new LUDecompositionImpl(pooledGWCovarianceMatrix)).getSolver();
-								
-				// make sure that the pooled geographically weighted covariance matrix is non-singular
-				if ( solver.isNonSingular() ) {
-					
-					// compute the inverse of the pooled covariance matrix
-					RealMatrix pooledCovMatrixInv = solver.getInverse();
-					
-					// compute the mahalanobis distance squared and the LDA parameters
-					RealVector ldaParameters = new ArrayRealVector();
-					for (int c = 0; c < numClasses; c++) {
-						
-						// compute the mahalanobis distance squared from observation i to each class mean
-						double mh2 = NCGStatUtils.computeMahalanobisDistance2(
-												predictorVariables.getRowVector(i), 
-												pooledCovMatrixInv, gwMeans.get(c));
-						mahalanobisDistance2.setEntry(i,c, mh2);
-						
-						// compute the parameters (classification function coefficients)			
-						RealVector classParameters = computeLDAParameters(pooledCovMatrixInv, gwMeans.get(c),
-														priorProbabilities.getEntry(c));
-						ldaParameters = ldaParameters.append(classParameters);	
-
-					}
-					
-					
-					// save the parameters for the current observation
-					parameters.setRowVector(i, ldaParameters);
-					
-					// compute the posterior probabilities
-					RealVector postProbs = computePosteriorProbabilities(mahalanobisDistance2.getRowVector(i));			
-					posteriorProbabilities.setRowVector(i, postProbs);
-					
-					// classify the current observation
-					classified[i] = classifyObservation(mahalanobisDistance2.getRowVector(i));
-															
-				} else {
-					String message = "Singular pooled geographically weighted covariance matrix - unable to classify";
-					logger.severe(message);
-					throw new DiscriminantAnalysisException(message);
-				}					
+			// classify each object
+			for ( i = 0; i < numObjects; i++ ) {					
+				classifyObject(i);					
 			}
 					
 		} catch (Exception e) {
+						
+			logger.severe("Exception encountered classifying Observation [" + i + "] - quitting classification");
 			logger.severe(e.toString() + " : " + e.getMessage());
+			
 			e.printStackTrace();
 			
 			classified = new int[0];
-			mahalanobisDistance2 = new Array2DRowRealMatrix(0,0);
-			posteriorProbabilities = new Array2DRowRealMatrix(0,0);
-			parameters = new Array2DRowRealMatrix(0,0);
+			mahalanobisDistance2 = new Array2DRowRealMatrix();
+			posteriorProbabilities = new Array2DRowRealMatrix();
+			parameters = new Array2DRowRealMatrix();
+						
+			throw new DiscriminantAnalysisException(e.getMessage(),e.getCause()); 
 		} 
 	}
+	
+	//*************************************************************************
+	// Name    : classifyObject
+	// 
+	// Purpose : classify a specific observation with index objectIndex using
+	//           GWDA
+	// 
+	// Notes   : throws any Exceptions that occur
+	// 
+	//*************************************************************************
+	public void classifyObject(int objectIndex) throws Exception {
+		
+		// make sure that we have the necessary input variables
+		validatePredictorVariables();
+		validateClassIndices();
+		validateNumFields();
+		validateNumClasses();
+		validateClassFrequencies();
+		validateFieldIndices();
+		
+		// make sure that the output arrays are set
+		validateClassified();
+		validatePosteriorProbabilities();
+		validateMahalanobisDistance2();
+		validateParameters();
+		
+								
+		// compute the bandwidth that encloses at least numNearestNeighbours
+		// neighbours of the ith object in every class
+		double bandwidth = computeBandwidth(objectIndex);									
+							
+		// create a matrix to hold the pooled geographically weighted covariance
+		// matrix for observation for ith object
+		RealMatrix pooledGWCovarianceMatrix = new Array2DRowRealMatrix(numFields,numFields);
+			
+		// create a list of vectors to hold the geographically weighted means 
+		// for observation i
+		List<RealVector> gwMeans = new ArrayList<RealVector>();
+							
+		// for each class, identify all the objects around i that are enclosed within 
+		// the bandwidth and compute geographically weighted mean vectors and covariance matrices
+		for( int c = 0; c < numClasses; c++ ) {
+				
+			// get indices of items in the current class
+			int[] currentClassIndices = classIndices.get(c);
+			
+			// get current class size
+			int currentClassSize = classFrequencies[c];
+													
+		 	// compute weights for all items in the current class based on their
+			// proximity to i, the bandwidth and the kernel function type
+		 	double[] weights = computeWeights(objectIndex, c, bandwidth);
+		 	
+		 	// get the predictor variables for items in the current class
+			RealMatrix classPredictorVariables = 
+					predictorVariables.getSubMatrix(currentClassIndices, fieldIndices);
+		 	
+		 	// get the class predictor variables in form where
+		 	// the rows are the fields and the columns are the observations
+		 	double[][] classData = classPredictorVariables.transpose().getData();
+		 	
+		 	// compute geographically weighted means 
+		 	gwMeans.add(NCGStatUtils.computeWeightedMean(classData,weights));
+		 	
+		 	// compute geographically weighted covariance matrices
+		 	RealMatrix gwCovarianceMatrix = NCGStatUtils.computeWeightedCovarianceMatrix(
+		 										classData, gwMeans.get(c).getData(), weights);
+		 	
+		 	// compute pooled geographically weighted covariance matrix iteratively
+		 	pooledGWCovarianceMatrix = pooledGWCovarianceMatrix.add(gwCovarianceMatrix.scalarMultiply(currentClassSize));
+		 	
+		}
+			
+		// fully compute pooled class covariance matrix
+		pooledGWCovarianceMatrix = pooledGWCovarianceMatrix.scalarMultiply(1.0 /numObjects);
+				
+		// compute inverse of pooled class covariance matrix (if it exists)
+		DecompositionSolver solver = (new LUDecompositionImpl(pooledGWCovarianceMatrix)).getSolver();
+						
+		// make sure that the pooled geographically weighted covariance matrix is non-singular
+		if ( solver.isNonSingular() ) {
+			
+			// compute the inverse of the pooled covariance matrix
+			RealMatrix pooledCovMatrixInv = solver.getInverse();
+			
+			// compute the mahalanobis distance squared and the LDA parameters
+			RealVector ldaParameters = new ArrayRealVector();
+			for (int c = 0; c < numClasses; c++) {
+				
+				// compute the mahalanobis distance squared from observation i to each class mean
+				double mh2 = NCGStatUtils.computeMahalanobisDistance2(
+										predictorVariables.getRowVector(objectIndex), 
+										pooledCovMatrixInv, gwMeans.get(c));
+				mahalanobisDistance2.setEntry(objectIndex,c, mh2);
+				
+				// compute the parameters (classification function coefficients)			
+				RealVector classParameters = computeLDAParameters(pooledCovMatrixInv, gwMeans.get(c),
+												c);
+				ldaParameters = ldaParameters.append(classParameters);	
+
+			}
+				
+			// save the parameters for the current observation
+			parameters.setRowVector(objectIndex, ldaParameters);
+			
+			// compute the posterior probabilities
+			RealVector postProbs = computePosteriorProbabilities(mahalanobisDistance2.getRowVector(objectIndex));			
+			posteriorProbabilities.setRowVector(objectIndex, postProbs);
+			
+			// classify the current observation
+			classified[objectIndex] = assignObservationToClass(mahalanobisDistance2.getRowVector(objectIndex));
+													
+		} else {
+			String message = "Singular pooled geographically weighted covariance matrix";
+			throw new DiscriminantAnalysisException(message);
+		}					
+
+	}
+	
 }

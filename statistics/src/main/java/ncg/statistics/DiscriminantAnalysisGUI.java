@@ -275,52 +275,10 @@ public class DiscriminantAnalysisGUI extends JPanel
 		
 		private DiscriminantAnalysis daTask = null;
 		private DataSetForApps newDataSet = null;
-		private boolean stdIndVars = false; // set to true if we are standardizing the independent variables
-		private boolean pcaIndVars = false; // set to true if we will use pca on the  independent variables
-		private int numPCs = -1;            // this is set to the number of principal components to use
-		private boolean gwda = false;       // set to true if we are using gwda instead of lda
-		private int kernel = -1;            // specify the kernel function type (moving window or bisquare kernel)
-		private int numNN= -1;              // specify the number of nearest neighbours to use for adaptive bandwidth
-		private boolean cv = false;         // set to true if cross validation is used to select the optimum number of nearest neighbours
-		private int cvMethod = -1;          // specify the cross validation method (cross validation likelihood or cross validation score)
 		
-		
+		// constructor
 		public ClassifierThread() {
-			super();
-			
-			// is standardization required?
-			stdIndVars = standardize.isSelected();
-			
-			// is pca required?
-			if ( (pcaIndVars = doPCA.isSelected()) == true ) {
-				numPCs = (numPCAVars.getSelectedIndex() + 1);
-			}
-			
-			// is gwda required ?
-			if ( (gwda = doGWDA.isSelected()) == true) {
-				
-				// get the kernel function type (moving window or bisquare kernel)
-				kernel = kernelFunctionType.getSelectedIndex();
-				
-				// is cross-validation required to selecte the optimum
-				// number of nearest neighbours
-				if ( (cv = useCrossValidation.isSelected()) == true) {
-					cvMethod = crossValidationMethod.getSelectedIndex();
-				} else {
-					
-					// set the number of nearest neighbours
-					numNN = (numNearestNeighbours.getSelectedIndex()  + 1);
-				}
-				
-				// create GWDiscriminantAnalysis task
-				daTask = new GWDiscriminantAnalysis();
-				
-			} else {
-				
-				// create a DiscriminantAnalysis task
-				daTask = new DiscriminantAnalysis();
-			}
-			
+			super();			
 		}
 		
 		@Override
@@ -358,7 +316,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 					fireDataSetChanged(newDataSet);
 					newDataSetFired = true;
 					
-					daTask = null;					
+					//daTask = null;					
 					// run the java garbage collector
 					Runtime.getRuntime().gc();
 				}
@@ -412,10 +370,25 @@ public class DiscriminantAnalysisGUI extends JPanel
 						
 			try {
 				
-				 if ( pcaIndVars == true ) {
-					
-					// do a PCA transformation on the independent
-					// variables prior to the discriminant analysis
+				// start the classification
+				
+				String categoryName = dataSet.getColumnName(categoryIndex);
+				outputInfo.append("\nClassification " + Integer.toString(++numClassifications));
+				outputInfo.append("\n\nClassification Category : " + categoryName);
+				outputInfo.append("\nIndependent Variables (" + Integer.toString(indVarIndices.length) + ") : ");
+				for (int i=0; i < indVarIndices.length; i++) {
+					outputInfo.append("\n" + dataSet.getColumnName(indVarIndices[i]));
+				}
+				
+				
+				if ( doPCA.isSelected() == true ) {
+					 
+					// do a PCA transformation on the independent variables prior to
+					// the discriminant analysis
+					 
+					// number of principal components to use for discriminant analysis
+					int numPCs = (numPCAVars.getSelectedIndex() + 1);
+											
 					PCA pcaTask = new PCA();
 					pcaTask.setObservations(data, false, true);
 					pcaTask.transform();
@@ -423,36 +396,38 @@ public class DiscriminantAnalysisGUI extends JPanel
 					// return the first numPCs principal components
 					data = pcaTask.getPrincipalComponents(numPCs);
 					
+					outputInfo.append("\n\nClassification uses the first " + numPCs + " Prinicpal Components\n");
 				}
 				
-				// set the independent variables and standardize if required
-				daTask.setPredictorVariables(data,false,stdIndVars);
-					
-				// set the dependent variable (category)
-				daTask.setClassification(categories);
-
-				// set the prior probabilities to the default (equal)
-				daTask.setPriorProbabilities();
 				
-				// if we are doing a geographically weighted discriminant analysis
-				// we need to set some extra variables
-				if ( daTask instanceof GWDiscriminantAnalysis && gwda == true ) {
+				if ( doGWDA.isSelected() == true ) {
 					
-					//
+					// create a new geographically weighted discriminant analysis object
+					daTask = new GWDiscriminantAnalysis();	
+					outputInfo.append("\n\nClassification uses Geographically Weighted Discriminant Analysis\n");
+					
 					// set the kernel function type
-					((GWDiscriminantAnalysis)daTask).setKernelFunctionType(kernel);
-						
-					if (cv == true) {
-						// tell the classification to use cross validation to decide the 
-						// number of nearest neighbours
-						((GWDiscriminantAnalysis)daTask).setUseCrossValidation(cv);
-						
+					((GWDiscriminantAnalysis)daTask).setKernelFunctionType(kernelFunctionType.getSelectedIndex());
+					outputInfo.append("Kernel Function type is [" + 
+							NCGStatUtils.kernelFunctionTypeToString(kernelFunctionType.getSelectedIndex()) + 
+							"]");
+					
+					// do we use cross validation to select the optimum number of nearest neighbours?
+					((GWDiscriminantAnalysis)daTask).setUseCrossValidation(useCrossValidation.isSelected());
+					
+					if (useCrossValidation.isSelected() == true) {
+											
 						// set the cross validation method
-						((GWDiscriminantAnalysis)daTask).setCrossValidationMethod(cvMethod);
-						
+						((GWDiscriminantAnalysis)daTask).setCrossValidationMethod(crossValidationMethod.getSelectedIndex());
+						outputInfo.append("Selecting optimum number of nearest neighbours using cross validation\n");
+						outputInfo.append("\nCross Validation Method is ["  + 
+								NCGStatUtils.crossValidationMethodToString(crossValidationMethod.getSelectedIndex()) + 
+								"]");
 					} else {
 						// set the number of nearest neighbours
+						int numNN = (numNearestNeighbours.getSelectedIndex()  + 1);		
 						((GWDiscriminantAnalysis)daTask).setNumNearestNeighbours(numNN);
+						outputInfo.append("\nSetting number of nearest neighbours to [" + numNN + "]\n");
 					}
 					
 					// compute the polygon centroids (or coordinates of points) 
@@ -461,14 +436,32 @@ public class DiscriminantAnalysisGUI extends JPanel
 					Point2D[] centroids = NCGStatUtils.computeCentroids(dataSet);
 					((GWDiscriminantAnalysis)daTask).setDistanceMatrix(centroids);
 					
-				} 
+				} else {
 					
+					// create a DiscriminantAnalysis task
+					daTask = new DiscriminantAnalysis();
+				}
+								
+				// set the independent variables and standardize if required
+				daTask.setPredictorVariables(data,false,standardize.isSelected());
+				outputInfo.append("\n\nIndependent variables are " + 
+						((standardize.isSelected() == true ) ? "" : "NOT") + 
+						" standardized prior to classification\n");
+					
+				// set the dependent variable (category)
+				daTask.setClassification(categories);
+
+				// set the prior probabilities to the default (equal)
+				daTask.setPriorProbabilities();
+									
 				// classify the data
 				daTask.classify();
 								
 			} catch (DiscriminantAnalysisException e ){
+				outputInfo.append("ERROR: " + e.getMessage());
 				throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
 			} catch (PCAException e) {
+				outputInfo.append("ERROR:" + e.getMessage());
 				throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
 			}
 		}
@@ -491,25 +484,6 @@ public class DiscriminantAnalysisGUI extends JPanel
 				double classAccuracy = daTask.getClassificationAccuracy();
 				double randomClassAccuracy = daTask.getRandomClassificationAccuracy();
 				int numClasses = uniqueClasses.length;
-
-			
-				String categoryName = dataSet.getColumnName(categoryIndex);
-				
-				outputInfo.append("\nClassification " + Integer.toString(++numClassifications));
-				outputInfo.append("\n\nClassification Category : " + categoryName);
-				
-				outputInfo.append("\nIndependent Variables (" + Integer.toString(indVarIndices.length) + ") : ");
-				for (int i=0; i < indVarIndices.length; i++) {
-					outputInfo.append("\n" + dataSet.getColumnName(indVarIndices[i]));
-				}
-				
-				if ( stdIndVars == true ) {
-					outputInfo.append("\n\nIndpendent variables are standardized prior to classification\n");
-				}
-				
-				if (pcaIndVars == true) {
-					outputInfo.append("\n\nClassification uses the first " + numPCs + " Prinicpal Components\n");
-				}
 				
 				// confusion matrix and percentages correctly classified		
 				String confMatrixStr = "\n\nConfusion Matrix\n\n";
@@ -552,7 +526,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 						classFuncParams += String.format("%-12s", "Intercept");
 					} else {
 						
-						if ( pcaIndVars == false ) {
+						if ( doPCA.isSelected() == false ) {
 							classFuncParams += String.format("%-12s", dataSet.getColumnName(indVarIndices[i-1]));
 						} else {
 							classFuncParams += String.format("%-8s %3d", "PC", i);
@@ -590,7 +564,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 			
 			int  newDataSetSize = -1;
 			
-			if ( daTask instanceof GWDiscriminantAnalysis && gwda == true ) {		
+			if ( daTask instanceof GWDiscriminantAnalysis ) {		
 				newDataSetSize = (numAttributes + 1 + (numClasses*2) + (numClasses*(numAttributes+1)));		
 			} else {
 				newDataSetSize = (numAttributes + 1 + (numClasses*2));
@@ -622,7 +596,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 				newData[i+(numAttributes+numClasses+1)] = daTask.getPosteriorProbabilities(i);
 			}
 			
-			if(daTask instanceof GWDiscriminantAnalysis && gwda == true) {
+			if( daTask instanceof GWDiscriminantAnalysis ) {
 				
 				// get the parameters
 				double[][] params = NCGStatUtils.transpose(daTask.getParameters());
@@ -760,23 +734,25 @@ public class DiscriminantAnalysisGUI extends JPanel
 						// get an array containing the categories
 						int[] categories = (int[])dataSet.getColumnValues(categoryIndex);
 						
-						// compute the minimum category frequency
+						// compute the maximum category frequency minus one
 						int[] categoryFrequencies = NCGStatUtils.getFrequencies(categories);
-						int categoryMinIndex = NCGStatUtils.getMin(categoryFrequencies);
-						int categoryMinFrequency = categoryFrequencies[categoryMinIndex];
+						int categoryMaxIndex = NCGStatUtils.getMax(categoryFrequencies);
+						int categoryMaxFrequency = categoryFrequencies[categoryMaxIndex];
 						
-						return Integer.valueOf(categoryMinFrequency);
+						return Integer.valueOf(categoryMaxFrequency);
 					}
 					
 					@Override
 					public void done() {
 						try {
-							// get the category minimum class frequency
-							int categoryMinFrequency = get();
+							// get the category max class frequency
+							int categoryMaxFrequency = get();
 							
 							// populate the contents of the numNearestNeighbours combo box
+							// nearest neighbours options start at 1 (for first nearest neighbour)
+							// and end at categoryMaxFrequency minus one
 							numNearestNeighbours.removeAllItems();
-							for (int i = 1;i <= categoryMinFrequency; i++) {
+							for (int i = 1;i < categoryMaxFrequency; i++) {
 								numNearestNeighbours.addItem(Integer.valueOf(i));
 							}
 							

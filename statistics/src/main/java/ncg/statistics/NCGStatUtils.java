@@ -52,6 +52,58 @@ public class NCGStatUtils {
 	public static final int MOVING_WINDOW = 1;
 	
 	//*************************************************************************
+	// Name    : crossValidationMethodToString
+	// 
+	// Purpose : converts the cvMethod to a String
+	// 
+	//*************************************************************************
+	public static String crossValidationMethodToString(int cvMethod) {
+				
+		String crossValidationMethodAsString = null;
+		
+		switch (cvMethod) {
+		
+			case CROSS_VALIDATION_SCORE :
+				crossValidationMethodAsString = "cross validation score";
+				break;
+			case CROSS_VALIDATION_LIKELIHOOD : 
+				crossValidationMethodAsString = "cross validation likelihood";
+				break;
+			default : 
+				crossValidationMethodAsString = "unsupported cross validation method";
+				
+		}
+				
+		return crossValidationMethodAsString;
+	}
+	
+	
+	//*************************************************************************
+	// Name    : kernelFunctionTypeToString
+	// 
+	// Purpose : converts the kernel function type to a String
+	// 
+	//*************************************************************************
+	public static String kernelFunctionTypeToString(int kernelType) {
+		
+		String kernelFunctionTypeAsString = null;
+		
+		switch (kernelType) {
+		
+			case MOVING_WINDOW : 
+				kernelFunctionTypeAsString = "moving window";
+				break;
+			case BISQUARE_KERNEL : 
+				kernelFunctionTypeAsString = "bisquare kernel";
+				break;
+			default : 
+				kernelFunctionTypeAsString = "unsupported kernel function type";	
+		}
+		
+		return kernelFunctionTypeAsString;
+	}
+	
+	//*************************************************************************
 	// Name    : standardize
 	// 
 	// Purpose : returns z scores of data array
@@ -209,6 +261,59 @@ public class NCGStatUtils {
 		}
 	
 		return getMin(doubleItems);	
+	}
+	
+	//*************************************************************************
+	// Name    : getMax
+	// 
+	// Purpose : return the index of the maximum element in the items array 
+	//           items is an array of ints
+	// 
+	// Notes   : returns -1 if the input array is null
+	// 
+	//*************************************************************************
+	public static int getMax(int[] items) {
+		
+		double[] doubleItems = new double[items.length];
+		for (int i = 0; i < items.length; i++) {
+			doubleItems[i] = items[i];
+		}
+	
+		return getMax(doubleItems);	
+	}
+	
+	//*************************************************************************
+	// Name    : getMax
+	// 
+	// Purpose : return the index of the maximum element in the items array
+	//           items is an array of doubles
+	// 
+	// Notes   : returns -1 if the input array is null
+	// 
+	//*************************************************************************
+	public static int getMax(double[] items) {
+		
+		int minIndex = -1;
+				
+		if (items != null) {
+		
+			if ( items.length > 0) {
+				
+				minIndex = 0;
+	
+				for (int i = 1; i < items.length; i++) {
+					
+					// check to see if the current item is less
+					// than the minimum
+					if (items[i] > items[minIndex] ) {
+						minIndex = i;
+					}
+				}
+			}
+		}
+	
+		return minIndex;
+	
 	}
 	
 	//*************************************************************************
@@ -520,13 +625,12 @@ public class NCGStatUtils {
 		
 		
 		// covariance matrix
-		
 		RealMatrix weightedCovariance = null;
-		
-		
+				
 		try {
-			
+						
 			int numVars = values.length;
+			
 			int numItems = values[0].length;
 					
 			// create the covariance matrix
