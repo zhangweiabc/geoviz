@@ -72,6 +72,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 	private transient JCheckBox doGWDA = null;
 	private transient JCheckBox useCrossValidation = null;
 	private transient JComboBox crossValidationMethod = null;
+	private transient JComboBox minNumNearestNeighboursCV = null;
+	private transient JComboBox maxNumNearestNeighboursCV = null;
+	private transient JComboBox stepSizeNumNearestNeighboursCV = null;
 	private transient JComboBox kernelFunctionType = null;
 	private transient JComboBox numNearestNeighbours = null;
 	
@@ -99,7 +102,6 @@ public class DiscriminantAnalysisGUI extends JPanel
 	public DiscriminantAnalysisGUI() {
 
 		super(new BorderLayout());
-		//setPreferredSize(new Dimension(500, 400));
 		
 		// create the class variables
 		goButton = new JButton("Classify");
@@ -111,6 +113,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 		doGWDA = new JCheckBox("Use Geographical Weighting");
 		useCrossValidation = new JCheckBox("Use Cross Validation");
 		crossValidationMethod = new JComboBox();
+		minNumNearestNeighboursCV = new JComboBox();
+		maxNumNearestNeighboursCV = new JComboBox();
+		stepSizeNumNearestNeighboursCV = new JComboBox();
 		numNearestNeighbours = new JComboBox();
 		kernelFunctionType = new JComboBox();
 		indVarPicker = new VariablePicker(DataSetForApps.TYPE_DOUBLE);
@@ -152,6 +157,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 		useCrossValidation.setEnabled(false);                         // cross validation is not enabled when gwda is unchecked
 		numNearestNeighbours.setEnabled(false);                       //number of nearest neighbours is not enabled when gwda is unchecked
 		crossValidationMethod.setEnabled(false);                      // cross validation method is not enabled when gwda is unchecked
+		minNumNearestNeighboursCV.setEnabled(false);                  // minimum number of nearest neighbours for cross validation - not enabled when gwda is unchecked
+		maxNumNearestNeighboursCV.setEnabled(false);                  // maximum number of nearest neighbours for cross validation - not enabled when gwda is unchecked
+		stepSizeNumNearestNeighboursCV.setEnabled(false);             // step size for cross validation nearest neighbours is not enabled when gwda is unchecked
 		kernelFunctionType.setEnabled(false);                         // kernel function type is not enabled when gwda is unchecked
 		
 		
@@ -164,6 +172,8 @@ public class DiscriminantAnalysisGUI extends JPanel
 		doPCA.addActionListener(this);
 		doGWDA.addActionListener(this);
 		useCrossValidation.addActionListener(this);
+		minNumNearestNeighboursCV.addActionListener(this);
+		maxNumNearestNeighboursCV.addActionListener(this);
 		
 		/*
 		 * GridBagConstraints Constructor :
@@ -228,8 +238,21 @@ public class DiscriminantAnalysisGUI extends JPanel
 		gwdaArea.add(crossValidationMethod, new GridBagConstraints(1,4,1,1,0.0,0.0,
 				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		
-		//gwdaArea.add(doGWDA, BorderLayout.WEST);
+		gwdaArea.add(new JLabel("Min Number of Neighbours"),new GridBagConstraints(0,5,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		gwdaArea.add(minNumNearestNeighboursCV, new GridBagConstraints(1,5,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
 		
+		gwdaArea.add(new JLabel("Max Number of Neighbours"),new GridBagConstraints(0,6,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		gwdaArea.add(maxNumNearestNeighboursCV, new GridBagConstraints(1,6,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		
+		gwdaArea.add(new JLabel("Neighbour Step Size"),new GridBagConstraints(0,7,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+		gwdaArea.add(stepSizeNumNearestNeighboursCV, new GridBagConstraints(1,7,1,1,0.0,0.0,
+				GridBagConstraints.LINE_START,GridBagConstraints.NONE,new Insets(1,1,1,1),0,0));
+				
 		// create and add items to the menu pane
 		JPanel menuArea = new JPanel(new GridBagLayout());
 		menuArea.add(classArea,
@@ -367,6 +390,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 				logger.severe("type of column " + dataSet.getColumnName(categoryIndex) + " is not int[] as expected");
 				throw new DiscriminantAnalysisGUIException();
 			}
+			
 						
 			try {
 				
@@ -375,9 +399,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 				String categoryName = dataSet.getColumnName(categoryIndex);
 				outputInfo.append("\nClassification " + Integer.toString(++numClassifications));
 				outputInfo.append("\n\nClassification Category : " + categoryName);
-				outputInfo.append("\nIndependent Variables (" + Integer.toString(indVarIndices.length) + ") : ");
+				outputInfo.append("\nIndependent Variables (" + Integer.toString(indVarIndices.length) + ") : \n");
 				for (int i=0; i < indVarIndices.length; i++) {
-					outputInfo.append("\n" + dataSet.getColumnName(indVarIndices[i]));
+					outputInfo.append(dataSet.getColumnName(indVarIndices[i])  +"\n");
 				}
 				
 				
@@ -396,7 +420,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 					// return the first numPCs principal components
 					data = pcaTask.getPrincipalComponents(numPCs);
 					
-					outputInfo.append("\n\nClassification uses the first " + numPCs + " Prinicpal Components\n");
+					outputInfo.append("\nClassification uses the first " + numPCs + " Prinicpal Components\n");
 				}
 				
 				
@@ -404,13 +428,13 @@ public class DiscriminantAnalysisGUI extends JPanel
 					
 					// create a new geographically weighted discriminant analysis object
 					daTask = new GWDiscriminantAnalysis();	
-					outputInfo.append("\n\nClassification uses Geographically Weighted Discriminant Analysis\n");
+					outputInfo.append("\nClassification uses Geographically Weighted Discriminant Analysis\n");
 					
 					// set the kernel function type
 					((GWDiscriminantAnalysis)daTask).setKernelFunctionType(kernelFunctionType.getSelectedIndex());
-					outputInfo.append("Kernel Function type is [" + 
+					outputInfo.append("\nKernel Function type is [" + 
 							NCGStatUtils.kernelFunctionTypeToString(kernelFunctionType.getSelectedIndex()) + 
-							"]");
+							"]\n");
 					
 					// do we use cross validation to select the optimum number of nearest neighbours?
 					((GWDiscriminantAnalysis)daTask).setUseCrossValidation(useCrossValidation.isSelected());
@@ -419,10 +443,23 @@ public class DiscriminantAnalysisGUI extends JPanel
 											
 						// set the cross validation method
 						((GWDiscriminantAnalysis)daTask).setCrossValidationMethod(crossValidationMethod.getSelectedIndex());
-						outputInfo.append("Selecting optimum number of nearest neighbours using cross validation\n");
-						outputInfo.append("\nCross Validation Method is ["  + 
+						outputInfo.append("\nSelecting optimum number of nearest neighbours using cross validation\n");
+						outputInfo.append("Cross Validation Method is ["  + 
 								NCGStatUtils.crossValidationMethodToString(crossValidationMethod.getSelectedIndex()) + 
 								"]");
+						
+						// set the cross validation range (min, max and step size)
+						int minNumNNCV = ((Integer)minNumNearestNeighboursCV.getSelectedItem()).intValue();
+						int maxNumNNCV = ((Integer)maxNumNearestNeighboursCV.getSelectedItem()).intValue();
+						int numNNStepSizeCV = 0;
+						if (stepSizeNumNearestNeighboursCV.getSelectedIndex() > -1) {
+							numNNStepSizeCV = ((Integer)stepSizeNumNearestNeighboursCV.getSelectedItem()).intValue();
+						}
+												
+						((GWDiscriminantAnalysis)daTask).setMinNumNearestNeighboursCV(minNumNNCV);
+						((GWDiscriminantAnalysis)daTask).setMaxNumNearestNeighboursCV(maxNumNNCV);
+						((GWDiscriminantAnalysis)daTask).setNumNearestNeighboursStepSizeCV(numNNStepSizeCV);
+						
 					} else {
 						// set the number of nearest neighbours
 						int numNN = (numNearestNeighbours.getSelectedIndex()  + 1);		
@@ -444,7 +481,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 								
 				// set the independent variables and standardize if required
 				daTask.setPredictorVariables(data,false,standardize.isSelected());
-				outputInfo.append("\n\nIndependent variables are " + 
+				outputInfo.append("\nIndependent variables are " + 
 						((standardize.isSelected() == true ) ? "" : "NOT") + 
 						" standardized prior to classification\n");
 					
@@ -478,12 +515,19 @@ public class DiscriminantAnalysisGUI extends JPanel
 				
 				int[][] confMatrix = daTask.confusionMatrix();
 				int[] classFreq = daTask.getClassFrequencies();
-				double[][] params = daTask.getParameters();
-				int numFields = daTask.getNumAttributes();
+				//double[][] params = daTask.getParameters();
+				//int numFields = daTask.getNumAttributes();
 				int[] uniqueClasses = daTask.getUniqueClasses();
 				double classAccuracy = daTask.getClassificationAccuracy();
 				double randomClassAccuracy = daTask.getRandomClassificationAccuracy();
 				int numClasses = uniqueClasses.length;
+				
+				if ( useCrossValidation.isSelected() == true ) {
+					
+					// output the results of the cross validation if required
+					outputInfo.append("\nOptimum number of nearest neighbours from cross validaton is " + 
+							((GWDiscriminantAnalysis)daTask).getNumNearestNeighbours() + "\n");
+				}
 				
 				// confusion matrix and percentages correctly classified		
 				String confMatrixStr = "\n\nConfusion Matrix\n\n";
@@ -512,7 +556,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 						+ String.format("%5.2f", randomClassAccuracy  * 100.0) + " %");
 						
 				// write out the classification function coefficients
-				String classFuncParams = "\n\nClassification Function Parameters\n";
+				/*String classFuncParams = "\n\nClassification Function Parameters\n";
 				classFuncParams += String.format("%-12s"," ");
 				for (int j = 0; j < numClasses; j++) {
 					
@@ -539,7 +583,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 					}
 					classFuncParams += "\n";
 				}
-				outputInfo.append(classFuncParams);
+				outputInfo.append(classFuncParams);*/
 				
 			} catch (DiscriminantAnalysisException e ){
 				throw new DiscriminantAnalysisGUIException(e.getMessage(), e.getCause());
@@ -554,7 +598,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 						
 			int numClasses = daTask.getUniqueClasses().length;
 			
-			int numClassAttributes = daTask.getNumAttributes();
+			//int numClassAttributes = daTask.getNumAttributes();
 			
 			int numAttributes = dataSet.getColumnCount();
 			
@@ -564,11 +608,13 @@ public class DiscriminantAnalysisGUI extends JPanel
 			
 			int  newDataSetSize = -1;
 			
-			if ( daTask instanceof GWDiscriminantAnalysis ) {		
+			/*if ( daTask instanceof GWDiscriminantAnalysis ) {		
 				newDataSetSize = (numAttributes + 1 + (numClasses*2) + (numClasses*(numAttributes+1)));		
 			} else {
 				newDataSetSize = (numAttributes + 1 + (numClasses*2));
-			}
+			}*/
+			
+			newDataSetSize = (numAttributes + 1 + (numClasses*2));
 						
 			// allocate memory for the new data set
 			newData = new Object[newDataSetSize];
@@ -596,7 +642,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 				newData[i+(numAttributes+numClasses+1)] = daTask.getPosteriorProbabilities(i);
 			}
 			
-			if( daTask instanceof GWDiscriminantAnalysis ) {
+			/*if( daTask instanceof GWDiscriminantAnalysis ) {
 				
 				// get the parameters
 				double[][] params = NCGStatUtils.transpose(daTask.getParameters());
@@ -615,7 +661,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 					}
 				}
 				
-			}
+			}*/
 			
 			
 			DataSetForApps newDataSetForApps = new DataSetForApps(newFieldNames, newData, dataSet.getShapeData());
@@ -748,12 +794,17 @@ public class DiscriminantAnalysisGUI extends JPanel
 							// get the category max class frequency
 							int categoryMaxFrequency = get();
 							
-							// populate the contents of the numNearestNeighbours combo box
+							// populate the contents of the numNearestNeighbours combo boxes
 							// nearest neighbours options start at 1 (for first nearest neighbour)
 							// and end at categoryMaxFrequency minus one
 							numNearestNeighbours.removeAllItems();
+							minNumNearestNeighboursCV.removeAllItems();
+							maxNumNearestNeighboursCV.removeAllItems();
 							for (int i = 1;i < categoryMaxFrequency; i++) {
-								numNearestNeighbours.addItem(Integer.valueOf(i));
+								Integer numNeighbours = Integer.valueOf(i);
+								numNearestNeighbours.addItem(numNeighbours);
+								minNumNearestNeighboursCV.addItem(numNeighbours);
+								maxNumNearestNeighboursCV.addItem(numNeighbours);
 							}
 							
 						} catch (ExecutionException e) {
@@ -765,8 +816,45 @@ public class DiscriminantAnalysisGUI extends JPanel
 					}
 				}).execute();									
 			}
-	
+				
+		} else if (e.getSource() == minNumNearestNeighboursCV) {
+			
+			
+			// recalculate the maxNumNearestNeighboursCV combo box list if necessary			
+			int minNeighIndex = minNumNearestNeighboursCV.getSelectedIndex();
+					
+			if ( minNeighIndex > -1) {
+				
+				// number of items in minNumNearestNeighboursCV combo box
+				int numItems = minNumNearestNeighboursCV.getItemCount();
+							
+				maxNumNearestNeighboursCV.removeAllItems();
+				for (int i=minNeighIndex; i< numItems; i++) {					
+					maxNumNearestNeighboursCV.addItem(minNumNearestNeighboursCV.getItemAt(i));
+				}
+				
+			}
+			
+			
+		} else if (e.getSource() == maxNumNearestNeighboursCV ) { 
+			
+			// reset the step size list
+			if ( (minNumNearestNeighboursCV.getSelectedIndex() > -1) && 
+					(maxNumNearestNeighboursCV.getSelectedIndex() > -1) ) {
+				
+				int minNumNearestNeighbours = Integer.valueOf((Integer)minNumNearestNeighboursCV.getSelectedItem());
+				int maxNumNearestNeighbours = Integer.valueOf((Integer)maxNumNearestNeighboursCV.getSelectedItem());
+				
+				int neighbourRange = (maxNumNearestNeighbours - minNumNearestNeighbours);
+								
+				stepSizeNumNearestNeighboursCV.removeAllItems();
+				for (int i = 1;i <= neighbourRange; i++) {
+					stepSizeNumNearestNeighboursCV.addItem(Integer.valueOf(i));
+				}
+			}
+								
 		} else if (e.getSource() == goButton) {
+		
 			
 			// perform the classification, update the gui with diagnostics and create a new DataSetForApps object
 			// ready for broadcast in a separate  thread
@@ -801,6 +889,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 			numNearestNeighbours.setEnabled(doGWDA.isSelected());
 			useCrossValidation.setEnabled(doGWDA.isSelected());
 			crossValidationMethod.setEnabled(false);
+			minNumNearestNeighboursCV.setEnabled(false);
+			maxNumNearestNeighboursCV.setEnabled(false);
+			stepSizeNumNearestNeighboursCV.setEnabled(false);
 										
 		} else if (e.getSource() == useCrossValidation ) {
 			
@@ -808,6 +899,9 @@ public class DiscriminantAnalysisGUI extends JPanel
 			// this can only ever be checked when doGWDA checkbox is selected
 			crossValidationMethod.setEnabled(useCrossValidation.isSelected());
 			numNearestNeighbours.setEnabled(!useCrossValidation.isSelected());
+			minNumNearestNeighboursCV.setEnabled(useCrossValidation.isSelected());
+			maxNumNearestNeighboursCV.setEnabled(useCrossValidation.isSelected());
+			stepSizeNumNearestNeighboursCV.setEnabled(useCrossValidation.isSelected());
 			
 		} else if (e.getSource() == resetButton ) {
 			

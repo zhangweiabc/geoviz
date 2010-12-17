@@ -367,7 +367,7 @@ public class NCGStatUtils {
 		if (descending == false) {
 			sortedIndices = reverse(sortedIndices);
 		}
-	
+				
 		return sortedIndices;
 	
 	}
@@ -664,8 +664,8 @@ public class NCGStatUtils {
 			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			weightedCovariance = new Array2DRowRealMatrix(0,0);
-		}   
-					
+		} 
+							
 		return weightedCovariance;
 	}
 	
@@ -689,13 +689,13 @@ public class NCGStatUtils {
 		try { 
 			
 			int numVars = values.length;
-				
+											
 			// compute the sum of the weights
 			double sumWeights = (new Sum()).evaluate(weights);
-			
+									
 			// create a vector to hold the weighted means
 			weightedMeanVector = new ArrayRealVector(numVars);
-			
+						
 			// compute weighted mean for each variable in turn
 			for (int i = 0; i < numVars; i++) {
 			
@@ -710,8 +710,8 @@ public class NCGStatUtils {
 			logger.severe(e.getCause().toString() + " : " + e.toString() + " : " + e.getMessage());
 			e.printStackTrace();
 			weightedMeanVector = new ArrayRealVector();
-		}  
-			
+		}
+					
 		return weightedMeanVector;
 	}
 	
