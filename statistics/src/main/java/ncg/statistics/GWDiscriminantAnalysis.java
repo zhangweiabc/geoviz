@@ -229,7 +229,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	//
 	//*************************************************************************
 	protected void validateNumNearestNeighboursStepSizeCV() throws DiscriminantAnalysisException {
-		if ( numNearestNeighboursStepSizeCV < 1) {
+		if ( numNearestNeighboursStepSizeCV < 0) {
 			throw new DiscriminantAnalysisException("number of nearest neighbours step size for cross validation not set");
 		}
 	}
@@ -657,7 +657,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 		double bandwidth = -1.0;
 		
 		try {
-						
+									
 			int[] objectIndexArr = {objectIndex};
 					
 			for ( int c = 0; c < numClasses; c++ ) {
@@ -673,6 +673,13 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 			 	
 			 	// index for the bandwidth that encloses numNearestNeighbours of the current object
 			 	int neighIndex = numNearestNeighbours;
+			 	if (numNearestNeighbours > maxNumNeighbours) {
+			 		logger.warning("number of nearest neighbours [" + numNearestNeighbours + 
+			 				"] is greater than maximum number of nearest neighbours allowed for class [" + 
+			 				uniqueClasses[c] +"] : [" + maxNumNeighbours+ "]");
+			 		logger.warning("using maximum number of nearest neighbours ");
+			 		neighIndex = maxNumNeighbours;
+			 	}
 			 	
 			 	// is the current object to be included in the calculation of the bandwidth?
 			 	if (excludeObject == true) {
@@ -681,16 +688,12 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 			 		// Do this by checking if it is in the current class
 			 		// if it is, increment the neighIndex by one
 			 		if (classification[objectIndex] == uniqueClasses[c]) {
-			 			neighIndex++;		 			
+			 			
+			 			if (++neighIndex > maxNumNeighbours) {
+			 				logger.warning("cannot identify "  + neighIndex-- + " neighbours for class " + 
+			 						uniqueClasses[c] + " whilst excluding the object " + objectIndex);
+			 			}		 			
 			 		}
-			 	}
-			 			 	
-			 	if (numNearestNeighbours > maxNumNeighbours) {
-			 		logger.warning("number of nearest neighbours [" + numNearestNeighbours + 
-			 				"] is greater than maximum number of nearest neighbours allowed for class [" + 
-			 				uniqueClasses[c] +"] : [" + maxNumNeighbours+ "]");
-			 		logger.warning("using maximum number of nearest neighbours ");
-			 		neighIndex = maxNumNeighbours;
 			 	}
 			 	
 			 	// get the bandwidth required to enclose numNearestNeighbours neighbours
@@ -703,7 +706,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 			 	
 			 	int bandwithPrevObjectIndex = distanceIndicesSorted[neighIndex-1];				
 			 	double prevBandwidth = distances[bandwithPrevObjectIndex];
-			 	
+			 				 	
 			 	// keep checking until currentBandwidth > prevBandwidth
 			 	while (currentBandwidth == prevBandwidth) {
 			 		
@@ -982,14 +985,11 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 				// maximize cross validation score
 				int maxClassAccurracyIndex = NCGStatUtils.getMax(crossValidationScores);
 				numNearestNeighbours = numNeighboursStepsCV[maxClassAccurracyIndex];
-				
-				//System.out.println("cross validation score is maximized for " + numNearestNeighbours);
-				
+						
 			} else if (crossValidationMethod == NCGStatUtils.CROSS_VALIDATION_LIKELIHOOD) {
 				// maximize cross validation likelihood
 				int maxSumPostProbIndex = NCGStatUtils.getMax(crossValidationLikelihoods);
-				numNearestNeighbours = numNeighboursStepsCV[maxSumPostProbIndex];
-				//System.out.println("cross validation likelihood is maximized for " + numNearestNeighbours);				
+				numNearestNeighbours = numNeighboursStepsCV[maxSumPostProbIndex];				
 			} 	
 			
 		} catch (Exception e) {
@@ -1005,11 +1005,6 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 						
 			throw new DiscriminantAnalysisException(e.getMessage(),e.getCause()); 
 		}
-		//classFrequencies
-		//int[] nearestNeighbourValues = ;
-		// go through each object in the data set and classify it for a 
-		// range of nearest neighbour values
-		//numNearestNeighbours = 99;
 		
 	}
 		
@@ -1019,7 +1014,7 @@ public class GWDiscriminantAnalysis extends DiscriminantAnalysis {
 	// Purpose : classify the predictor (independent) variables using gwda
 	// 
 	// Notes   : throws a DiscriminantAnalysisException Object if not set
-	//           sets classifed array, parameters matrix, posteriorProbabilites matrix and 
+	//           sets classified array, parameters matrix, posteriorProbabilites matrix and 
 	//           mahalanobisDistance2 matrix to empty zero length arrays
 	//           in case of an error.
 	// 

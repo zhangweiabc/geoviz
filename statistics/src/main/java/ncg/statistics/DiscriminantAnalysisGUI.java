@@ -527,6 +527,7 @@ public class DiscriminantAnalysisGUI extends JPanel
 					// output the results of the cross validation if required
 					outputInfo.append("\nOptimum number of nearest neighbours from cross validaton is " + 
 							((GWDiscriminantAnalysis)daTask).getNumNearestNeighbours() + "\n");
+					
 				}
 				
 				// confusion matrix and percentages correctly classified		
@@ -780,19 +781,19 @@ public class DiscriminantAnalysisGUI extends JPanel
 						// get an array containing the categories
 						int[] categories = (int[])dataSet.getColumnValues(categoryIndex);
 						
-						// compute the maximum category frequency minus one
+						// compute the minimum category frequency minus one
 						int[] categoryFrequencies = NCGStatUtils.getFrequencies(categories);
-						int categoryMaxIndex = NCGStatUtils.getMax(categoryFrequencies);
-						int categoryMaxFrequency = categoryFrequencies[categoryMaxIndex];
+						int categoryMinIndex = NCGStatUtils.getMin(categoryFrequencies);
+						int categoryMinFrequency = categoryFrequencies[categoryMinIndex];
 						
-						return Integer.valueOf(categoryMaxFrequency);
+						return Integer.valueOf(categoryMinFrequency);
 					}
 					
 					@Override
 					public void done() {
 						try {
-							// get the category max class frequency
-							int categoryMaxFrequency = get();
+							// get the category min class frequency
+							int categoryMinFrequency = get();
 							
 							// populate the contents of the numNearestNeighbours combo boxes
 							// nearest neighbours options start at 1 (for first nearest neighbour)
@@ -800,11 +801,14 @@ public class DiscriminantAnalysisGUI extends JPanel
 							numNearestNeighbours.removeAllItems();
 							minNumNearestNeighboursCV.removeAllItems();
 							maxNumNearestNeighboursCV.removeAllItems();
-							for (int i = 1;i < categoryMaxFrequency; i++) {
+							for (int i = 1;i < categoryMinFrequency; i++) {
 								Integer numNeighbours = Integer.valueOf(i);
 								numNearestNeighbours.addItem(numNeighbours);
-								minNumNearestNeighboursCV.addItem(numNeighbours);
-								maxNumNearestNeighboursCV.addItem(numNeighbours);
+								
+								if (i < (categoryMinFrequency-1)) {
+									minNumNearestNeighboursCV.addItem(numNeighbours);
+									maxNumNearestNeighboursCV.addItem(numNeighbours);
+								}
 							}
 							
 						} catch (ExecutionException e) {
