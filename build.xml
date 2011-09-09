@@ -1,5 +1,5 @@
 <!-- place this file at the root of your Studio files. -->
-<project name="GeoVISTA Studio" default="dist" basedir=".">
+<project name="GeoViz Toolkit" default="dist" basedir=".">
 
 	<description>
 		GeoViz Toolkit build file that makes a jar and signs it.
@@ -8,21 +8,50 @@
 	<!-- set global properties for this build -->
 	<property name="build" location="bin" />
 	<property name="dist" location="dist" />
-	<property name="lib" location="lib" />
+	<property name="copy" location="copy" />
+	<property name="lib" location="lib_classes" />
+	<property name="min_classes" location="min_classes" />
 	<property name="main.class"
-		value="geovista.toolkitcore.GeoVizToolkit" />
+		value="geoviz.toolkitcore.GeoVizToolkit" />
 	<property name="user.name" value="Frank Hardisty" />
-	<property name="manifest.file" value="${build}/MANIFEST.MF" />
+	<property name="manifest.file" value="${copy}/MANIFEST.MF" />
 
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
 		<!--mkdir dir="${build}"/-->
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+		<!-- delete jars if already there -->
+		<delete file="${build}/GeoViz_Toolkit.jar" />
+		<delete file="${dist}/GeoViz_Toolkit.jar" />
+		<delete file="${dist}/minimal.jar" />
 	</target>
+
+	<target name="copyFiles" depends="init">
+
+
+		<!-- copy build classes into the ${copy} -->
+		<copy todir="${copy}">
+			<fileset dir="${build}" />
+		</copy>
+
+		<delete dir="${copy}/geovista/largedata" />
+		<delete dir="${copy}/geovista/rjava" />
+		<!-- copy lib classes into the ${copy} -->
+		<copy todir="${copy}">
+			<fileset dir="${lib}" />
+
+		</copy>
+
+
+	</target>
+
+
 	<!-- create my own manifest file -->
 	<target name="mymanifest" description="Create manifest file"
-		depends="init">
+		depends="copyFiles">
 		<echo message="Creating manifest file: ${manifest.file}" />
 		<manifest file="${manifest.file}">
 			<attribute name="Built-By" value="${user.name}" />
@@ -31,25 +60,16 @@
 	</target>
 	<target name="dist" depends="mymanifest"
 		description="generate the distribution">
-		<!-- Create the distribution directory -->
-		<mkdir dir="${dist}" />
-		<!-- delete jar if it is already there -->
-		<delete file="${build}/GeoViz_Toolkit.jar" />
-		<delete file="${dist}/GeoViz_Toolkit.jar" />
 
-		<!-- copy lib classes into the ${build} -->
-		<copy todir="${build}">
-			<fileset dir="${lib}" />
-		</copy>
 
-		<!-- Put everything in ${build} into the GeoViz_Toolkit.jar file -->
-		<jar jarfile="${dist}/GeoViz_Toolkit.jar" basedir="${build}"
+
+		<!-- Put everything in ${copy} into the GeoViz_Toolkit.jar file -->
+		<jar jarfile="${dist}/GeoViz_Toolkit.jar" basedir="${copy}"
 			manifest="${manifest.file}" />
 
 
-
 		<!-- Specify the main class    -->
-		<jar basedir="${build}" jarfile="${dist}/GeoViz_Toolkit.jar">
+		<jar basedir="${copy}" jarfile="${dist}/GeoViz_Toolkit.jar">
 			<manifest>
 				<attribute name="Main-Class"
 					value="geovista.toolkitcore.GeoVizToolkit" />
@@ -57,10 +77,6 @@
 		</jar>
 
 
-		<!-- Sign it and the other jars -->
-		<signjar jar="${dist}/GeoViz_Toolkit.jar"
-			keystore="C:/frankstore" alias="signFiles2" storepass="marble1"
-			keypass="marble1" />
 
 		<!-- Run the main application. If it pops up with data, we are probably OK -->
 		<java classname="geovista.toolkitcore.GeoVizToolkit">
@@ -71,6 +87,7 @@
 		</java>
 
 	</target>
+	
 
 	<target name="clean" description="clean up">
 		<!-- Delete the ${build} and ${dist} directory trees -->
@@ -78,11 +95,6 @@
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="run" depends="dist">
-
-
-
-	</target>
 
 
 </project>
