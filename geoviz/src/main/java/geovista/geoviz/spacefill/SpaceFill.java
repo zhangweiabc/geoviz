@@ -32,7 +32,7 @@ import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.common.ui.FoldupPanel;
 import geovista.geoviz.visclass.VisualClassifier;
-import geovista.symbolization.BivariateColorSymbolClassification;
+import geovista.symbolization.BivariateColorClassifier;
 
 public class SpaceFill extends JPanel implements ActionListener,
 		SelectionListener, IndicationListener, DataSetListener,
@@ -395,7 +395,7 @@ public class SpaceFill extends JPanel implements ActionListener,
 		return useDrawingShapes;
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return spatCan.getBivarColorClasser();
 	}
 

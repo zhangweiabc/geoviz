@@ -16,7 +16,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import geovista.common.classification.BoundaryClassifier;
-import geovista.symbolization.BivariateColorSymbolClassification;
+import geovista.symbolization.BivariateColorClassifier;
 
 /**
  * put your documentation comment here
@@ -286,7 +286,7 @@ public class ScatterPlotWithBackground extends ScatterPlotBasic {
 	 */
 	@Override
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser,
+			BivariateColorClassifier bivarColorClasser,
 			boolean reverseColor) {
 		this.bivarColorClasser = bivarColorClasser;
 		makeColors();
@@ -296,7 +296,7 @@ public class ScatterPlotWithBackground extends ScatterPlotBasic {
 	}
 
 	@Override
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return bivarColorClasser;
 	}
 

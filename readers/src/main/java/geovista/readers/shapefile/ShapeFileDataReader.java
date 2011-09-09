@@ -171,8 +171,8 @@ public class ShapeFileDataReader implements Serializable {
 
 	public static Geometry[] getGeoms(InputStream shpStream, double tolerance) {
 		ShapeFileDataReader.tolerance = tolerance;
-		Geometry[] simplerGeoms = makeSimplerGeoms(ShapeFileDataReader
-				.getGeoms(shpStream), tolerance);
+		Geometry[] simplerGeoms = makeSimplerGeoms(
+				ShapeFileDataReader.getGeoms(shpStream), tolerance);
 
 		return simplerGeoms;
 	}
@@ -209,9 +209,8 @@ public class ShapeFileDataReader implements Serializable {
 	}
 
 	protected static DataSetForApps makeDataSetForApps(String fileName) {
-		logger
-				.info("making dataset from shp and dbf in local file, fileName = "
-						+ fileName);
+		logger.info("making dataset from shp and dbf in local file, fileName = "
+				+ fileName);
 		FileInputStream shpStream = null;
 		FileInputStream dbfStream = null;
 		try {
@@ -510,9 +509,8 @@ public class ShapeFileDataReader implements Serializable {
 				}
 
 				else {
-					logger
-							.severe("hit unknown type while reading dbf, class = "
-									+ dBaseHeader.getFieldClass(i).getName());
+					logger.severe("hit unknown type while reading dbf, class = "
+							+ dBaseHeader.getFieldClass(i).getName());
 				}
 			}
 			int recordNum = 0;
@@ -603,9 +601,8 @@ public class ShapeFileDataReader implements Serializable {
 				}
 
 				else {
-					logger
-							.severe("hit unknown type while reading dbf, class = "
-									+ dBaseHeader.getFieldClass(i).getName());
+					logger.severe("hit unknown type while reading dbf, class = "
+							+ dBaseHeader.getFieldClass(i).getName());
 				}
 			}
 			int recordNum = 0;
@@ -744,9 +741,9 @@ public class ShapeFileDataReader implements Serializable {
 				dataForApps = makeDataSetForAppsCSV(this.fileName);
 			} else {
 				try {
-					throw new FileNotFoundException(
-							"Couldn't find dbf or csv for shapefile "
-									+ fileName);
+
+					throw new FileNotFoundException("Couldn't find dbf "
+							+ fileDbf + " or csv for shapefile " + fileName);
 				} catch (FileNotFoundException ex) {
 					ex.printStackTrace();
 				}

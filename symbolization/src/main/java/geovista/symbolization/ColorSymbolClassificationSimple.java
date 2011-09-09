@@ -6,18 +6,20 @@ package geovista.symbolization;
 
 import java.awt.Color;
 
+import geovista.colorbrewer.ColorBrewer;
+import geovista.colorbrewer.Palette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierQuantiles;
 
-public class ColorSymbolClassificationSimple implements
-		ColorSymbolClassification {
+public class ColorSymbolClassificationSimple implements ColorClassifier {
 
 	private ColorSymbolizer colorer;
 	private Classifier classer;
 
 	public ColorSymbolClassificationSimple() {
 		// defaults
-		colorer = new ColorSymbolizerLinear();
+		colorer = new ColorSymbolizerLinear(
+				ColorBrewer.getPalette(ColorBrewer.BrewerNames.Blues));
 		classer = new ClassifierQuantiles();
 	}
 
@@ -29,7 +31,7 @@ public class ColorSymbolClassificationSimple implements
 		for (int i = 0; i < classes.length; i++) {
 			myClass = classes[i];
 			if (myClass == Classifier.NULL_CLASS) {
-				returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+				returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 			} else {
 				returnColors[i] = colors[classes[i]];
 			}

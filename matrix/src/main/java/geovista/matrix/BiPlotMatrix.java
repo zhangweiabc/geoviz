@@ -7,9 +7,9 @@ package geovista.matrix;
 /**
  * Title: Mixed Matrix Description: Manipulable Matrix Copyright: Copyright (c)
  * 2001 Company: GeoVISTA Center
- * 
+ *
  * @author Xiping Dai
- * 
+ *
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -38,7 +38,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import geovista.symbolization.BivariateColorSymbolClassificationOneColor;
+import geovista.symbolization.BivariateColorClassifierOneColor;
 
 public class BiPlotMatrix extends AbstractMatrix {
 
@@ -46,9 +46,9 @@ public class BiPlotMatrix extends AbstractMatrix {
 	protected EventListenerList listenerList = new EventListenerList();
 	private final Class[] elementClasses = new Class[2];
 	private final String[] elementClassNames = new String[2];
-	private transient BivariateColorSymbolClassificationOneColor bivarOneColor;
-	protected ImageIcon matrixIcon = new ImageIcon(BiPlotMatrix.class
-			.getResource("resources/matrixicon16.gif"));
+	private transient BivariateColorClassifierOneColor bivarOneColor;
+	protected ImageIcon matrixIcon = new ImageIcon(
+			BiPlotMatrix.class.getResource("resources/matrixicon16.gif"));
 
 	public BiPlotMatrix() {
 		super();
@@ -146,7 +146,7 @@ public class BiPlotMatrix extends AbstractMatrix {
 		panelHeightPixels = DEFAULT_PANEL_HEIGHT_PIXELS;
 		setPanelSize(panelWidthPixels, panelHeightPixels);
 
-		bivarOneColor = new BivariateColorSymbolClassificationOneColor();
+		bivarOneColor = new BivariateColorClassifierOneColor();
 		int colorTotal = background.getRed() + background.getGreen()
 				+ background.getBlue();
 		int greyColor = 128 * 3;
@@ -314,8 +314,7 @@ public class BiPlotMatrix extends AbstractMatrix {
 								&& (!element[indexCurrent]
 										.getClass()
 										.getName()
-										.equals(
-												"geovista.geoviz.scatterplot.ScatterPlot"))) {
+										.equals("geovista.geoviz.scatterplot.ScatterPlot"))) {
 							boolean reverseColor = false;
 							if (i > j) {
 								reverseColor = true;
@@ -374,8 +373,8 @@ public class BiPlotMatrix extends AbstractMatrix {
 			columnButton[j].setMinimumSize(tagDm);
 			columnButton[j].setMaximumSize(tagDm);
 		}
-		Dimension rowTag = new Dimension((int) tagDm.getHeight(), (int) tagDm
-				.getHeight());
+		Dimension rowTag = new Dimension((int) tagDm.getHeight(),
+				(int) tagDm.getHeight());
 		configButton.setPreferredSize(rowTag);
 		configButton.setMinimumSize(rowTag);
 		configButton.setMaximumSize(rowTag);
@@ -391,8 +390,7 @@ public class BiPlotMatrix extends AbstractMatrix {
 		MatrixElement source = (MatrixElement) e.getSource();
 		String command = e.getActionCommand();
 		if (command.compareTo(MatrixElement.COMMAND_POINT_SELECTED) == 0) {
-			logger
-					.finest("SPMC.plotUnitPanel.actionPerformed(), point selected");
+			logger.finest("SPMC.plotUnitPanel.actionPerformed(), point selected");
 			// selectedObvs = source.getSelectedObservations();
 			selectedObvsInt = source.getSelections();
 			for (int k = 0; k < plotNumber * plotNumber; k++) {
@@ -432,8 +430,7 @@ public class BiPlotMatrix extends AbstractMatrix {
 			fireChangeEvent();
 		} else {
 			if (command.compareTo(MatrixElement.COMMAND_DATARANGE_SET) == 0) {
-				logger
-						.finest("SPMC.plotUnitPanel.actionPerformed(),data range");
+				logger.finest("SPMC.plotUnitPanel.actionPerformed(),data range");
 				double[] xAxisExtents = source.getXAxisExtents();
 				double[] yAxisExtents = source.getYAxisExtents();
 				int pos = 0;
@@ -538,8 +535,7 @@ public class BiPlotMatrix extends AbstractMatrix {
 			JButton closeButton;
 			dialog.setSize(150, 300);
 			dialog.getContentPane().setLayout(new BorderLayout());
-			attList
-					.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			attList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			// attList.addListSelectionListener(this);
 			// JScrollPane scrollPane = new JScrollPane(attList);
 			dialogPane = new JScrollPane(attList);

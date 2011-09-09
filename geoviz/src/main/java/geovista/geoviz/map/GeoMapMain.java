@@ -48,12 +48,12 @@ public class GeoMapMain extends JFrame {
 		fileName = "C:\\temp\\shapefiles\\intrstat.shp";
 		fileName = "C:\\data\\geovista_data\\shapefiles\\larger_cities.shp";
 		fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\CompanyProdLL2000Def.shp";
-		fileName = "C:\\data\\geovista_data\\Historical-Demographic\\census\\census80_90_00.shp";
+		fileName = "D:\\geovista_data\\Historical-Demographic\\census\\census80_90_00.shp";
 
 		ShapeFileDataReader shpRead = new ShapeFileDataReader();
+
 		shpRead.setFileName(fileName);
 		CoordinationManager coord = new CoordinationManager();
-
 		ShapeFileToShape shpToShape = new ShapeFileToShape();
 		ShapeFileProjection shpProj = new ShapeFileProjection();
 		GeoData48States stateData = new GeoData48States();
@@ -86,19 +86,19 @@ public class GeoMapMain extends JFrame {
 		// shpProj2.setProj(proj);
 		// shpProj2.setInputAuxiliaryData(stateData.getDataSet());
 
-		//shpToShape2.setInputDataSet(shpProj2.getOutputAuxiliarySpatialData());
+		// shpToShape2.setInputDataSet(shpProj2.getOutputAuxiliarySpatialData());
 		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
 
 		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
 
-		ShapeFileToShape shpToShape3 = new ShapeFileToShape();
-		fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\States.shp";
+		// ShapeFileToShape shpToShape3 = new ShapeFileToShape();
+		// fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\States.shp";
 
-		ShapeFileDataReader shpRead3 = new ShapeFileDataReader();
-		shpRead3.setFileName(fileName);
+		// ShapeFileDataReader shpRead3 = new ShapeFileDataReader();
+		// shpRead3.setFileName(fileName);
 		// shpToShape3.setInputDataSet(shpRead3.getDataSet());
-		shpToShape3.setInputDataSet(stateData.getDataSet());
-		map2.setAuxiliarySpatialData(shpToShape3.getOutputDataSetForApps());
+		// shpToShape3.setInputDataSet(stateData.getDataSet());
+		// map2.setAuxiliarySpatialData(shpToShape3.getOutputDataSetForApps());
 
 		// map2.setDataSet(shpToShape2.getOutputDataSet());
 

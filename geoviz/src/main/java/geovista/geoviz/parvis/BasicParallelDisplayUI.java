@@ -210,7 +210,9 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 			// this.rPaths = new GeneralPath[numRecords];
 			// }
 			// this.assembleAllPaths(comp);
-
+			if (numDimensions <= 1) {
+				return;
+			}
 			stepx = width / (numDimensions - 1);
 
 			needsDeepRepaint = true;
@@ -268,7 +270,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		// // ig.setColor(comp.getBackground());
 		// int startAxis = brushThread.getRenderedRegionStart();
 		// int stopAxis = brushThread.getRenderedRegionStop();
-		//		
+		//
 		// // delete area that has been rendered
 		// ig.fillRect(startAxis * stepx, 0, (stopAxis - startAxis) * stepx,
 		// comp.getHeight());
@@ -381,8 +383,8 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		if (paintHoverNative || paintHoverComp) {
 
 			Font oldfont = g2.getFont();
-			Font newfont = new Font(oldfont.getName(), Font.PLAIN, oldfont
-					.getSize() - 2);
+			Font newfont = new Font(oldfont.getName(), Font.PLAIN,
+					oldfont.getSize() - 2);
 			g2.setFont(newfont);
 
 			GeneralPath rPath = assemblePath(paintHoverRecord, 0,
@@ -403,9 +405,11 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 			Color col = new Color(1.0f, 1.0f, 0.8f);
 			for (int j = 0; j < numDimensions; j++) {
 				float yval = getYValue(paintHoverRecord, j, comp);
-				drawTooltip(g2, comp.getAxisLabel(j) + "=\n"
-						+ comp.getValue(paintHoverRecord, j), stepx * j,
-						(int) yval, col);
+				drawTooltip(
+						g2,
+						comp.getAxisLabel(j) + "=\n"
+								+ comp.getValue(paintHoverRecord, j),
+						stepx * j, (int) yval, col);
 			}
 		}
 
@@ -860,8 +864,8 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 								+ (Math.min(num, activeAxis) - 1) + ", "
 								+ (Math.max(num, activeAxis) + 1));
 					}
-					renderRegion(Math.min(num, activeAxis) - 1, Math.max(num,
-							activeAxis) + 1);
+					renderRegion(Math.min(num, activeAxis) - 1,
+							Math.max(num, activeAxis) + 1);
 
 					activeAxis = num;
 					hoverAxis = num;

@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -57,6 +58,12 @@ import geovista.symbolization.event.ColorClassifierListener;
 public class VisualClassifier extends JPanel implements ActionListener,
 		ComponentListener, PaletteListener, DataSetListener,
 		ColumnAppendedListener, TableModelListener {
+
+	public enum LayoutDebugStatus {
+		Debug, Runtime
+	}
+
+	public static VisualClassifier.LayoutDebugStatus debugStatus = LayoutDebugStatus.Runtime;
 	// Jin Chen: for extending purpose, change private to protected for
 	// following fields:
 	// symbolizationPanel,colors,dataColors,colorerLinear,colorClasser,classPick
@@ -98,19 +105,25 @@ public class VisualClassifier extends JPanel implements ActionListener,
 
 	public VisualClassifier() {
 		super();
+		if (VisualClassifier.debugStatus
+				.equals(VisualClassifier.LayoutDebugStatus.Debug)) {
+			setBorder(BorderFactory.createTitledBorder(this.getClass()
+					.getSimpleName()));
+
+		}
 		addComponentListener(this);
 		colorClasser = new ColorSymbolClassificationSimple();
+
 		// colorerLinear = new ColorSymbolizerLinear();
 		setupFinished = false;
 		nClasses = ColorRampPicker.DEFAULT_NUM_SWATCHES;
 		update = true;
-		interpolate = true;
 
 		classPick = new ClassifierPicker();
 		classPick.addActionListener(this);
-
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		makeSymbolizationPanel();
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
 		this.add(classPick);
 		if (variableChooserActive == true) {
 			setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
@@ -122,7 +135,9 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		this.add(symbolizationPanel);
 		setupFinished = true;
 		makeColors();
-		setPreferredSize(new Dimension(300, 40));
+		// Dimension size = new Dimension(800, 600);
+		// setPreferredSize(size);
+		// setMinimumSize(size);
 		/*
 		 * int prefHeight = (int)this.classPick.getPreferredSize().getHeight();
 		 * prefHeight = prefHeight +
@@ -137,6 +152,8 @@ public class VisualClassifier extends JPanel implements ActionListener,
 		 */
 		revalidate();
 		makeTexPaint();
+		// setMinimumSize(new Dimension(200, 60));
+		// setMaximumSize(new Dimension(1000, 60));
 	}
 
 	public void setPalette(ColorBrewer.BrewerNames name) {
@@ -169,6 +186,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	}
 
 	private void makeColors() {
+
 		colors = symbolizationPanel.getColors();
 
 	}
@@ -377,6 +395,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
+		logger.info("actionPerformed: " + command);
 		if (command == ColorRampPicker.COMMAND_SWATCH_COLOR_CHANGED) {
 			makeColors();
 			fireActionPerformed(VisualClassifier.COMMAND_COLORS_CHANGED);
@@ -424,6 +443,10 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	}
 
 	public void componentResized(ComponentEvent e) {
+
+	}
+
+	public void componentResized_old(ComponentEvent e) {
 		double pickPrefWidth = classPick.getPreferredSize().getWidth();
 
 		int prefWidth = (int) (pickPrefWidth * 1.5);
@@ -437,7 +460,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 
 	// end component event handling
 
-	public void changeOrientation(int orientation) {
+	private void changeOrientation(int orientation) {
 		if (orientation == currOrientation) {
 			return;
 		} else if (orientation == VisualClassifier.X_AXIS) {
@@ -750,9 +773,14 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	}
 
 	public static void main(String[] args) {
+
+		VisualClassifier.logger.setLevel(Level.WARNING);
+
 		JFrame app = new JFrame();
+
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		VisualClassifier vc = new VisualClassifier();
+
 		vc.setPalette(ColorBrewer.BrewerNames.Greens);
 		GeoDataGeneralizedStates data = new GeoDataGeneralizedStates();
 		vc.setDataSet(data.getDataForApps());

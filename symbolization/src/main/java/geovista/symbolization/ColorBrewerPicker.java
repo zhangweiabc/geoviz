@@ -13,7 +13,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -25,6 +27,7 @@ import javax.swing.event.EventListenerList;
 
 import geovista.colorbrewer.ColorBrewer;
 import geovista.colorbrewer.UnivariatePalette;
+import geovista.geoviz.visclass.VisualClassifier;
 
 public class ColorBrewerPicker extends JPanel implements ComponentListener,
 		ActionListener {
@@ -44,12 +47,20 @@ public class ColorBrewerPicker extends JPanel implements ComponentListener,
 
 	private UnivariatePalette pal;
 	JComboBox colorList;
+	final static Logger logger = Logger.getLogger(ColorBrewerPicker.class
+			.getName());
 
 	public ColorBrewerPicker() {
 		init();
 	}
 
 	private void init() {
+		if (VisualClassifier.debugStatus
+				.equals(VisualClassifier.LayoutDebugStatus.Debug)) {
+			setBorder(BorderFactory.createTitledBorder(this.getClass()
+					.getSimpleName()));
+
+		}
 		nSwatches = DEFAULT_NUM_SWATCHES;
 		pal = ColorBrewer.getPalette(ColorBrewer.BrewerNames.Blues);
 		Object[] names = ColorBrewer.readContents().keySet().toArray();
@@ -66,11 +77,12 @@ public class ColorBrewerPicker extends JPanel implements ComponentListener,
 		colorList.addActionListener(this);
 		// setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
-		setPreferredSize(new Dimension(365, 20)); // these match 0.5 of the
-
+		// setPreferredSize(new Dimension(365, 20)); // these match 0.5 of the
 		// ClassifierPicker
-		// this.setMinimumSize(new Dimension(200,20));
-		// this.setMaximumSize(new Dimension(1000,60));
+
+		setPreferredSize(new Dimension(200, 20));
+		setMinimumSize(new Dimension(200, 20));
+		setMaximumSize(new Dimension(1000, 40));
 		addComponentListener(this);
 	}
 

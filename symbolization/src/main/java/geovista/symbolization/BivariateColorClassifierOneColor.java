@@ -6,11 +6,13 @@ package geovista.symbolization;
 
 import java.awt.Color;
 
+import geovista.colorbrewer.Palette;
+import geovista.colorbrewer.SingleColorPalette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierEqualIntervals;
 
-public class BivariateColorSymbolClassificationOneColor implements
-		BivariateColorSymbolClassification {
+public class BivariateColorClassifierOneColor implements
+		BivariateColorClassifier {
 
 	private ColorSymbolizer colorerX;
 	private Classifier classerX;
@@ -23,14 +25,14 @@ public class BivariateColorSymbolClassificationOneColor implements
 
 	public static final int DEFAULT_NUM_CLASSES = 1;
 
-	public BivariateColorSymbolClassificationOneColor() {
+	public BivariateColorClassifierOneColor() {
 		// defaults
 
 		setOneColor(Color.white);
 		classerX = new ClassifierEqualIntervals();
 		classerY = new ClassifierEqualIntervals();
-		numClassesX = BivariateColorSymbolClassificationOneColor.DEFAULT_NUM_CLASSES;
-		numClassesY = BivariateColorSymbolClassificationOneColor.DEFAULT_NUM_CLASSES;
+		numClassesX = BivariateColorClassifierOneColor.DEFAULT_NUM_CLASSES;
+		numClassesY = BivariateColorClassifierOneColor.DEFAULT_NUM_CLASSES;
 
 	}
 
@@ -94,7 +96,7 @@ public class BivariateColorSymbolClassificationOneColor implements
 			myClassY = classesY[i];
 			if (myClassX == Classifier.NULL_CLASS
 					|| myClassY == Classifier.NULL_CLASS) {
-				returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+				returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 			} else {
 				colorX = colorsX[classesX[i]];
 				colorY = colorsY[classesY[i]];
@@ -119,7 +121,7 @@ public class BivariateColorSymbolClassificationOneColor implements
 		for (int i = 0; i < classesX.length; i++) {
 			myClassX = classesX[i];
 			if (myClassX == Classifier.NULL_CLASS) {
-				returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+				returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 			} else {
 				colorX = colorsX[classesX[i]];
 				colorY = colorsY[classesX[i]];
@@ -171,12 +173,15 @@ public class BivariateColorSymbolClassificationOneColor implements
 
 	public void setOneColor(Color oneColor) {
 		this.oneColor = oneColor;
-		ColorSymbolizerLinear colX = new ColorSymbolizerLinear();
+
+		ColorSymbolizerLinear colX = new ColorSymbolizerLinear(
+				new SingleColorPalette(oneColor));
 		colX.setLowColor(oneColor);
 		colX.setHighColor(oneColor);
 		colorerX = colX;
 
-		ColorSymbolizerLinear colY = new ColorSymbolizerLinear();
+		ColorSymbolizerLinear colY = new ColorSymbolizerLinear(
+				new SingleColorPalette(oneColor));
 		colY.setLowColor(oneColor);
 		colY.setHighColor(oneColor);
 		colorerY = colY;

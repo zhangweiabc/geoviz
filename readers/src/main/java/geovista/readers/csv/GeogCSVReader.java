@@ -6,6 +6,7 @@ package geovista.readers.csv;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 public class GeogCSVReader {
 
@@ -18,6 +19,9 @@ public class GeogCSVReader {
 	public static final String[] NULL_STRINGS = new String[2];
 	public static final String NULL_STRING = "";
 	public static final String NULL_STRING_TWO = "-999";
+
+	final static Logger logger = Logger
+			.getLogger(GeogCSVReader.class.getName());
 
 	/**
    
@@ -118,7 +122,12 @@ public class GeogCSVReader {
 						ints[row - dataBegin] = GeogCSVReader.NULL_INT;
 					} else {
 						ints = (int[]) data[column + 1];
-						ints[row - dataBegin] = Integer.parseInt(item);
+						try {
+							ints[row - dataBegin] = Integer.parseInt(item);
+						} catch (NumberFormatException nfe) {
+							logger.warning("could not parse " + item);
+							ints[row - dataBegin] = GeogCSVReader.NULL_INT;
+						}
 					}
 				} else if (dataTypes[column] == GeogCSVReader.DATA_TYPE_DOUBLE) {
 					if (Arrays.binarySearch(GeogCSVReader.NULL_STRINGS, item) >= 0) {
@@ -142,5 +151,4 @@ public class GeogCSVReader {
 		return data;
 
 	}
-
 }

@@ -102,6 +102,7 @@ import geovista.geoviz.spreadsheet.TableViewer;
 import geovista.geoviz.spreadsheet.VariableTransformer;
 import geovista.geoviz.star.StarPlot;
 import geovista.geoviz.star.StarPlotMap;
+import geovista.largedata.H1N1DataReader;
 import geovista.matrix.MapAndScatterplotMatrix;
 import geovista.matrix.MapMatrix;
 import geovista.matrix.MapScatterplotTreemapMatrix;
@@ -109,8 +110,8 @@ import geovista.matrix.MultiplotMatrix;
 import geovista.matrix.TreemapAndScatterplotMatrix;
 import geovista.matrix.map.LISTAViz;
 import geovista.matrix.map.MoranMap;
+import geovista.network.gui.NodeLinkView;
 import geovista.readers.example.GeoData2008Election;
-import geovista.readers.example.GeoDataGeneralizedStates;
 import geovista.readers.example.TexasZoonoticDataReader;
 import geovista.readers.seerstat.SeerStatReader;
 import geovista.readers.shapefile.ShapeFileDataReader;
@@ -878,7 +879,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 	private Object[] createData(String name) throws IOException {
 		setTitle("GeoViz Toolkit -- " + name);
-
+		// name = "Niger";
 		if (name == null) {
 			return null;
 		}
@@ -898,7 +899,8 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		// name = "TX";
 		if (name.equals("48States") || name.equals("USCounties")) {
 
-			GeoDataGeneralizedStates statesData = new GeoDataGeneralizedStates();
+			// GeoDataGeneralizedStates statesData = new
+			// GeoDataGeneralizedStates();
 			// TexasZoonoticDataReader statesData = new
 			// TexasZoonoticDataReader();
 
@@ -907,6 +909,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 			// crimeReader.getDataForApps().getDataObjectOriginal();
 
 			// GoogleFluDataReader statesData = new GoogleFluDataReader();
+			H1N1DataReader statesData = new H1N1DataReader();
 			ShapeFileProjection proj = new ShapeFileProjection();
 			proj.setInputDataSetForApps(statesData.getDataForApps());
 			newDataSet = proj.getOutputDataSet();
@@ -1199,6 +1202,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		menuAddTool.addSeparator();
 
 		menuAddTool.add(new JLabel(" ~~~~~ Multivariate Visualization ~~~~~ "));
+		addToolToMenu(NodeLinkView.class);
 		addToolToMenu(LinkGraph.class);
 		addToolToMenu(ParallelPlot.class);
 		addToolToMenu(StarPlot.class);

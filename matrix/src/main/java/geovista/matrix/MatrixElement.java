@@ -12,7 +12,7 @@ import javax.swing.JToolBar;
 
 import geovista.common.data.DataSetForApps;
 import geovista.common.event.IndicationListener;
-import geovista.symbolization.BivariateColorSymbolClassification;
+import geovista.symbolization.BivariateColorClassifier;
 
 public interface MatrixElement {
 
@@ -65,10 +65,10 @@ public interface MatrixElement {
 	public double[] getYAxisExtents();
 
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser,
+			BivariateColorClassifier bivarColorClasser,
 			boolean reverseColor);
 
-	public BivariateColorSymbolClassification getBivarColorClasser();
+	public BivariateColorClassifier getBivarColorClasser();
 
 	public String getShortDiscription();
 

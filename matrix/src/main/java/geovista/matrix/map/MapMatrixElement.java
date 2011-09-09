@@ -22,7 +22,7 @@ import geovista.geoviz.map.GeoCursors;
 import geovista.geoviz.map.MapCanvas;
 import geovista.geoviz.scatterplot.Histogram;
 import geovista.matrix.MatrixElement;
-import geovista.symbolization.BivariateColorSymbolClassification;
+import geovista.symbolization.BivariateColorClassifier;
 
 public class MapMatrixElement extends MapCanvas implements MatrixElement {
 
@@ -133,7 +133,7 @@ public class MapMatrixElement extends MapCanvas implements MatrixElement {
 	public void setMultipleSelectionColors(Color[] c) {
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return super.bivarColorClasser;
 	}
 
@@ -343,7 +343,7 @@ public class MapMatrixElement extends MapCanvas implements MatrixElement {
 	}
 
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser,
+			BivariateColorClassifier bivarColorClasser,
 			boolean reverseColor) {
 		// TODO Auto-generated method stub
 

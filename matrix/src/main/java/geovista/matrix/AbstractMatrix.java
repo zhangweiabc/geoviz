@@ -44,8 +44,8 @@ import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.common.event.SubspaceEvent;
 import geovista.common.event.SubspaceListener;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
 import geovista.symbolization.ColorSymbolClassificationSimple;
 import geovista.symbolization.ColorSymbolizer;
 import geovista.symbolization.event.ColorClassifierEvent;
@@ -78,7 +78,7 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 	protected transient int[] selectedObvsInt;
 	protected transient int[] selections;// short array, sharing with other
 	// components
-	protected transient BivariateColorSymbolClassification bivarColorClasser;
+	protected transient BivariateColorClassifier bivarColorClasser;
 	protected transient Color selectionColor = Color.blue;
 	protected transient Color background = Color.white;
 	protected transient boolean selOriginalColorMode = true;
@@ -335,7 +335,7 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 	 * @param c
 	 */
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser) {
+			BivariateColorClassifier bivarColorClasser) {
 
 		this.bivarColorClasser = bivarColorClasser;
 		if (this.bivarColorClasser == null) {
@@ -361,7 +361,7 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 		}
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return bivarColorClasser;
 	}
 
@@ -795,9 +795,9 @@ public abstract class AbstractMatrix extends JPanel implements MouseListener,
 			isX = true;
 		}
 		if (bivarColorClasser == null) {
-			bivarColorClasser = new BivariateColorSymbolClassificationSimple();
+			bivarColorClasser = new BivariateColorClassifierSimple();
 		}
-		BivariateColorSymbolClassificationSimple biColor = (BivariateColorSymbolClassificationSimple) bivarColorClasser;
+		BivariateColorClassifierSimple biColor = (BivariateColorClassifierSimple) bivarColorClasser;
 		ColorSymbolClassificationSimple colorClasser = (ColorSymbolClassificationSimple) e
 				.getColorSymbolClassification();
 		ColorSymbolizer colorer = colorClasser.getColorer();

@@ -42,8 +42,8 @@ import geovista.common.event.IndicationListener;
 import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.symbolization.AffineTransformModifier;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.ColorSymbolClassification;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.ColorClassifier;
 import geovista.symbolization.ColorSymbolClassificationSimple;
 
 public class SpaceFillCanvas extends JPanel implements MouseListener,
@@ -94,7 +94,7 @@ public class SpaceFillCanvas extends JPanel implements MouseListener,
 	private Color colorNotInStudyArea;
 
 	// transient private BivariateColorSymbolClassification bivarColorClasser;
-	transient private ColorSymbolClassification colorClasser;
+	transient private ColorClassifier colorClasser;
 	private Shape[] originalSpatialData;
 	private Shape[] drawingShapes;
 	private boolean useDrawingShapes;
@@ -919,7 +919,7 @@ public class SpaceFillCanvas extends JPanel implements MouseListener,
 
 	// start accessors
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser,
+			BivariateColorClassifier bivarColorClasser,
 			boolean reverseColor) {
 		logger.finest("got a color classer");
 
@@ -931,11 +931,11 @@ public class SpaceFillCanvas extends JPanel implements MouseListener,
 		// this.colorClasser = bivarColorClasser.getYColorSymbolizer();
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return null;
 	}
 
-	public void setColorSymbolizer(ColorSymbolClassification colorSymbolizer) {
+	public void setColorSymbolizer(ColorClassifier colorSymbolizer) {
 		colorClasser = colorSymbolizer;
 
 		if (currColorColumn >= 0) {

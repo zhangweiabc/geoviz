@@ -23,6 +23,8 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.EventListenerList;
 
+import geovista.colorbrewer.ColorBrewer;
+import geovista.colorbrewer.UnivariatePalette;
 import geovista.common.event.IndicationEvent;
 import geovista.common.event.IndicationListener;
 import geovista.symbolization.event.ColorClassifierEvent;
@@ -47,12 +49,16 @@ public class BivariateColorSchemeVisualizer extends JPanel implements
 	private transient int oldIndication = 0;
 
 	private static final String COMMAND_CLASSIFICATION_READY = "classer_ready";
+	UnivariatePalette blues = ColorBrewer
+			.getPalette(ColorBrewer.BrewerNames.Blues);
+	UnivariatePalette greens = ColorBrewer
+			.getPalette(ColorBrewer.BrewerNames.Greens);
 
 	public BivariateColorSchemeVisualizer() {
 		// defaults
 		gap = new Dimension(0, 0);
-		xSymbolizer = new ColorSymbolizerLinear();
-		ySymbolizer = new ColorSymbolizerLinear();
+		xSymbolizer = new ColorSymbolizerLinear(blues);
+		ySymbolizer = new ColorSymbolizerLinear(greens);
 		initSwatches();
 		colorSwatches();
 		makeTexPaint();
@@ -134,7 +140,7 @@ public class BivariateColorSchemeVisualizer extends JPanel implements
 	}
 
 	public void colorClassifierChanged(ColorClassifierEvent e) {
-		ColorSymbolClassification colorSym = e.getColorSymbolClassification();
+		ColorClassifier colorSym = e.getColorSymbolClassification();
 
 		logger.finest("spank me, the color classifier changed!");
 		if (e.getOrientation() == ColorClassifierEvent.SOURCE_ORIENTATION_X) {
@@ -190,8 +196,8 @@ public class BivariateColorSchemeVisualizer extends JPanel implements
 		return gap;
 	}
 
-	public BivariateColorSymbolClassification getBivariateColorClassification() {
-		BivariateColorSymbolClassificationSimple biColorer = new BivariateColorSymbolClassificationSimple();
+	public BivariateColorClassifier getBivariateColorClassification() {
+		BivariateColorClassifierSimple biColorer = new BivariateColorClassifierSimple();
 		biColorer.setColorerX(xSymbolizer);
 		biColorer.setColorerY(ySymbolizer);
 		// biColorer.setClasserX(this.cl);
@@ -274,7 +280,7 @@ public class BivariateColorSchemeVisualizer extends JPanel implements
 	}
 
 	public void setBivariateColorSymbolClassification(
-			BivariateColorSymbolClassification biColorer) {
+			BivariateColorClassifier biColorer) {
 		xSymbolizer = biColorer.getXColorSymbolizer();
 		ySymbolizer = biColorer.getYColorSymbolizer();
 		colorSwatches();

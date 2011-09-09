@@ -15,6 +15,8 @@
 
 package geovista.colorbrewer;
 
+import java.awt.Color;
+
 //import java.lang.*;
 
 //******************************************************************************
@@ -43,6 +45,8 @@ public interface Palette {
 	int LCD = 3;
 	int CRT = 4;
 	int PRINTER = 5;
+
+	public static final Color DEFAULT_NULL_COLOR = Color.darkGray;
 
 	String[] PURPOSE = new String[] { "ColorBlind", "PhotoCopy",
 			"LCD Projector", "LCD", "CRT", "Color Printing", };

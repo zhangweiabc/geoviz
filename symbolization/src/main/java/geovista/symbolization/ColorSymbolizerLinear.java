@@ -6,6 +6,8 @@ package geovista.symbolization;
 
 import java.awt.Color;
 
+import geovista.colorbrewer.Palette1D;
+
 //import javax.swing.colorchooser.*;
 
 public class ColorSymbolizerLinear implements ColorSymbolizer {
@@ -15,8 +17,10 @@ public class ColorSymbolizerLinear implements ColorSymbolizer {
 	// private ColorRamp ramper;
 	private boolean[] anchors;
 	private Color[] rampingColors;
+	private final Palette1D pal;
 
-	public ColorSymbolizerLinear() {
+	public ColorSymbolizerLinear(Palette1D pal) {
+		this.pal = pal;
 		// defaults
 		lowColor = ColorRampPicker.DEFAULT_LOW_COLOR;
 		highColor = ColorRampPicker.DEFAULT_HIGH_COLOR_PURPLE;
@@ -85,13 +89,8 @@ public class ColorSymbolizerLinear implements ColorSymbolizer {
 			anchors[0] = true; // anchor first and last colors
 			anchors[numColors - 1] = true;
 		}
-		if (rampingColors == null || rampingColors.length != numColors) {
-			initColors(numColors);
-		}
 
-		ColorRamp ramp = new ColorRamp();
-
-		ramp.rampColors(rampingColors, anchors);
+		rampingColors = pal.getColors(numColors);
 
 		return rampingColors;
 	}

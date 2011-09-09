@@ -5,12 +5,12 @@
 package geovista.matrix.visclass;
 
 /**
- * 
+ *
  * Description: Viasual classifier for multi-variables, such as K-means.
  * Copyright: Copyright (c) 2001 Company: GeoVISTA
- * 
+ *
  * @author Xiping Dai
- * 
+ *
  */
 
 import java.awt.BorderLayout;
@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.EventListenerList;
 
+import geovista.colorbrewer.Palette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierKMParameters;
 import geovista.common.classification.ClassifierKMeans;
@@ -64,7 +65,6 @@ import geovista.common.event.MergeCategoryListener;
 import geovista.common.event.SelectionListener;
 import geovista.readers.util.MyFileFilter;
 import geovista.symbolization.ColorRampPicker;
-import geovista.symbolization.ColorSymbolizer;
 
 public class VisualClassifierMultiVariables extends JPanel implements
 		ActionListener, ComponentListener, DataSetListener, ClassColorListener,
@@ -299,9 +299,9 @@ public class VisualClassifierMultiVariables extends JPanel implements
 				}// end if count > 0
 			}// end inner class
 		});// end add listener
-		// JLabel twoSpacesclassifCombo = new JLabel(" ");
-		// this.add(twoSpacesclassifCombo);
-		// this.add(classifLabel);
+			// JLabel twoSpacesclassifCombo = new JLabel(" ");
+			// this.add(twoSpacesclassifCombo);
+			// this.add(classifLabel);
 		classPickerPanel.add(classifierBox);
 
 		classNumField = new JTextField(2);
@@ -438,7 +438,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 			for (int i = 0; i < classificationIndexTrain.length; i++) {
 
 				if (classificationIndexTrain[i] == Classifier.NULL_CLASS) {
-					returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+					returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 				} else {
 					returnColors[i] = colors[classificationIndexTrain[i]];
 				}
@@ -623,7 +623,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		for (int i = 0; i < classificationIndexTrain.length; i++) {
 
 			if (classificationIndexTrain[i] == Classifier.NULL_CLASS) {
-				returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+				returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 			} else {
 				returnColors[i] = colors[classificationIndexTrain[i]];
 			}
@@ -741,7 +741,7 @@ public class VisualClassifierMultiVariables extends JPanel implements
 		for (int i = 0; i < classificationIndex.length; i++) {
 
 			if (classificationIndex[i] == Classifier.NULL_CLASS) {
-				returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+				returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 			} else {
 				returnColors[i] = colors[classificationIndex[i]];
 			}

@@ -45,10 +45,10 @@ import geovista.common.ui.ShapeReporter;
 import geovista.common.ui.VisualSettingsPopupListener;
 import geovista.geoviz.visclass.VisualClassifier;
 import geovista.symbolization.BivariateColorSchemeVisualizer;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
 import geovista.symbolization.ColorRampPicker;
-import geovista.symbolization.ColorSymbolClassification;
+import geovista.symbolization.ColorClassifier;
 import geovista.symbolization.event.ColorClassifierEvent;
 import geovista.symbolization.event.ColorClassifierListener;
 
@@ -176,7 +176,7 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 	}
 
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser) {
+			BivariateColorClassifier bivarColorClasser) {
 		scatterPlot.setBivarColorClasser(bivarColorClasser, false);
 	}
 
@@ -209,12 +209,12 @@ public class SingleScatterPlot extends JPanel implements DataSetListener,
 			return;
 		}
 
-		ColorSymbolClassification colorSymbolizerX = visClassX
+		ColorClassifier colorSymbolizerX = visClassX
 				.getColorClasser();
-		ColorSymbolClassification colorSymbolizerY = visClassY
+		ColorClassifier colorSymbolizerY = visClassY
 				.getColorClasser();
 
-		BivariateColorSymbolClassificationSimple biColorSymbolizer = new BivariateColorSymbolClassificationSimple();
+		BivariateColorClassifierSimple biColorSymbolizer = new BivariateColorClassifierSimple();
 
 		biColorSymbolizer.setClasserX(colorSymbolizerX.getClasser());
 		biColorSymbolizer.setColorerX(colorSymbolizerX.getColorer());

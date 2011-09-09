@@ -18,8 +18,8 @@ import geovista.common.event.ColorArrayEvent;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.IndicationEvent;
 import geovista.matrix.MatrixElement;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
 
 public class TreeMapMatrixElement extends TreeMapCanvas implements
 		MatrixElement {
@@ -78,18 +78,18 @@ public class TreeMapMatrixElement extends TreeMapCanvas implements
 		// super.setCurrOrderColumn(this.elementPosition[0]);//order = x
 		// super.setCurrColorColumn(this.elementPosition[1]);//color = y
 
-		BivariateColorSymbolClassification bivarColorClasser = new BivariateColorSymbolClassificationSimple();
+		BivariateColorClassifier bivarColorClasser = new BivariateColorClassifierSimple();
 
 		setBivarColorClasser(bivarColorClasser, false);
 
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return null;
 	}
 
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification biClasser, boolean why) {
+			BivariateColorClassifier biClasser, boolean why) {
 		if (super.dataSet == null) {
 			return;
 		}

@@ -15,7 +15,7 @@ import geovista.common.event.DataSetEvent;
 import geovista.common.event.IndicationListener;
 import geovista.geoviz.star.StarPlotCanvas;
 import geovista.matrix.MatrixElement;
-import geovista.symbolization.BivariateColorSymbolClassification;
+import geovista.symbolization.BivariateColorClassifier;
 
 /**
  * Suitable for inclusion into multiform matrixes
@@ -141,7 +141,7 @@ public class StarPlotMatrixElement extends StarPlotCanvas implements
 	}
 
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser,
+			BivariateColorClassifier bivarColorClasser,
 			boolean reverseColor) {
 		// super isn't really a bivariate component, so let's handle this here
 		double[] data = this.data.getNumericDataAsDouble(elementPosition[0]);
@@ -150,7 +150,7 @@ public class StarPlotMatrixElement extends StarPlotCanvas implements
 
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		// we don't really use this.
 		return null;
 	}

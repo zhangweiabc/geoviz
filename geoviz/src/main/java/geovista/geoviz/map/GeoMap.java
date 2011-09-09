@@ -64,10 +64,10 @@ import geovista.readers.example.GeoDataGeneralizedStates;
 import geovista.readers.shapefile.ShapeFileDataReader;
 import geovista.readers.shapefile.ShapeFileProjection;
 import geovista.readers.shapefile.ShapeFileToShape;
+import geovista.symbolization.BivariateColorClassifierSimple;
 import geovista.symbolization.BivariateColorSchemeVisualizer;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.ColorClassifier;
 import geovista.symbolization.ColorRampPicker;
-import geovista.symbolization.ColorSymbolClassification;
 import geovista.symbolization.event.ColorClassifierEvent;
 import geovista.symbolization.event.ColorClassifierListener;
 
@@ -99,7 +99,7 @@ public class GeoMap extends JPanel
 	transient protected VisualClassifier visClassOne;
 	transient protected VisualClassifier visClassTwo;
 
-	transient protected JPanel legendPanel = new JPanel();
+	// transient protected JPanel legendPanel;
 
 	transient protected JToolBar mapTools;
 
@@ -139,46 +139,19 @@ public class GeoMap extends JPanel
 
 	private void init() {
 
-		if (visualClassifierNeeded) {
-			JPanel vcPanel = new JPanel();
-			vcPanel.setLayout(new BoxLayout(vcPanel, BoxLayout.Y_AXIS));
-			// vcPanel.setLayout(new BorderLayout());
-			visClassOne = new VisualClassifier();
-			visClassTwo = new VisualClassifier();
-			visClassOne.setAlignmentX(Component.LEFT_ALIGNMENT);
-			visClassTwo.setAlignmentX(Component.LEFT_ALIGNMENT);
-			visClassOne
-					.setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
-			visClassTwo
-					.setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
-			visClassOne.addActionListener(this);
-			visClassOne.setOrientationInParentIsX(true);
-			visClassTwo.addActionListener(this);
-			visClassTwo.setOrientationInParentIsX(false);
+		JPanel vcPanel = createVCPanel();
+		JPanel legendPanel = createLegendPanel(vcPanel);
 
-			vcPanel.add(visClassTwo);
-			vcPanel.add(visClassOne);
+		topContent = new JPanel();
+		topContent.setLayout(new BoxLayout(topContent, BoxLayout.Y_AXIS));
+		makeToolbar();
 
-			legendPanel = new JPanel();
-			legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.X_AXIS));
+		mapTools.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-			legendPanel.add(vcPanel);
-			legendPanel.add(Box.createRigidArea(new Dimension(4, 2)));
-			// biViz = new ScatterPlot();
-			biViz = new BivariateColorSchemeVisualizer();
-			biViz.setPreferredSize(new Dimension(50, 50));
-			// biViz.setAxisOn(false);
+		topContent.add(legendPanel);
+		// topContent.setMinimumSize(vcSize);
+		// topContent.setPreferredSize(vcSize);
 
-			legendPanel.add(biViz);
-
-			topContent = new JPanel();
-			topContent.setLayout(new BoxLayout(topContent, BoxLayout.Y_AXIS));
-			makeToolbar();
-			legendPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-			mapTools.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-			topContent.add(legendPanel);
-		}
 		topContent.add(mapTools);
 
 		// note: uncomment the line below for animation panel stuff
@@ -186,8 +159,11 @@ public class GeoMap extends JPanel
 		cursors = new GeoCursors();
 		setCursor(cursors.getCursor(GeoCursors.CURSOR_ARROW_SELECT));
 
-		setLayout(new BorderLayout());
+		// setLayout(new BorderLayout());
+
 		this.add(topContent, BorderLayout.NORTH);
+
+		// this.add(vcPanel, BorderLayout.NORTH);
 		mapCan = new MapCanvas();
 		// mapCan.setBackground(this.backgroundColor);
 		this.add(mapCan, BorderLayout.CENTER);
@@ -206,6 +182,61 @@ public class GeoMap extends JPanel
 		// this.colorClassifierChanged(new
 		// ColorClassifierEvent(visClassTwo,visClassTwo.
 		// getColorSymbolClassification()));
+	}
+
+	private JPanel createLegendPanel(JPanel vcPanel) {
+		JPanel legendPanel = new JPanel();
+		legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.X_AXIS));
+		legendPanel.add(vcPanel);
+
+		legendPanel.add(Box.createRigidArea(new Dimension(4, 2)));
+		// biViz = new ScatterPlot();
+		biViz = new BivariateColorSchemeVisualizer();
+		// biViz.setPreferredSize(new Dimension(50, 50));
+		// biViz.setAxisOn(false);
+		legendPanel.add(biViz);
+		legendPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		return legendPanel;
+	}
+
+	private JPanel createVCPanel() {
+		JPanel vcPanel = new JPanel();
+		vcPanel.setLayout(new BoxLayout(vcPanel, BoxLayout.Y_AXIS));
+		// vcPanel.setLayout(new BorderLayout());
+		visClassOne = new VisualClassifier();
+		visClassTwo = new VisualClassifier();
+
+		// visClassOne.setAlignmentX(Component.LEFT_ALIGNMENT);
+		// visClassTwo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		Dimension vcSize = new Dimension(800, 800);
+
+		// vcPanel.setMinimumSize(vcSize);
+		// vcPanel.setMaximumSize(vcSize);
+		// vcPanel.setPreferredSize(vcSize);
+
+		// visClassOne.setMinimumSize(vcSize);
+		// visClassTwo.setMinimumSize(vcSize);
+
+		// visClassOne.setPreferredSize(vcSize);
+		// visClassTwo.setPreferredSize(vcSize);
+		//
+		// visClassOne.setSize(vcSize);
+		// visClassTwo.setSize(vcSize);
+
+		visClassOne
+				.setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
+		visClassTwo
+				.setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
+		visClassOne.addActionListener(this);
+		visClassOne.setOrientationInParentIsX(true);
+		visClassTwo.addActionListener(this);
+		visClassTwo.setOrientationInParentIsX(false);
+
+		vcPanel.add(visClassTwo);
+		vcPanel.add(visClassOne);
+
+		return vcPanel;
 	}
 
 	@SuppressWarnings("unused")
@@ -535,12 +566,10 @@ public class GeoMap extends JPanel
 			return;
 		}
 
-		ColorSymbolClassification colorSymbolizerX = visClassOne
-				.getColorClasser();
-		ColorSymbolClassification colorSymbolizerY = visClassTwo
-				.getColorClasser();
+		ColorClassifier colorSymbolizerX = visClassOne.getColorClasser();
+		ColorClassifier colorSymbolizerY = visClassTwo.getColorClasser();
 
-		BivariateColorSymbolClassificationSimple biColorSymbolizer = new BivariateColorSymbolClassificationSimple();
+		BivariateColorClassifierSimple biColorSymbolizer = new BivariateColorClassifierSimple();
 		// turn these around to match what happens in the
 		// scatterplot
 		biColorSymbolizer.setClasserX(colorSymbolizerX.getClasser());
@@ -688,119 +717,6 @@ public class GeoMap extends JPanel
 		mapCan.removeSpatialExtentListener(l);
 	}
 
-	public static void main(String[] args) {
-
-		boolean useProj = true;
-		boolean useResource = true;
-		JFrame app = new JFrame("MapBean Main Class: Why?");
-		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		app.getContentPane().setLayout(
-				new BoxLayout(app.getContentPane(), BoxLayout.X_AXIS));
-
-		MultiSlider mSlider = new MultiSlider();
-
-		RangeSlider rSlider = new RangeSlider();
-		rSlider.setVisible(true);
-		mSlider.setNumberOfThumbs(5);
-		mSlider.setVisible(true);
-		// mSlider.setOrientation(mSlider.VERTICAL);
-		app.getContentPane().add(mSlider);
-		app.pack();
-		app.setVisible(true);
-
-		GeoMap map2 = new GeoMap();
-
-		app.getContentPane().add(map2);
-		app.pack();
-		app.setVisible(true);
-
-		String fileName = "C:\\arcgis\\arcexe81\\Bin\\TemplateData\\USA\\counties.shp";
-		fileName = "C:\\temp\\shapefiles\\intrstat.shp";
-		fileName = "C:\\data\\geovista_data\\shapefiles\\larger_cities.shp";
-		fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\CompanyProdLL2000Def.shp";
-		fileName = "C:\\data\\geovista_data\\Historical-Demographic\\census\\census80_90_00.shp";
-
-		ShapeFileDataReader shpRead = new ShapeFileDataReader();
-		shpRead.setFileName(fileName);
-		CoordinationManager coord = new CoordinationManager();
-		ShapeFileToShape shpToShape = new ShapeFileToShape();
-		ShapeFileProjection shpProj = new ShapeFileProjection();
-		GeoDataGeneralizedStates stateData = new GeoDataGeneralizedStates();
-
-		/*
-		 * String fileName2 = "C:\\data\\grants\\nevac\\crimes\\cri.shp";
-		 * ShapefileReader reader = new ShapefileReader(); DriverProperties dp =
-		 * new DriverProperties(fileName2); FeatureCollection featColl = null;
-		 * 
-		 * try { featColl = reader.read(dp); } catch (IllegalParametersException
-		 * e) { // TODO Auto-generated catch block e.printStackTrace(); } catch
-		 * (Exception e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
-		 * 
-		 * List<Feature> featList = featColl.getFeatures();
-		 * 
-		 * for (Feature feat : featList) {
-		 * 
-		 * Geometry geom = (Geometry) feat.getAttribute(0);
-		 * logger.info(geom.getClass().getName());
-		 * 
-		 * Java2DConverter converter = new Java2DConverter(new Viewport(app
-		 * .getGlassPane())); try { Shape shp = converter.toShape(geom);
-		 * logger.info(shp); } catch (NoninvertibleTransformException e) { //
-		 * TODO Auto-generated catch block e.printStackTrace(); } }
-		 */
-
-		// coord.addBean(map2);
-		coord.addBean(shpToShape);
-		coord.addBean(map2);
-
-		if (useResource) {
-
-			shpProj.setInputDataSetForApps(stateData.getDataForApps());
-		} else {
-			if (useProj) {
-				// stateData.addActionListener(shpProj);
-				shpProj.setInputDataSet(shpRead.getDataSet());
-			}
-		}
-		Object[] dataSet = null;
-		if (useProj) {
-			dataSet = shpProj.getOutputDataSet();
-		} else {
-			dataSet = shpRead.getDataSet();
-		}
-
-		shpToShape.setInputDataSet(dataSet);
-
-		map2.setBackground(Color.red);
-		// shpToShape.setInputDataSet(dataSet);
-		// Rectangle2D rect = new Rectangle2D.Float(-30f,-30f,600f,600f);
-		// SpatialExtentEvent ext = new SpatialExtentEvent(map,rect);
-
-		// ShapeFileProjection shpProj2 = new ShapeFileProjection();
-		// OldProjection proj = shpProj.getProj();
-		// shpProj2.setProj(proj);
-		// shpProj2.setInputAuxiliaryData(stateData.getDataSet());
-
-		// shpToShape2.setInputDataSet(shpProj2.getOutputAuxiliarySpatialData());
-		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
-
-		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
-
-		// ShapeFileToShape shpToShape3 = new ShapeFileToShape();
-		// fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\States.shp";
-		//
-		// ShapeFileDataReader shpRead3 = new ShapeFileDataReader();
-		// shpRead3.setFileName(fileName);
-		// // shpToShape3.setInputDataSet(shpRead3.getDataSet());
-		// shpToShape3.setInputDataSet(stateData.getDataSet());
-		// map2.setAuxiliarySpatialData(shpToShape3.getOutputDataSetForApps());
-
-		// map2.setDataSet(shpToShape2.getOutputDataSet());
-
-	}
-
 	public void tableChanged(TableModelEvent e) {
 
 		logger.finest("data changed, whooop!");
@@ -912,6 +828,124 @@ public class GeoMap extends JPanel
 
 	public void setSelectionLineWidth(int width) {
 		mapCan.setSelectionLineWidth(width);
+
+	}
+
+	public static void main(String[] args) {
+		JFrame app = new JFrame("vcpanel, why?");
+		GeoMap map = new GeoMap();
+		app.add(map.createLegendPanel(map.createVCPanel()));
+		app.pack();
+		app.setVisible(true);
+	}
+
+	public static void main2(String[] args) {
+
+		boolean useProj = true;
+		boolean useResource = true;
+		JFrame app = new JFrame("MapBean Main Class: Why?");
+		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		MultiSlider mSlider = new MultiSlider();
+
+		RangeSlider rSlider = new RangeSlider();
+		rSlider.setVisible(true);
+		mSlider.setNumberOfThumbs(5);
+		mSlider.setVisible(true);
+		// mSlider.setOrientation(mSlider.VERTICAL);
+		app.getContentPane().add(mSlider);
+		app.pack();
+		app.setVisible(true);
+
+		GeoMap map2 = new GeoMap();
+
+		app.getContentPane().add(map2);
+		app.pack();
+		app.setVisible(true);
+
+		String fileName = "C:\\arcgis\\arcexe81\\Bin\\TemplateData\\USA\\counties.shp";
+		fileName = "C:\\temp\\shapefiles\\intrstat.shp";
+		fileName = "C:\\data\\geovista_data\\shapefiles\\larger_cities.shp";
+		fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\CompanyProdLL2000Def.shp";
+		fileName = "C:\\data\\geovista_data\\Historical-Demographic\\census\\census80_90_00.shp";
+
+		ShapeFileDataReader shpRead = new ShapeFileDataReader();
+		shpRead.setFileName(fileName);
+		CoordinationManager coord = new CoordinationManager();
+		ShapeFileToShape shpToShape = new ShapeFileToShape();
+		ShapeFileProjection shpProj = new ShapeFileProjection();
+		GeoDataGeneralizedStates stateData = new GeoDataGeneralizedStates();
+
+		/*
+		 * String fileName2 = "C:\\data\\grants\\nevac\\crimes\\cri.shp";
+		 * ShapefileReader reader = new ShapefileReader(); DriverProperties dp =
+		 * new DriverProperties(fileName2); FeatureCollection featColl = null;
+		 * 
+		 * try { featColl = reader.read(dp); } catch (IllegalParametersException
+		 * e) { // TODO Auto-generated catch block e.printStackTrace(); } catch
+		 * (Exception e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 * 
+		 * List<Feature> featList = featColl.getFeatures();
+		 * 
+		 * for (Feature feat : featList) {
+		 * 
+		 * Geometry geom = (Geometry) feat.getAttribute(0);
+		 * logger.info(geom.getClass().getName());
+		 * 
+		 * Java2DConverter converter = new Java2DConverter(new Viewport(app
+		 * .getGlassPane())); try { Shape shp = converter.toShape(geom);
+		 * logger.info(shp); } catch (NoninvertibleTransformException e) { //
+		 * TODO Auto-generated catch block e.printStackTrace(); } }
+		 */
+
+		// coord.addBean(map2);
+		coord.addBean(shpToShape);
+		coord.addBean(map2);
+
+		if (useResource) {
+
+			shpProj.setInputDataSetForApps(stateData.getDataForApps());
+		} else {
+			if (useProj) {
+				// stateData.addActionListener(shpProj);
+				shpProj.setInputDataSet(shpRead.getDataSet());
+			}
+		}
+		Object[] dataSet = null;
+		if (useProj) {
+			dataSet = shpProj.getOutputDataSet();
+		} else {
+			dataSet = shpRead.getDataSet();
+		}
+
+		shpToShape.setInputDataSet(dataSet);
+
+		map2.setBackground(Color.red);
+		// shpToShape.setInputDataSet(dataSet);
+		// Rectangle2D rect = new Rectangle2D.Float(-30f,-30f,600f,600f);
+		// SpatialExtentEvent ext = new SpatialExtentEvent(map,rect);
+
+		// ShapeFileProjection shpProj2 = new ShapeFileProjection();
+		// OldProjection proj = shpProj.getProj();
+		// shpProj2.setProj(proj);
+		// shpProj2.setInputAuxiliaryData(stateData.getDataSet());
+
+		// shpToShape2.setInputDataSet(shpProj2.getOutputAuxiliarySpatialData());
+		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
+
+		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
+
+		// ShapeFileToShape shpToShape3 = new ShapeFileToShape();
+		// fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\States.shp";
+		//
+		// ShapeFileDataReader shpRead3 = new ShapeFileDataReader();
+		// shpRead3.setFileName(fileName);
+		// // shpToShape3.setInputDataSet(shpRead3.getDataSet());
+		// shpToShape3.setInputDataSet(stateData.getDataSet());
+		// map2.setAuxiliarySpatialData(shpToShape3.getOutputDataSetForApps());
+
+		// map2.setDataSet(shpToShape2.getOutputDataSet());
 
 	}
 

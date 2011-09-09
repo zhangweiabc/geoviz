@@ -5,7 +5,7 @@ package geovista.symbolization.event;
 
 import java.util.EventObject;
 
-import geovista.symbolization.ColorSymbolClassification;
+import geovista.symbolization.ColorClassifier;
 
 /**
  * An ColorClassifierEvent signals that a set of observations has been singled
@@ -18,7 +18,7 @@ import geovista.symbolization.ColorSymbolClassification;
  */
 public class ColorClassifierEvent extends EventObject {
 
-	private transient ColorSymbolClassification colorClasser;
+	private transient ColorClassifier colorClasser;
 	public static final int SOURCE_ORIENTATION_X = 0;
 	public static final int SOURCE_ORIENTATION_Y = 1;
 	private int orientation;
@@ -29,7 +29,7 @@ public class ColorClassifierEvent extends EventObject {
 	 */
 
 	public ColorClassifierEvent(Object source,
-			ColorSymbolClassification colorClasser) {
+			ColorClassifier colorClasser) {
 		super(source);
 		this.colorClasser = colorClasser;
 		orientation = -1;// none
@@ -37,11 +37,11 @@ public class ColorClassifierEvent extends EventObject {
 
 	// begin accessors
 	public void setColorSymbolClassification(
-			ColorSymbolClassification colorClasser) {
+			ColorClassifier colorClasser) {
 		this.colorClasser = colorClasser;
 	}
 
-	public ColorSymbolClassification getColorSymbolClassification() {
+	public ColorClassifier getColorSymbolClassification() {
 		return colorClasser;
 	}
 

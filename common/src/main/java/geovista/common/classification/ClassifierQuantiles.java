@@ -7,9 +7,9 @@ package geovista.common.classification;
 /**
  * Title: ClassifierQuantiles Description: Quantile classification method
  * Copyright: Copyright (c) 2001 Company: GeoVISTA
- * 
+ *
  * @author Xiping Dai
- * 
+ *
  */
 
 import java.util.Arrays;
@@ -74,8 +74,7 @@ public class ClassifierQuantiles implements DescribedClassifier,
 	public int[] classify(double[] data, int numClasses) {
 
 		if (data == null) {
-			logger
-					.severe("Null passed into classify method, returning zero length array");
+			logger.severe("Null passed into classify method, returning zero length array");
 			return new int[0];
 		}
 		if (numClasses < 1) {
@@ -125,9 +124,10 @@ public class ClassifierQuantiles implements DescribedClassifier,
 		double[] someData = { Double.NaN, Double.NaN, 1, 1, 2, 45, 3, 45, 45,
 				600, 1, Double.NaN, Double.NaN };
 		ClassifierQuantiles classer = new ClassifierQuantiles();
-		int[] results = classer.classify(someData, 4);
+		for (int i = 1; i < someData.length; i++) {
+			int[] results = classer.classify(someData, i);
 
-		logger.info(Arrays.toString(results));
-
+			logger.info(Arrays.toString(results));
+		}
 	}
 }

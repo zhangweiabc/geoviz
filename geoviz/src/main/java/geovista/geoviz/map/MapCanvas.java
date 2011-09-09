@@ -66,8 +66,8 @@ import geovista.image_blur.image.BoxBlurFilter;
 import geovista.projection.affine.ShapeAffineTransform;
 import geovista.projection.affine.ShapeTransformer;
 import geovista.symbolization.AffineTransformModifier;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
 import geovista.symbolization.glyph.Glyph;
 import geovista.symbolization.glyph.GlyphEvent;
 
@@ -123,7 +123,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 	protected transient double[] dataColorX;
 	protected transient double[] dataColorY;
 
-	protected transient BivariateColorSymbolClassificationSimple bivarColorClasser = new BivariateColorSymbolClassificationSimple();
+	protected transient BivariateColorClassifierSimple bivarColorClasser = new BivariateColorClassifierSimple();
 
 	private transient Rectangle2D savedSrc = null;
 	private transient Image drawingBuff;
@@ -727,9 +727,8 @@ public class MapCanvas extends JPanel implements ComponentListener,
 		this.mode = mode;
 	}
 
-	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser) {
-		this.bivarColorClasser = (BivariateColorSymbolClassificationSimple) bivarColorClasser;
+	public void setBivarColorClasser(BivariateColorClassifier bivarColorClasser) {
+		this.bivarColorClasser = (BivariateColorClassifierSimple) bivarColorClasser;
 
 		if (dataSet != null) {
 			sendColorsToLayers(dataSet.getNumObservations());
@@ -895,9 +894,7 @@ public class MapCanvas extends JPanel implements ComponentListener,
 			this.currColorColumnX = currColorColumnX;
 			// XXX getNumericDataAsDouble has changed...
 			if (logger.isLoggable(Level.FINEST)) {
-				logger
-						.finest("this.currColorColumnX ="
-								+ this.currColorColumnX);
+				logger.finest("this.currColorColumnX =" + this.currColorColumnX);
 			}
 			dataColorX = dataSet.getNumericDataAsDouble(currColorColumnX);
 			sendColorsToLayers(dataColorX.length);
@@ -1531,8 +1528,8 @@ public class MapCanvas extends JPanel implements ComponentListener,
 			// OK, new theory. Grabbing bufferedimages this often is causing
 			// problems
 			// so we cache.
-			BufferedImage blurBuff = new BufferedImage(drawingBuff
-					.getWidth(this), drawingBuff.getHeight(this),
+			BufferedImage blurBuff = new BufferedImage(
+					drawingBuff.getWidth(this), drawingBuff.getHeight(this),
 					BufferedImage.TYPE_INT_ARGB);
 			// VolatileImage blurBuff=
 			// this.getGraphicsConfiguration().createCompatibleVolatileImage(this

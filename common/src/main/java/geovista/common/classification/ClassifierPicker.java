@@ -14,6 +14,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -29,6 +30,7 @@ import geovista.common.data.DataSetForApps;
 import geovista.common.event.ClassificationEvent;
 import geovista.common.event.ClassificationListener;
 import geovista.common.event.ColumnAppendedEvent;
+import geovista.geoviz.visclass.VisualClassifier;
 
 public class ClassifierPicker extends JPanel implements ActionListener,
 		ComponentListener {
@@ -64,6 +66,12 @@ public class ClassifierPicker extends JPanel implements ActionListener,
 
 	public ClassifierPicker() {
 		super();
+		if (VisualClassifier.debugStatus
+				.equals(VisualClassifier.LayoutDebugStatus.Debug)) {
+			setBorder(BorderFactory.createTitledBorder(this.getClass()
+					.getSimpleName()));
+
+		}
 
 		classification = new int[0];
 		nClasses = 3;

@@ -52,8 +52,12 @@ import geovista.common.event.SubspaceEvent;
 import geovista.common.event.SubspaceListener;
 import geovista.common.ui.ShapeReporter;
 import geovista.common.ui.VisualSettingsPopupListener;
+import geovista.coordination.CoordinationManager;
 import geovista.geoviz.visclass.VisualClassifier;
 import geovista.readers.FileIO;
+import geovista.readers.example.GeoData48States;
+import geovista.readers.shapefile.ShapeFileProjection;
+import geovista.readers.shapefile.ShapeFileToShape;
 
 /**
  * A Panel containing a ParallelDisplay and the most important control features.
@@ -186,7 +190,8 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 			}
 		});
 
-		dragModePanel.add(reorderButton);
+		// dragModePanel.add(reorderButton);
+		optionsPanel.add(reorderButton);
 
 		scaleButton.setIcon(new ImageIcon(getClass().getResource("scale.gif")));
 		scaleButton
@@ -200,7 +205,8 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 			}
 		});
 
-		dragModePanel.add(scaleButton);
+		// dragModePanel.add(scaleButton);
+		optionsPanel.add(scaleButton);
 
 		translateButton.setIcon(new ImageIcon(getClass()
 				.getResource("move.gif")));
@@ -215,7 +221,8 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 			}
 		});
 
-		dragModePanel.add(translateButton);
+		// dragModePanel.add(translateButton);
+		optionsPanel.add(translateButton);
 
 		brushButton.setIcon(new ImageIcon(getClass().getResource("brush.gif")));
 		brushButton.setToolTipText("Translate axes by dragging up or down.");
@@ -254,9 +261,9 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 			}
 		});
 
-		optionsPanel.add(numberBox);
+		// optionsPanel.add(numberBox);
 
-		zeroMaxButton.setText("0-max scale");
+		zeroMaxButton.setText("0-max");
 		zeroMaxButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				zeroMaxButtonActionPerformed();
@@ -265,7 +272,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 		optionsPanel.add(zeroMaxButton);
 
-		minMaxButton.setText("min-max scale");
+		minMaxButton.setText("min-max");
 		minMaxButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				minMaxButtonActionPerformed();
@@ -274,7 +281,7 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 
 		optionsPanel.add(minMaxButton);
 
-		minMaxAbsButton.setText("min-max(abs) scale");
+		minMaxAbsButton.setText("min-max(abs)");
 
 		minMaxAbsButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -737,10 +744,33 @@ public class ParallelPlot extends JPanel implements ProgressListener,
 		parallelDisplay.removeSelectionListener(l);
 	}
 
+	public static void main(String[] args) {
+		JFrame app = new JFrame("Parallel Plot Main Class");
+		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		ParallelPlot pp = new ParallelPlot();
+
+		ShapeFileToShape shpToShape = new ShapeFileToShape();
+		ShapeFileProjection shpProj = new ShapeFileProjection();
+		GeoData48States stateData = new GeoData48States();
+
+		CoordinationManager coord = new CoordinationManager();
+
+		coord.addBean(pp);
+		coord.addBean(shpToShape);
+
+		shpProj.setInputDataSetForApps(stateData.getDataForApps());
+		shpToShape.setInputDataSet(shpProj.getOutputDataSet());
+
+		app.add(pp);
+		app.setVisible(true);
+		app.pack();
+
+	}
+
 	/**
 	 * Main method for testing purposes.
 	 */
-	public static void main(String[] args) {
+	public static void oldmain(String[] args) {
 		String fileName = "C:\\geovista_old\\data\\test6.csv";
 
 		Object[] dataSet = new Object[4];

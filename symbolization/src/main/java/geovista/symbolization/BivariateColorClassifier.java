@@ -8,7 +8,7 @@ import java.awt.Color;
 
 import geovista.common.classification.Classifier;
 
-public interface BivariateColorSymbolClassification {
+public interface BivariateColorClassifier {
 
 	public Color[] symbolize(double[] dataX, double[] dataY);
 

@@ -38,9 +38,9 @@ import geovista.common.event.SpatialExtentEvent;
 import geovista.common.event.SpatialExtentListener;
 import geovista.geoviz.scatterplot.Histogram;
 import geovista.geoviz.visclass.VisualClassifier;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
-import geovista.symbolization.ColorSymbolClassification;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
+import geovista.symbolization.ColorClassifier;
 import geovista.symbolization.event.ColorClassifierEvent;
 import geovista.symbolization.event.ColorClassifierListener;
 
@@ -74,8 +74,8 @@ public class GeoMapUni extends JPanel
 		super();
 
 		vcPanel = new JPanel();
-		vcPanel.setPreferredSize(new Dimension(600, 40));
-		vcPanel.setMaximumSize(new Dimension(600, 40));
+		vcPanel.setPreferredSize(new Dimension(600, 50));
+		vcPanel.setMaximumSize(new Dimension(600, 50));
 		vcPanel.setLayout(new BoxLayout(vcPanel, BoxLayout.Y_AXIS));
 		visClassOne = new VisualClassifier();
 		// visClassTwo = new VisualClassifier();
@@ -367,12 +367,10 @@ public class GeoMapUni extends JPanel
 		if (mapCan == null) {
 			return;
 		}
-		ColorSymbolClassification colorSymbolizerX = visClassOne
-				.getColorClasser();
-		ColorSymbolClassification colorSymbolizerY = visClassOne
-				.getColorClasser();
+		ColorClassifier colorSymbolizerX = visClassOne.getColorClasser();
+		ColorClassifier colorSymbolizerY = visClassOne.getColorClasser();
 
-		BivariateColorSymbolClassificationSimple biColorSymbolizer = new BivariateColorSymbolClassificationSimple();
+		BivariateColorClassifierSimple biColorSymbolizer = new BivariateColorClassifierSimple();
 
 		biColorSymbolizer.setClasserX(colorSymbolizerX.getClasser());
 		biColorSymbolizer.setColorerX(colorSymbolizerX.getColorer());
@@ -402,8 +400,7 @@ public class GeoMapUni extends JPanel
 		visClassOne.setVariableChooserMode(chooserMode);
 	}
 
-	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser) {
+	public void setBivarColorClasser(BivariateColorClassifier bivarColorClasser) {
 		mapCan.setBivarColorClasser(bivarColorClasser);
 	}
 

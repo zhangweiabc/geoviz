@@ -30,8 +30,8 @@ import geovista.common.data.DataSetForApps;
 import geovista.matrix.map.MapMatrixElement;
 import geovista.readers.example.GeoDataGeneralizedStates;
 import geovista.readers.shapefile.ShapeFileProjection;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
 
 /*
  *
@@ -129,8 +129,8 @@ public class CartogramMatrixElement extends MapMatrixElement {
 
 	@Override
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser) {
-		BivariateColorSymbolClassificationSimple biColorSymbolizer = (BivariateColorSymbolClassificationSimple) bivarColorClasser;
+			BivariateColorClassifier bivarColorClasser) {
+		BivariateColorClassifierSimple biColorSymbolizer = (BivariateColorClassifierSimple) bivarColorClasser;
 
 		// biColorSymbolizer.setClasserX(bivarColorClasser.getClasserX());
 		// biColorSymbolizer.setColorerX(bivarColorClasser.getXColorSymbolizer());

@@ -49,8 +49,8 @@ import geovista.common.ui.ExcentricLabels;
 import geovista.geoviz.scatterplot.DataArray;
 import geovista.geoviz.scatterplot.Histogram;
 import geovista.matrix.MatrixElement;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
 
 /**
  * put your documentation comment here
@@ -108,7 +108,7 @@ public class DecisionTreeScatterPlot extends JPanel implements
 
 	// stuff added for colors
 	transient private Color[] pointColors;
-	transient private BivariateColorSymbolClassification bivarColorClasser = new BivariateColorSymbolClassificationSimple();
+	transient private BivariateColorClassifier bivarColorClasser = new BivariateColorClassifierSimple();
 	private final Histogram histogram = new Histogram();
 	transient private ExcentricLabels exLabels;
 	transient private BoundaryClassifier xClasser = null;
@@ -1692,7 +1692,7 @@ public class DecisionTreeScatterPlot extends JPanel implements
 	 * Sets colors for the current data.
 	 */
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser,
+			BivariateColorClassifier bivarColorClasser,
 			boolean reverseColor) {
 		this.bivarColorClasser = bivarColorClasser;
 		makeColors();
@@ -1717,7 +1717,7 @@ public class DecisionTreeScatterPlot extends JPanel implements
 		repaint();
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return bivarColorClasser;
 	}
 

@@ -61,8 +61,8 @@ import geovista.common.ui.VisualSettingsPopupAdapter;
 import geovista.common.ui.VisualSettingsPopupListener;
 import geovista.common.ui.VisualSettingsPopupMenu;
 import geovista.image_blur.image.BoxBlurFilter;
-import geovista.symbolization.BivariateColorSymbolClassification;
-import geovista.symbolization.BivariateColorSymbolClassificationSimple;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
 import geovista.symbolization.ColorInterpolator;
 
 public class ScatterPlotBasic extends JPanel implements ComponentListener,
@@ -127,7 +127,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 
 	// stuff added for colors
 	transient protected Color[] pointColors;
-	transient protected BivariateColorSymbolClassification bivarColorClasser;
+	transient protected BivariateColorClassifier bivarColorClasser;
 	protected Histogram histogram;
 	transient protected ExcentricLabels exLabels; // For paint label of
 	// observation data while
@@ -174,7 +174,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 	public ScatterPlotBasic() {
 
 		super();
-		bivarColorClasser = new BivariateColorSymbolClassificationSimple();
+		bivarColorClasser = new BivariateColorClassifierSimple();
 		VisualSettingsPopupMenu popMenu = new VisualSettingsPopupMenu(this);
 		MouseAdapter listener = new VisualSettingsPopupAdapter(popMenu);
 		popMenu.addMouseListener(listener);
@@ -1910,7 +1910,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 	 * Sets colors for the current data.
 	 */
 	public void setBivarColorClasser(
-			BivariateColorSymbolClassification bivarColorClasser,
+			BivariateColorClassifier bivarColorClasser,
 			boolean reverseColor) {
 
 		this.bivarColorClasser = bivarColorClasser;
@@ -1920,7 +1920,7 @@ public class ScatterPlotBasic extends JPanel implements ComponentListener,
 		this.repaint();
 	}
 
-	public BivariateColorSymbolClassification getBivarColorClasser() {
+	public BivariateColorClassifier getBivarColorClasser() {
 		return bivarColorClasser;
 	}
 

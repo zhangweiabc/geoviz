@@ -22,12 +22,12 @@ package geovista.symbolization;
 import java.awt.Color;
 
 import geovista.colorbrewer.ColorBrewer;
+import geovista.colorbrewer.Palette;
 import geovista.colorbrewer.UnivariatePalette;
 import geovista.common.classification.Classifier;
 import geovista.common.classification.ClassifierQuantiles;
 
-public class BivariateColorSymbolClassificationSimple implements
-		BivariateColorSymbolClassification {
+public class BivariateColorClassifierSimple implements BivariateColorClassifier {
 
 	private ColorSymbolizer colorerX;
 	private Classifier classerX;
@@ -72,28 +72,26 @@ public class BivariateColorSymbolClassificationSimple implements
 
 	}
 
-	public BivariateColorSymbolClassificationSimple() {
+	public BivariateColorClassifierSimple() {
 		// defaults
-		xPal = ColorBrewer
-				.getPalette(ColorBrewer.BrewerNames.Blues);
-		yPal = ColorBrewer
-				.getPalette(ColorBrewer.BrewerNames.Greens);
+		xPal = ColorBrewer.getPalette(ColorBrewer.BrewerNames.Blues);
+		yPal = ColorBrewer.getPalette(ColorBrewer.BrewerNames.Greens);
 
-		ColorSymbolizerLinear colX = new ColorSymbolizerLinear();
+		ColorSymbolizerLinear colX = new ColorSymbolizerLinear(xPal);
 		colX.setLowColor(ColorRampPicker.DEFAULT_LOW_COLOR);
 		colX.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_PURPLE);
 		colorerX = colX;
 
 		classerX = new ClassifierQuantiles();
 
-		ColorSymbolizerLinear colY = new ColorSymbolizerLinear();
+		ColorSymbolizerLinear colY = new ColorSymbolizerLinear(yPal);
 		colY.setLowColor(ColorRampPicker.DEFAULT_LOW_COLOR);
 		colY.setHighColor(ColorRampPicker.DEFAULT_HIGH_COLOR_GREEN);
 		colorerY = colY;
 
 		classerY = new ClassifierQuantiles();
-		numClassesX = BivariateColorSymbolClassificationSimple.DEFAULT_NUM_CLASSES;
-		numClassesY = BivariateColorSymbolClassificationSimple.DEFAULT_NUM_CLASSES;
+		numClassesX = BivariateColorClassifierSimple.DEFAULT_NUM_CLASSES;
+		numClassesY = BivariateColorClassifierSimple.DEFAULT_NUM_CLASSES;
 
 	}
 
@@ -136,7 +134,7 @@ public class BivariateColorSymbolClassificationSimple implements
 			if (myClassX == Classifier.NULL_CLASS
 					|| myClassY == Classifier.NULL_CLASS
 					|| myClassX > colorsX.length || myClassY > colorsY.length) {
-				returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+				returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 			} else {
 				colorX = colorsX[myClassX];
 				colorY = colorsY[myClassY];
@@ -159,7 +157,7 @@ public class BivariateColorSymbolClassificationSimple implements
 			myClassX = classesX[i];
 			if (myClassX == Classifier.NULL_CLASS
 					|| classesX[i] > colorsX.length) {
-				returnColors[i] = ColorSymbolizer.DEFAULT_NULL_COLOR;
+				returnColors[i] = Palette.DEFAULT_NULL_COLOR;
 			} else {
 				colorX = colorsX[classesX[i]];
 				// returnColors[i] =
