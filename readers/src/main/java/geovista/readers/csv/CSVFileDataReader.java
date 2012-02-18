@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
@@ -89,6 +90,33 @@ public class CSVFileDataReader {
 		this.fileName = removeExtension(fileName);
 		logger.finest(fileName);
 		dataForApps = makeDataSetForApps(this.fileName);
+		fireActionPerformed(COMMAND_DATA_SET_MADE);
+		fireDataSetChanged(dataForApps);
+
+	}
+
+	public void setInputStream(InputStream stream) {
+		Object[] csvData = null;
+		try {
+
+			GeogCSVReader csv = new GeogCSVReader();
+
+			csvData = csv.readFile(stream);
+			// shpData = new Object[dbData.length + 1];
+			// for (int i = 0; i < dbData.length; i++) {
+			// shpData[i] = dbData[i];
+			// }
+			// shpData[dbData.length] = new ShapeFile(fileName + ".shp");
+		} catch (RuntimeException re) {
+			// Add by Jin Chen: should always process excpetions after catching
+			// it. If not, throw it again to let other program process it.
+			throw re;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		// this.fireActionPerformed(COMMAND_DATA_SET_MADE);
+		dataForApps = new DataSetForApps(csvData);
 		fireActionPerformed(COMMAND_DATA_SET_MADE);
 		fireDataSetChanged(dataForApps);
 
