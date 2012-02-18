@@ -776,6 +776,9 @@ public class MapCanvas extends JPanel implements ComponentListener,
 		//
 		// the layer manager enables the user to fix it if we guess wrong
 		ls.setIsAuxiliary(true);
+		if (shapeLayers.size() < 1) {
+			return;
+		}
 		if (shapeLayers.get(activeLayer) instanceof LayerPolygon) {
 			shapeLayers.add(ls); // added to the end of the vector,
 			// paints last, on top
