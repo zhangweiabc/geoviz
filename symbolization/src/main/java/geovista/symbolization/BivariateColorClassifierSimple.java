@@ -73,7 +73,12 @@ public class BivariateColorClassifierSimple implements BivariateColorClassifier 
 	}
 
 	public BivariateColorClassifierSimple() {
-		// defaults
+
+		setDefaults();
+
+	}
+
+	private void setDefaults() {
 		xPal = ColorBrewer.getPalette(ColorBrewer.BrewerNames.Blues);
 		yPal = ColorBrewer.getPalette(ColorBrewer.BrewerNames.Greens);
 
@@ -92,7 +97,6 @@ public class BivariateColorClassifierSimple implements BivariateColorClassifier 
 		classerY = new ClassifierQuantiles();
 		numClassesX = BivariateColorClassifierSimple.DEFAULT_NUM_CLASSES;
 		numClassesY = BivariateColorClassifierSimple.DEFAULT_NUM_CLASSES;
-
 	}
 
 	public Color[] symbolize(double[] dataX, double[] dataY) {
@@ -114,7 +118,7 @@ public class BivariateColorClassifierSimple implements BivariateColorClassifier 
 		if (dataX == dataY) { // if they are the same object
 			return symbolizeUnivariate(dataX);
 		}
-
+		setDefaults();
 		Color[] colorsX = colorerX.getColors(numClassesX);
 		classesX = classerX.classify(dataX, numClassesX);
 		int myClassX = 0;
