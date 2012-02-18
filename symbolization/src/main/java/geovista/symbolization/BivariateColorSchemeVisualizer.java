@@ -152,6 +152,9 @@ public class BivariateColorSchemeVisualizer extends JPanel implements
 
 	public void setXSymbolizer(ColorSymbolizer xSymbolizer) {
 		this.xSymbolizer = xSymbolizer;
+		// XXX hacked in
+		this.xSymbolizer = new ColorSymbolizerLinear(blues);
+
 		usingDefaultX = false;
 		if (!usingDefaultY) {
 			initSwatches();
@@ -168,6 +171,8 @@ public class BivariateColorSchemeVisualizer extends JPanel implements
 
 	public void setYSymbolizer(ColorSymbolizer ySymbolizer) {
 		this.ySymbolizer = ySymbolizer;
+		// XXX hacked in
+		this.ySymbolizer = new ColorSymbolizerLinear(greens);
 		usingDefaultY = false;
 		if (!usingDefaultX) {
 			initSwatches();
