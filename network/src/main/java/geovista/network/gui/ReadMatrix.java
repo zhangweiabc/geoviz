@@ -15,6 +15,7 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.UndirectedGraph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 //import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 
@@ -70,7 +71,7 @@ public class ReadMatrix {
 					}};
 
 	// Read Graph from Matrix file for Nodelink view
-	public Graph readMatrixtoGraph(String FilePath) throws IOException {
+	public Graph readMatrixtoDirectedGraph(String FilePath) throws IOException {
 		/*
 		 * MatrixFile matrix=new
 		 * MatrixFile(null,graphFactory,vertexFactory,edgeFactory); g = new
@@ -102,7 +103,39 @@ public class ReadMatrix {
 		}
 		return g;
 	}
-    
+    // Read Symmetry Matrix into Undirected Graph
+	public Graph readMatrixtoUndirectedGraph(String FilePath) throws IOException {
+		/*
+		 * MatrixFile matrix=new
+		 * MatrixFile(null,graphFactory,vertexFactory,edgeFactory); g = new
+		 * UndirectedSparseGraph(); g=matrix.load(FilePath); return g;
+		 */
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+				new FileInputStream(FilePath)));
+		String s = "";
+		g = new UndirectedSparseGraph();
+		
+		int vertex = 0;
+		while ((s = br.readLine()) != null) {
+			if (s.length() == 0)
+				continue;
+			String[] ss = s.split("\t");
+			boolean isolate=true;
+			for (int i = vertex+1 ; i < ss.length; i++) {
+				//double weight=Double.parseDouble(ss[i]);
+				//if(weight>0)
+				if (ss[i].equals("1")){
+					g.addEdge(edgeFactory.create(), vertex,i);
+					isolate=false;
+				}
+			}
+			if(isolate){
+				g.addVertex(vertex);
+			}
+			vertex++;
+		}
+		return g;
+	}
 	// Read file into matrix for dendrogram view
 	
 	public double[][][] ReadData(String[] file){
