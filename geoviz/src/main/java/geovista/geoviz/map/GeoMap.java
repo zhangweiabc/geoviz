@@ -4,7 +4,6 @@
 
 package geovista.geoviz.map;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -142,17 +141,16 @@ public class GeoMap extends JPanel
 		JPanel vcPanel = createVCPanel();
 		JPanel legendPanel = createLegendPanel(vcPanel);
 
-		topContent = new JPanel();
-		topContent.setLayout(new BoxLayout(topContent, BoxLayout.Y_AXIS));
 		makeToolbar();
-
 		mapTools.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+		topContent = new JPanel();
+		// topContent.setLayout(new BoxLayout(topContent, BoxLayout.Y_AXIS));
 		topContent.add(legendPanel);
+		topContent.add(mapTools);
+
 		// topContent.setMinimumSize(vcSize);
 		// topContent.setPreferredSize(vcSize);
-
-		topContent.add(mapTools);
 
 		// note: uncomment the line below for animation panel stuff
 		// vcPanel.add(this.makeAnimationPanel());
@@ -160,13 +158,13 @@ public class GeoMap extends JPanel
 		setCursor(cursors.getCursor(GeoCursors.CURSOR_ARROW_SELECT));
 
 		// setLayout(new BorderLayout());
-
-		this.add(topContent, BorderLayout.NORTH);
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.add(topContent);
 
 		// this.add(vcPanel, BorderLayout.NORTH);
 		mapCan = new MapCanvas();
 		// mapCan.setBackground(this.backgroundColor);
-		this.add(mapCan, BorderLayout.CENTER);
+		this.add(mapCan);
 		mapCan.addIndicationListener(this);
 		visClassOne.addColorClassifierListener(this);
 		visClassTwo.addColorClassifierListener(this);
@@ -179,9 +177,8 @@ public class GeoMap extends JPanel
 		fisheyes.setLensType(Fisheyes.LENS_HEMISPHERE);
 		visClassOne.getClassPick().setNClasses(4);
 		visClassTwo.getClassPick().setNClasses(4);
-		// this.colorClassifierChanged(new
-		// ColorClassifierEvent(visClassTwo,visClassTwo.
-		// getColorSymbolClassification()));
+		// colorClassifierChanged(new
+		// ColorClassifierEvent(visClassTwo,visClassTwo.getColorClasser()));
 	}
 
 	private JPanel createLegendPanel(JPanel vcPanel) {
@@ -834,7 +831,8 @@ public class GeoMap extends JPanel
 	public static void main(String[] args) {
 		JFrame app = new JFrame("vcpanel, why?");
 		GeoMap map = new GeoMap();
-		app.add(map.createLegendPanel(map.createVCPanel()));
+		// app.add(map.createLegendPanel(map.createVCPanel()));
+		app.add(map.topContent);
 		app.pack();
 		app.setVisible(true);
 	}
