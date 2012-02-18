@@ -198,7 +198,7 @@ public class NodeLinkView extends JPanel implements DataSetListener,
 			ReadMatrix rm = new ReadMatrix();
 			String fileName = "C:/java_projects/geoviz_gcode/trunk/network/src/main/java/geovista/network/Data/PoliticalBorderNileBasinReorderCorrected.txt";
 			fileName = "C:/Users/Frank/Desktop/BinaryFile_Shapefile/binaries660.txt";
-			graph_array[0] = rm.readMatrixtoGraph(fileName);
+			graph_array[0] = rm.readMatrixtoDirectedGraph(fileName);
 
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -219,7 +219,7 @@ public class NodeLinkView extends JPanel implements DataSetListener,
 			ReadMatrix rm = new ReadMatrix();
 
 			for (int i = 0; i < file.length; i++) {
-				graph_array[i] = rm.readMatrixtoGraph(file[i]);
+				graph_array[i] = rm.readMatrixtoDirectedGraph(file[i]);
 				int index1 = file[i].lastIndexOf("\\");
 				int index2 = file[i].lastIndexOf(".");
 				graph_names[i] = file[i].substring(index1 + 1, index2);
