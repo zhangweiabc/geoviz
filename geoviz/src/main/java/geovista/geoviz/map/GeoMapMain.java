@@ -24,7 +24,7 @@ public class GeoMapMain extends JFrame {
 
 	public static void main(String[] args) {
 		boolean useProj = true;
-		boolean useResource = true;
+		boolean useResource = false;
 		// GeoMap map = new GeoMap();
 		GeoMapMain app = new GeoMapMain("MapBean Main Class");
 		app.addWindowListener(new WindowAdapter() {
@@ -50,12 +50,47 @@ public class GeoMapMain extends JFrame {
 		fileName = "C:\\data\\geovista_data\\shapefiles\\jin\\CompanyProdLL2000Def.shp";
 		fileName = "D:\\geovista_data\\Historical-Demographic\\census\\census80_90_00.shp";
 
-		ShapeFileDataReader shpRead = new ShapeFileDataReader();
+		// ShapeFileDataReader shpRead = new ShapeFileDataReader();
 
+		// logger.info("loading geo data");
+		fileName = "C:\\Users\\Frank\\Documents\\ArcGIS\\mid_east.shp";
+		ShapeFileDataReader shpRead = new ShapeFileDataReader();
 		shpRead.setFileName(fileName);
 		CoordinationManager coord = new CoordinationManager();
 		ShapeFileToShape shpToShape = new ShapeFileToShape();
 		ShapeFileProjection shpProj = new ShapeFileProjection();
+		// GeoData48States stateData = new GeoData48States();
+		// coord.addBean(map);
+		coord.addBean(shpToShape);
+		shpProj.setInputDataSetForApps(shpRead.getDataForApps());
+
+		// geoDsa = shpProj.getOutputDataSetForApps();
+
+		// shpToShape.setInputDataSetForApps(geoDsa);
+
+		// map.setDataSet(geoDsa);
+
+		String citiesFileName = "D:\\temp\\shapefiles\\capitals_1_million.shp";
+		citiesFileName = "D:/temp/shapefiles/capitals_1_million.shp";
+		// citiesFileName = "D:/temp/shapefiles/yeman_roads.shp";
+		// citiesFileName = "D:\\temp\\shapefiles\\yeman_roads";
+		ShapeFileDataReader shpRead2 = new ShapeFileDataReader();
+		shpRead2.setFileName(citiesFileName);
+		// ShapeFileProjection shpProj2 = new ShapeFileProjection();
+
+		// shpProj2.setInputAuxiliaryData(shpRead2.getDataForApps());
+		// DataSetForApps citiesDSA = shpProj2
+		// .getOutputAuxiliarySpatialDataForApps();
+		// shpToShape.setInputDataSetForApps(citiesDSA);
+		// map.setDataSet(shpRead2.getDataForApps());
+		map2.setAuxiliarySpatialData(shpRead2.getDataForApps());
+		// map.setCurrColorColumnX(1);
+		// map.setCurrColorColumnY(2);
+
+		shpRead.setFileName(fileName);
+		// CoordinationManager coord = new CoordinationManager();
+		// ShapeFileToShape shpToShape = new ShapeFileToShape();
+		// ShapeFileProjection shpProj = new ShapeFileProjection();
 		GeoData48States stateData = new GeoData48States();
 		coord.addBean(map2);
 		coord.addBean(shpToShape);
@@ -84,10 +119,10 @@ public class GeoMapMain extends JFrame {
 		// ShapeFileProjection shpProj2 = new ShapeFileProjection();
 		// OldProjection proj = shpProj.getProj();
 		// shpProj2.setProj(proj);
-		// shpProj2.setInputAuxiliaryData(stateData.getDataSet());
+		shpProj.setInputAuxiliaryData(shpRead2.getDataSet());
 
-		// shpToShape2.setInputDataSet(shpProj2.getOutputAuxiliarySpatialData());
-		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
+		shpToShape.setInputDataSet(shpProj.getOutputAuxiliarySpatialData());
+		map2.setAuxiliarySpatialData(shpToShape.getOutputDataSetForApps());
 
 		// map2.setAuxiliarySpatialData(shpToShape2.getOutputDataSet());
 
