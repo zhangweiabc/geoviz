@@ -110,6 +110,7 @@ import geovista.matrix.MultiplotMatrix;
 import geovista.matrix.TreemapAndScatterplotMatrix;
 import geovista.matrix.map.LISTAViz;
 import geovista.matrix.map.MoranMap;
+import geovista.network.gui.DendrogramView;
 import geovista.network.gui.NodeLinkView;
 import geovista.readers.example.GeoData2008Election;
 import geovista.readers.example.TexasZoonoticDataReader;
@@ -1203,6 +1204,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 
 		menuAddTool.add(new JLabel(" ~~~~~ Multivariate Visualization ~~~~~ "));
 		addToolToMenu(NodeLinkView.class);
+		addToolToMenu(DendrogramView.class);
 		addToolToMenu(LinkGraph.class);
 		addToolToMenu(ParallelPlot.class);
 		addToolToMenu(StarPlot.class);
@@ -1487,6 +1489,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 		app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		app.setPreferredSize(new Dimension(800, 600));
 		app.setMinimumSize(new Dimension(480, 320));
+		// app.pack();
 
 	}
 
