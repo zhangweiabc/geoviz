@@ -21,11 +21,12 @@ import geovista.readers.shapefile.ShapeFileDataReader;
  */
 public class GeoData48States extends GeoDataClassResource {
 
-	@Override
-	protected DataSetForApps makeDataSetForApps() {
-		return ShapeFileDataReader.makeDataSetForAppsCsv(this.getClass(),
-				"states48");
+    @Override
+    protected DataSetForApps makeDataSetForApps() {
 
-	}
+	return ShapeFileDataReader.makeDataSetForAppsCsv(this.getClass(),
+		"states48");
+
+    }
 
 }

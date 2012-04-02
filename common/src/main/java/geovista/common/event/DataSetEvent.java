@@ -16,6 +16,7 @@ public class DataSetEvent extends EventObject {
 
 	private final Object[] dataSet;
 	private transient DataSetForApps dataSetForApps;
+	private Object metaData;
 
 	/**
 	 * The constructor is the same as that for EventObject, except that the
@@ -47,5 +48,13 @@ public class DataSetEvent extends EventObject {
 			dataSetForApps = new DataSetForApps(dataSet);
 		}
 		return dataSetForApps;
+	}
+
+	public Object getMetaData() {
+		return metaData;
+	}
+
+	public void setMetaData(Object metaData) {
+		this.metaData = metaData;
 	}
 }
