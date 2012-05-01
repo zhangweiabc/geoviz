@@ -191,7 +191,7 @@ public class GeoMapUni extends JPanel
 	    public void actionPerformed(ActionEvent e) {
 		GeoMapUni.this.setCursor(cursors
 			.getCursor(GeoCursors.CURSOR_ARROW_SELECT));
-		mapCan.setMode(MapCanvas.MODE_SELECT);
+		mapCan.setMode(MapCanvas.MapMode.Select);
 	    }
 	});
 	mapTools.add(button);
@@ -212,7 +212,7 @@ public class GeoMapUni extends JPanel
 	    public void actionPerformed(ActionEvent e) {
 		GeoMapUni.this.setCursor(cursors
 			.getCursor(GeoCursors.CURSOR_ARROW_ZOOM_IN));
-		mapCan.setMode(MapCanvas.MODE_ZOOM_IN);
+		mapCan.setMode(MapCanvas.MapMode.ZoomIn);
 
 		// GeoMapUni.this.setCursor(new Cursor(Cursor.HAND_CURSOR));
 	    }
@@ -231,7 +231,7 @@ public class GeoMapUni extends JPanel
 	button.setToolTipText("Enter zoom out mode");
 	button.addActionListener(new ActionListener() {
 	    public void actionPerformed(ActionEvent e) {
-		mapCan.setMode(MapCanvas.MODE_ZOOM_OUT);
+		mapCan.setMode(MapCanvas.MapMode.ZoomOut);
 		GeoMapUni.this.setCursor(cursors
 			.getCursor(GeoCursors.CURSOR_ARROW_ZOOM_OUT));
 	    }
@@ -269,7 +269,7 @@ public class GeoMapUni extends JPanel
 	    public void actionPerformed(ActionEvent e) {
 		GeoMapUni.this.setCursor(cursors
 			.getCursor(GeoCursors.CURSOR_ARROW_PAN));
-		mapCan.setMode(MapCanvas.MODE_PAN);
+		mapCan.setMode(MapCanvas.MapMode.Pan);
 	    }
 	});
 	mapTools.add(button);

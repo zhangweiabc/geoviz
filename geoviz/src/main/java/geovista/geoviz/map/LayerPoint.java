@@ -175,4 +175,5 @@ public class LayerPoint extends LayerShape {
 
 	return shapes;
     }
+
 }

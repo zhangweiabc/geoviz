@@ -150,14 +150,7 @@ public class GeoMapMain extends JFrame {
 		System.exit(0);
 	    }
 	});
-	app.getContentPane().setLayout(
-		new BoxLayout(app.getContentPane(), BoxLayout.X_AXIS));
-	// app.getContentPane().add(map);
-	app.pack();
-	app.setVisible(true);
 
-	GeoMap map2 = new GeoMap();
-	app.getContentPane().add(map2);
 	app.pack();
 	app.setVisible(true);
 
@@ -191,7 +184,7 @@ public class GeoMapMain extends JFrame {
 	// .getOutputAuxiliarySpatialDataForApps();
 	// shpToShape.setInputDataSetForApps(citiesDSA);
 	// map.setDataSet(shpRead2.getDataForApps());
-	map2.setAuxiliarySpatialData(shpRead2.getDataForApps());
+	// map2.setAuxiliarySpatialData(shpRead2.getDataForApps());
 	// map.setCurrColorColumnX(1);
 	// map.setCurrColorColumnY(2);
 
@@ -220,9 +213,17 @@ public class GeoMapMain extends JFrame {
 	shpProj.setInputAuxiliaryData(shpRead2.getDataSet());
 
 	shpToShape.setInputDataSet(shpProj.getOutputAuxiliarySpatialData());
-
+	GeoMap map2 = new GeoMap();
+	map2.setUseHistogram(true);
+	app.getContentPane().add(map2);
 	map2.setDataSet(shpToShape.getOutputDataSetForApps());
-	map2.setAuxiliarySpatialData(shpProj.getOutputDataSetForApps());
+	// map2.setAuxiliarySpatialData(shpProj.getOutputDataSetForApps());
+
+	app.getContentPane().setLayout(
+		new BoxLayout(app.getContentPane(), BoxLayout.X_AXIS));
+	// app.getContentPane().add(map);
+	app.pack();
+	app.setVisible(true);
 
     }
 
