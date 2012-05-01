@@ -85,6 +85,7 @@ public class DataSetForApps {
     final static Logger logger = Logger.getLogger(DataSetForApps.class
 	    .getName());
 
+    @Deprecated
     public DataSetForApps() {
 
     }
@@ -107,7 +108,8 @@ public class DataSetForApps {
 	    originalData[i + 1] = data[i];
 	}
 	originalData[originalData.length - 1] = geoms;
-	setDataObject(originalData);
+	dataObjectOriginal = originalData;
+	init(dataObjectOriginal);
     }
 
     /**
@@ -120,7 +122,8 @@ public class DataSetForApps {
 
     public DataSetForApps(Object[] data) {
 
-	setDataObject(data);
+	dataObjectOriginal = data;
+	init(dataObjectOriginal);
     }
 
     public DataSetForApps(String[] varNames, Object[] data, Shape[] geoms,
@@ -133,14 +136,20 @@ public class DataSetForApps {
 	}
 	originalData[originalData.length - 1] = geoms;
 	originalData[originalData.length - 2] = weights;
-	setDataObject(originalData);
+	dataObjectOriginal = originalData;
+	init(dataObjectOriginal);
     }
 
     public DataSetForApps(double[] data) {
 	String[] varName = { "Data" };
 
 	Object[] theData = { varName, data };
-	setDataObject(theData);
+	dataObjectOriginal = theData;
+	init(dataObjectOriginal);
+    }
+
+    public DataSetForApps appendData(double[] var) {
+	return new DataSetForApps(this, "new_data", var);
     }
 
     public DataSetForApps(DataSetForApps currData, String varName, double[] var) {
@@ -161,23 +170,8 @@ public class DataSetForApps {
 	    newData[i] = originalData[i - 1];
 
 	}
-	setDataObject(newData);
-    }
 
-    /**
-     * This method accepts the input Object[] and intializes all member
-     * variables. In general, member variables do not change after
-     * initialization. Before this method is called, all member variables are
-     * null.
-     * 
-     * Any spatial data passed in is assumed to be polygonal if the spatial data
-     * is of type Shape[], and assumed to be point if the spatial data is of
-     * type Point2D[]. For line types, setDataObject(Object[] data, int
-     * spatialType) should be used, or setSpatialType(int spatialType).
-     */
-    @Deprecated
-    public void setDataObject(Object[] data) {
-	dataObjectOriginal = data;
+	dataObjectOriginal = newData;
 	init(dataObjectOriginal);
     }
 
@@ -573,7 +567,18 @@ public class DataSetForApps {
 
     /**
      * All initialization work should be done here.
+     * 
+     * This method accepts the input Object[] and intializes all member
+     * variables. In general, member variables do not change after
+     * initialization. Before this method is called, all member variables are
+     * null.
+     * 
+     * Any spatial data passed in is assumed to be polygonal if the spatial data
+     * is of type Shape[], and assumed to be point if the spatial data is of
+     * type Point2D[]. For line types, setDataObject(Object[] data, int
+     * spatialType) should be used, or setSpatialType(int spatialType).
      */
+
     private void init(Object[] data) {
 	if (data == null) {
 	    return;
@@ -944,11 +949,6 @@ public class DataSetForApps {
 
     public String getDataSourceName() {
 	return dataSourceName;
-    }
-
-    @Deprecated
-    public void setDataSourceName(String dataSourceName) {
-	this.dataSourceName = dataSourceName;
     }
 
     public int getColumnCount() {
