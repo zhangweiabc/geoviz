@@ -49,195 +49,198 @@ import javax.swing.event.ChangeListener;
 import geovista.symbolization.AffineTransformModifier;
 
 public class NGon implements Glyph {
-	public static final Color DEFAULT_INDICATION_COLOR = Color.green;
-	Color fillColor;
-	Color strokeColor;
-	Shape path;
-	Shape drawPath;
-	AffineTransform zoomForm;
-	int nSides;
-	static int defaultNSides = 3;
-	int size;
-	Point location;
-	static int defaultSize = 30;
-	final static Logger logger = Logger.getLogger(NGon.class.getName());
+    public static final Color DEFAULT_INDICATION_COLOR = Color.green;
+    Color fillColor;
+    Color strokeColor;
+    Shape path;
+    Shape drawPath;
+    AffineTransform zoomForm;
+    int nSides;
+    static int defaultNSides = 3;
+    int size;
+    Point location;
+    static int defaultSize = 200;
+    final static Logger logger = Logger.getLogger(NGon.class.getName());
 
-	public NGon(int nSides) {
-		this.nSides = nSides;
-		path = NGon.findNGon(nSides);
-		fillColor = Color.blue;
-		strokeColor = Color.black;
-		zoomForm = new AffineTransform();
-		size = defaultSize;
+    public NGon(int nSides) {
+	this.nSides = nSides;
+	path = NGon.findNGon(nSides);
+	fillColor = Color.blue;
+	strokeColor = Color.black;
+	zoomForm = new AffineTransform();
+	size = defaultSize;
+    }
+
+    public void draw(Graphics2D g2) {
+
+	g2.setColor(strokeColor);
+	g2.draw(drawPath);
+	g2.setColor(fillColor);
+	g2.fill(drawPath);
+    }
+
+    public Color getFillColor() {
+	return fillColor;
+    }
+
+    public void setFillColor(Color fillColor) {
+	this.fillColor = fillColor;
+
+    }
+
+    /* center on the location */
+    public void setLocation(Point location) {
+	if (location == null) {
+	    return;
+	}
+	this.location = location;
+	// Rectangle bounds = path.getBounds();
+	// int width = bounds.width * 30;
+	// int height = bounds.height * 30;
+	int x = location.x - (size / 2);
+	int y = location.y - (size / 2);
+
+	Rectangle targetArea = new Rectangle(x, y, size, size);
+	setTargetArea(targetArea);
+
+    }
+
+    public void setSize(int pixels) {
+	size = pixels;
+	setLocation(location);
+    }
+
+    public void setNSides(int nSides) {
+	this.nSides = nSides;
+	path = NGon.findNGon(nSides);
+	setLocation(location);// zooms as well
+
+    }
+
+    public void setTargetArea(Rectangle targetArea) {
+	int x = targetArea.x - targetArea.width / 2;
+	int y = targetArea.y - targetArea.height / 2;
+	location = new Point(x, y);
+	Rectangle paintArea = path.getBounds();
+
+	zoomForm = AffineTransformModifier.makeGeogAffineTransform(paintArea,
+		targetArea, true, true);
+	drawPath = zoomForm.createTransformedShape(path);
+
+    }
+
+    public static GeneralPath findNGon(int nSides) {
+	double x = 0;
+	double y = 0.5;
+	double heading = 90;// an angle, in degrees
+
+	// we start from the mid-point of x, because that is sure to
+	// be one of the closest edge points to the center
+
+	double angle = 360.0 / nSides;
+
+	double step = Math.sin(Math.toRadians(angle / 2.0)); // sin(pi/N)
+	heading = angle / 2.0;
+	GeneralPath p = new GeneralPath();
+	p.moveTo((float) x, (float) y);
+	// logger.info("x = " + x + ",y = " + y + " heading = " +
+	// heading);
+	// logger.info("nSides = " + nSides);
+	for (int i = 0; i < nSides; i++) {
+
+	    x += step * Math.cos(Math.toRadians(heading));
+
+	    y += step * Math.sin(Math.toRadians(heading));
+	    p.lineTo((float) x, (float) y);
+
+	    heading += angle;
+	    // logger.info("x = " + x + ",y = " + y + " heading = "+
+	    // heading);
 	}
 
-	public void draw(Graphics2D g2) {
+	return p;
+    }
 
-		g2.setColor(strokeColor);
-		g2.draw(drawPath);
-		g2.setColor(fillColor);
-		g2.fill(drawPath);
-	}
+    public static void main(String[] args) {
+	JFrame frame = new JFrame();
+	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	NGon gon = new NGon(3);
+	NGonPanel nGonPanel = gon.new NGonPanel();
+	frame.add(nGonPanel);
 
-	public Color getFillColor() {
-		return fillColor;
-	}
+	frame.pack();
+	frame.setVisible(true);
+    }
 
-	public void setFillColor(Color fillColor) {
-		this.fillColor = fillColor;
+    public class NGonPanel extends JPanel implements ChangeListener {
+	int n = 40;
+	float size = 200;
+	GeneralPath path;
+	JSlider nGonSlider;
+	JSlider sizeSlider;
 
-	}
+	public NGonPanel() {
+	    setLayout(new BorderLayout());
+	    nGonSlider = new JSlider();
+	    nGonSlider.addChangeListener(this);
+	    this.add(nGonSlider, BorderLayout.SOUTH);
 
-	/* center on the location */
-	public void setLocation(Point location) {
-		this.location = location;
-		// Rectangle bounds = path.getBounds();
-		// int width = bounds.width * 30;
-		// int height = bounds.height * 30;
-		int x = location.x - (size / 2);
-		int y = location.y - (size / 2);
-
-		Rectangle targetArea = new Rectangle(x, y, size, size);
-		setTargetArea(targetArea);
-
-	}
-
-	public void setSize(int pixels) {
-		size = pixels;
-		setLocation(location);
-	}
-
-	public void setNSides(int nSides) {
-		this.nSides = nSides;
-		path = NGon.findNGon(nSides);
-		setLocation(location);// zooms as well
-
-	}
-
-	public void setTargetArea(Rectangle targetArea) {
-		int x = targetArea.x - targetArea.width / 2;
-		int y = targetArea.y - targetArea.height / 2;
-		location = new Point(x, y);
-		Rectangle paintArea = path.getBounds();
-
-		zoomForm = AffineTransformModifier.makeGeogAffineTransform(paintArea,
-				targetArea, true, true);
-		drawPath = zoomForm.createTransformedShape(path);
-
-	}
-
-	public static GeneralPath findNGon(int nSides) {
-		double x = 0;
-		double y = 0.5;
-		double heading = 90;// an angle, in degrees
-
-		// we start from the mid-point of x, because that is sure to
-		// be one of the closest edge points to the center
-
-		double angle = 360.0 / nSides;
-
-		double step = Math.sin(Math.toRadians(angle / 2.0)); // sin(pi/N)
-		heading = angle / 2.0;
-		GeneralPath p = new GeneralPath();
-		p.moveTo((float) x, (float) y);
-		// logger.info("x = " + x + ",y = " + y + " heading = " +
-		// heading);
-		// logger.info("nSides = " + nSides);
-		for (int i = 0; i < nSides; i++) {
-
-			x += step * Math.cos(Math.toRadians(heading));
-
-			y += step * Math.sin(Math.toRadians(heading));
-			p.lineTo((float) x, (float) y);
-
-			heading += angle;
-			// logger.info("x = " + x + ",y = " + y + " heading = "+
-			// heading);
-		}
-
-		return p;
-	}
-
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		NGon gon = new NGon(3);
-		NGonPanel nGonPanel = gon.new NGonPanel();
-		frame.add(nGonPanel);
-
-		frame.pack();
-		frame.setVisible(true);
-	}
-
-	public class NGonPanel extends JPanel implements ChangeListener {
-		int n = 40;
-		float size = 200;
-		GeneralPath path;
-		JSlider nGonSlider;
-		JSlider sizeSlider;
-
-		public NGonPanel() {
-			setLayout(new BorderLayout());
-			nGonSlider = new JSlider();
-			nGonSlider.addChangeListener(this);
-			this.add(nGonSlider, BorderLayout.SOUTH);
-
-			sizeSlider = new JSlider();
-			sizeSlider.addChangeListener(this);
-			sizeSlider.setOrientation(SwingConstants.VERTICAL);
-			this.add(sizeSlider, BorderLayout.WEST);
-			setMinimumSize(new Dimension(200, 200));
-			setPreferredSize(new Dimension(200, 200));
-			path = NGon.findNGon(n);
-
-		}
-
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			Graphics2D g2 = (Graphics2D) g;
-			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
-			AffineTransform xForm = AffineTransform.getScaleInstance(200, 200);
-			xForm = new AffineTransform(size, 0, 0, size, size, 0);
-			g2.setTransform(xForm);
-			g2.setColor(Color.black);
-			g2.fill(path);
-
-		}
-
-		public void stateChanged(ChangeEvent e) {
-			if (e.getSource().equals(nGonSlider)) {
-				JSlider slider = (JSlider) e.getSource();
-				path = NGon.findNGon(slider.getValue());
-				this.repaint();
-			}
-			if (e.getSource().equals(sizeSlider)) {
-				JSlider slider = (JSlider) e.getSource();
-				size = 5 * slider.getValue();
-				logger.info("size = " + size);
-				this.repaint();
-			}
-		}
+	    sizeSlider = new JSlider();
+	    sizeSlider.addChangeListener(this);
+	    sizeSlider.setOrientation(SwingConstants.VERTICAL);
+	    this.add(sizeSlider, BorderLayout.WEST);
+	    setMinimumSize(new Dimension(200, 200));
+	    setPreferredSize(new Dimension(200, 200));
+	    path = NGon.findNGon(n);
 
 	}
 
-	public NGon copy() {
-		NGon copy = new NGon(nSides);
-		copy.path = path;
-		copy.drawPath = drawPath;
-		copy.nSides = nSides;
-		copy.fillColor = fillColor;
-		copy.zoomForm = zoomForm;
-		return copy;
+	@Override
+	public void paintComponent(Graphics g) {
+	    super.paintComponent(g);
+	    Graphics2D g2 = (Graphics2D) g;
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		    RenderingHints.VALUE_ANTIALIAS_ON);
+	    AffineTransform xForm = AffineTransform.getScaleInstance(200, 200);
+	    xForm = new AffineTransform(size, 0, 0, size, size, 0);
+	    g2.setTransform(xForm);
+	    g2.setColor(Color.black);
+	    g2.fill(path);
+
 	}
 
-	public Shape getDrawPath() {
-		return drawPath;
+	public void stateChanged(ChangeEvent e) {
+	    if (e.getSource().equals(nGonSlider)) {
+		JSlider slider = (JSlider) e.getSource();
+		path = NGon.findNGon(slider.getValue());
+		this.repaint();
+	    }
+	    if (e.getSource().equals(sizeSlider)) {
+		JSlider slider = (JSlider) e.getSource();
+		size = 5 * slider.getValue();
+		logger.info("size = " + size);
+		this.repaint();
+	    }
 	}
 
-	public void setDrawPath(Shape drawPath) {
-		this.drawPath = drawPath;
-	}
+    }
+
+    public NGon copy() {
+	NGon copy = new NGon(nSides);
+	copy.path = path;
+	copy.drawPath = drawPath;
+	copy.nSides = nSides;
+	copy.fillColor = fillColor;
+	copy.zoomForm = zoomForm;
+	return copy;
+    }
+
+    public Shape getDrawPath() {
+	return drawPath;
+    }
+
+    public void setDrawPath(Shape drawPath) {
+	this.drawPath = drawPath;
+    }
 
 }
