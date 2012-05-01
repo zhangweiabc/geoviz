@@ -79,6 +79,7 @@ import geovista.symbolization.glyph.GlyphEvent;
  * This class is intended to be used inside other components like the GeoMap or
  * the PlotMatrix.
  */
+// hi Sam
 public class MapCanvas extends JPanel implements ComponentListener,
 	ActionListener, MouseListener, MouseMotionListener, SelectionListener,
 	IndicationListener, DataSetListener, SpatialExtentListener,
