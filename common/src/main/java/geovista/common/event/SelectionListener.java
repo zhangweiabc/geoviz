@@ -15,8 +15,8 @@ import java.util.EventListener;
  */
 public interface SelectionListener extends EventListener {
 
-	public void selectionChanged(SelectionEvent e);
+    public void selectionChanged(SelectionEvent e);
 
-	public SelectionEvent getSelectionEvent();
+    // public SelectionEvent getSelectionEvent();
 
 }
