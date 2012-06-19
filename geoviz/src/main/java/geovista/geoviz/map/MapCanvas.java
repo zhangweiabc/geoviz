@@ -574,7 +574,11 @@ public class MapCanvas extends JPanel implements ComponentListener,
 	nFormat.setMaximumFractionDigits(3);
 	if (arrayIndex < 0 || currColorColumnX < 0) {
 	    tipText = "";
+	} else if (dataSet.getNumberNumericAttributes() <= currColorColumnX
+		|| dataSet.getNumObservations() <= arrayIndex) {
+	    tipText = "";
 	} else if (currColorColumnX == currColorColumnY) {
+
 	    String xVal = nFormat.format(dataSet.getNumericValueAsDouble(
 		    currColorColumnX, arrayIndex));
 
