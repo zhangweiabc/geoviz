@@ -507,11 +507,11 @@ public class DataSetForApps {
      * Returns a double where the arrayIndex is the nth array in the data set,
      * and obs is the nth observation in that array.
      * 
-     * note: this is a look into the "raw" data, and does not skip the variable
-     * names array
+     * note: this method skips the variable names array
      */
 
     public double getValueAsDouble(int arrayIndex, int obs) {
+	arrayIndex++;// skip variable names array
 	Object dataNumeric = dataObjectOriginal[arrayIndex];
 	double[] doubleData = null;
 	double doubleVal = Double.NaN;
@@ -527,6 +527,35 @@ public class DataSetForApps {
 			    + " as a number");
 	}
 	return doubleVal;
+    }
+
+    /**
+     * Returns a String where the arrayIndex is the nth array in the data set,
+     * and obs is the nth observation in that array.
+     * 
+     * note: this method skips the variable names array
+     */
+
+    public String getValueAsString(int arrayIndex, int obs) {
+	arrayIndex++;// skip variable names array
+	Object dataNumeric = dataObjectOriginal[arrayIndex];
+	String stringVal = null;
+	if (dataNumeric instanceof double[]) {
+	    double[] doubleData = (double[]) dataNumeric;
+	    stringVal = String.valueOf(doubleData[obs]);
+	} else if (dataNumeric instanceof int[]) {
+	    int[] intData = (int[]) dataNumeric;
+	    stringVal = String.valueOf(intData[obs]);
+	} else if (dataNumeric instanceof String[]) {
+	    String[] stringData = (String[]) dataNumeric;
+	    stringVal = stringData[obs];
+	} else {
+
+	    throw new IllegalArgumentException(
+		    "Unable to parse values in column " + arrayIndex
+			    + " as a string");
+	}
+	return stringVal;
     }
 
     /**
