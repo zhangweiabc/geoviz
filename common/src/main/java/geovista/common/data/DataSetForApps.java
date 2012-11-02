@@ -112,6 +112,39 @@ public class DataSetForApps {
 	init(dataObjectOriginal);
     }
 
+    public String findInequality(DataSetForApps otherDSA) {
+
+	// first length
+	if (otherDSA.getDataObjectOriginal().length != dataObjectOriginal.length) {
+
+	    String message = "dsas differ in length, this = "
+		    + dataObjectOriginal.length + ", other = "
+		    + otherDSA.getDataObjectOriginal().length;
+
+	    logger.info(message);
+	    return message;
+	}
+
+	// next compare types
+	for (int i = 0; i < dataObjectOriginal.length; i++) {
+
+	    String message;
+	    Object thisArray = dataObjectOriginal[i];
+	    Object otherArray = otherDSA.dataObjectOriginal[i];
+	    if (thisArray.getClass().getName()
+		    .equals(otherArray.getClass().getName()) == false) {
+		message = "array " + i + " doesn't match, we have "
+			+ thisArray.getClass().getName() + " vs "
+			+ otherDSA.getClass().getName();
+		logger.info(message);
+		return message;
+	    }
+
+	}
+
+	return "";
+    }
+
     /**
      * This constructor is equivalent to calling setDataObject(data) with the
      * array passed in.
@@ -524,7 +557,7 @@ public class DataSetForApps {
 	} else {
 	    throw new IllegalArgumentException(
 		    "Unable to parse values in column " + arrayIndex
-			    + " as a number");
+			    + " as a number." + "");
 	}
 	return doubleVal;
     }
