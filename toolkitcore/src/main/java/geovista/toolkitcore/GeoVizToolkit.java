@@ -102,6 +102,7 @@ import geovista.geoviz.spreadsheet.TableViewer;
 import geovista.geoviz.spreadsheet.VariableTransformer;
 import geovista.geoviz.star.StarPlot;
 import geovista.geoviz.star.StarPlotMap;
+import geovista.jmapviewer.JMapViewer;
 import geovista.largedata.H1N1DataReader;
 import geovista.matrix.MapAndScatterplotMatrix;
 import geovista.matrix.MapMatrix;
@@ -154,7 +155,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
     ToolkitBeanSet tBeanSet;
 
     // Create JDesktopPane to hold the internal frames
-    GvDesktopPane desktop = new GvDesktopPane();
+    public GvDesktopPane desktop = new GvDesktopPane();
 
     // managing our layouts
 
@@ -879,11 +880,17 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
     // H1N1DataReader reader = null;
 
     private Object[] createData(String name) throws IOException {
+
 	setTitle("GeoViz Toolkit -- " + name);
+
 	// name = "Niger";
 	if (name == null) {
 	    return null;
 	}
+	// if (name != null) {
+	// GeoDataDucks ducks = new GeoDataDucks();
+	// return ducks.getDataForApps().getDataObjectOriginal();
+	// }
 	// if (name != null) {
 	// reader = new H1N1DataReader();
 	//
@@ -1195,6 +1202,7 @@ public class GeoVizToolkit extends JFrame implements ActionListener,
 	addToolToMenu(SpaceFill.class);
 	addToolToMenu(SonicClassifier.class);
 	addToolToMenu(GeoMapCartogram.class);
+	addToolToMenu(JMapViewer.class);
 	menuAddTool.addSeparator();
 
 	menuAddTool.add(new JLabel(" ~~~~~ Bivariate Visualization ~~~~~ "));
