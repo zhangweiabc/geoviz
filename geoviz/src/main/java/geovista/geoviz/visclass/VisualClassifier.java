@@ -378,8 +378,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
     public Color[] getColors() {
 	logger.finest("VC, gettingColors");
 	if (data == null) {
-	    System.out
-		    .println("Warning: VisualClassifier.getColors() called when VC had no data");
+	    logger.fine("Warning: VisualClassifier.getColors() called when VC had no data");
 	    return null;
 	}
 	colors = symbolizationPanel.getColors();
@@ -422,7 +421,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 
     public void actionPerformed(ActionEvent e) {
 	String command = e.getActionCommand();
-	logger.info("actionPerformed: " + command);
+	logger.fine("actionPerformed: " + command);
 	if (command == ColorRampPicker.COMMAND_SWATCH_COLOR_CHANGED) {
 	    makeColors();
 	    fireActionPerformed(VisualClassifier.COMMAND_COLORS_CHANGED);
@@ -809,6 +808,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	VisualClassifier vc = new VisualClassifier();
 
 	vc.setPalette(ColorBrewer.BrewerNames.Greens);
+
 	GeoDataGeneralizedStates data = new GeoDataGeneralizedStates();
 	vc.setDataSet(data.getDataForApps());
 	app.add(vc);
