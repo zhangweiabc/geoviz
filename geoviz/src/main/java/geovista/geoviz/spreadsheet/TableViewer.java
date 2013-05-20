@@ -105,7 +105,7 @@ public class TableViewer extends JPanel implements SelectionListener,
      */
 
     private void init() {
-	logger.info("adding self as mouse listener");
+	logger.fine("adding self as mouse listener");
 	// System.exit(0);
 	addMouseListener(this);
 	if (dataSet == null) {
