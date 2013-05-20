@@ -10,8 +10,10 @@ package geovista.geoviz.spreadsheet;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.MouseInfo;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
@@ -40,10 +42,11 @@ import geovista.readers.example.GeoDataGeneralizedStates;
 import geovista.readers.shapefile.ShapeFileProjection;
 
 public class TableViewer extends JPanel implements SelectionListener,
-	DataSetListener {
+	DataSetListener, MouseListener {
 
     private DescriptiveStats stats;
     private transient DataSetTableModel dataSet;
+    boolean mouseIn;
 
     // this renders table header cells as buttons (used for statistics display)
     private transient ButtonHeaderRenderer renderer;
@@ -82,11 +85,29 @@ public class TableViewer extends JPanel implements SelectionListener,
 
     }
 
+    boolean mouseIsOverDisplayPanel() {
+
+	if (MouseInfo.getPointerInfo().getLocation().x >= getLocationOnScreen().x
+		&& MouseInfo.getPointerInfo().getLocation().x <= getLocationOnScreen().x
+			+ getWidth()
+		&& MouseInfo.getPointerInfo().getLocation().y >= getLocationOnScreen().y
+		&& MouseInfo.getPointerInfo().getLocation().y <= getLocationOnScreen().y
+			+ getHeight()) {
+
+	    return true;
+
+	}
+	return false;
+    }
+
     /*
      * Returns a new JTable object
      */
 
     private void init() {
+	logger.info("adding self as mouse listener");
+	// System.exit(0);
+	addMouseListener(this);
 	if (dataSet == null) {
 	    dataSet = getDefaultData();
 	}
@@ -364,7 +385,8 @@ public class TableViewer extends JPanel implements SelectionListener,
 	    // called via table.addRowSelectionInterval method which fires a
 	    // ListSelectionEvent
 
-	    if (!e.getValueIsAdjusting() && table.hasFocus()) {
+	    if (!e.getValueIsAdjusting() && table.hasFocus()
+		    && mouseIsOverDisplayPanel()) {
 
 		/*
 		 * logger.info("**********"); logger.info("");
@@ -394,6 +416,37 @@ public class TableViewer extends JPanel implements SelectionListener,
 	    }
 
 	}
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent arg0) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent arg0) {
+	logger.info("");
+	mouseIn = true;
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent arg0) {
+	logger.info("");
+	mouseIn = false;
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent arg0) {
+	// TODO Auto-generated method stub
 
     }
 }
