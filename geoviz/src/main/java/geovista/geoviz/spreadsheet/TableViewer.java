@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -182,14 +183,28 @@ public class TableViewer extends JPanel implements SelectionListener,
 	    }
 	}
 	table.clearSelection();
+
+	int firstRowSelected = Integer.MAX_VALUE;
 	for (int i : selVals) {
 
 	    // if we have sorted the table we need to convert the indices
 	    // to the new view indices
 	    int v = table.getRowSorter().convertRowIndexToView(i);
 	    table.addRowSelectionInterval(v, v);
+
+	    if (v < firstRowSelected) {
+		firstRowSelected = v;
+	    }
 	}
+	if (firstRowSelected < Integer.MAX_VALUE) {
+	    Rectangle cellRect = table.getCellRect(firstRowSelected, 0, false);
+	    if (cellRect != null) {
+		table.scrollRectToVisible(cellRect);
+	    }
+	}
+
 	// this.setSelectedIndex(e.getSelection());
+
 	stats.selectionChanged(e);
 
     }
