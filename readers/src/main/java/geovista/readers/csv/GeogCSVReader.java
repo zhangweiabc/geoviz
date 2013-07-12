@@ -175,6 +175,11 @@ public class GeogCSVReader {
     }
 
     private static boolean isNumeric(String str) {
+	for (String nullStr : NULL_STRINGS) {
+	    if (str.equals(nullStr)) {
+		return true;
+	    }
+	}
 	return str.matches("-?\\d+(\\.\\d+)?"); // match a number with optional
 						// '-' and decimal.
     }
