@@ -52,7 +52,7 @@ public class TableViewer extends JPanel implements SelectionListener,
     // this renders table header cells as buttons (used for statistics display)
     private transient ButtonHeaderRenderer renderer;
 
-    private JTable table;
+    protected JTable table;
 
     JScrollPane scrollPane;
     final static Logger logger = Logger.getLogger(TableViewer.class.getName());
@@ -101,11 +101,7 @@ public class TableViewer extends JPanel implements SelectionListener,
 	return false;
     }
 
-    /*
-     * Returns a new JTable object
-     */
-
-    private void init() {
+    protected void init() {
 	logger.fine("adding self as mouse listener");
 	// System.exit(0);
 	addMouseListener(this);
