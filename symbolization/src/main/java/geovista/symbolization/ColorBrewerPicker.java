@@ -4,6 +4,10 @@
 
 package geovista.symbolization;
 
+import geovista.colorbrewer.ColorBrewer;
+import geovista.colorbrewer.UnivariatePalette;
+import geovista.geoviz.visclass.VisualClassifier;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -25,10 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.event.EventListenerList;
 
-import geovista.colorbrewer.ColorBrewer;
-import geovista.colorbrewer.UnivariatePalette;
-import geovista.geoviz.visclass.VisualClassifier;
-
 public class ColorBrewerPicker extends JPanel implements ComponentListener,
 	ActionListener {
 
@@ -47,6 +47,7 @@ public class ColorBrewerPicker extends JPanel implements ComponentListener,
 
     private UnivariatePalette pal;
     JComboBox colorList;
+    ComboBoxRenderer renderer;
     final static Logger logger = Logger.getLogger(ColorBrewerPicker.class
 	    .getName());
 
@@ -65,8 +66,9 @@ public class ColorBrewerPicker extends JPanel implements ComponentListener,
 	pal = ColorBrewer.getPalette(ColorBrewer.BrewerNames.Blues);
 	Object[] names = ColorBrewer.readContents().keySet().toArray();
 	colorList = new JComboBox(names);
-	ComboBoxRenderer renderer = new ComboBoxRenderer(
+	renderer = new ComboBoxRenderer(
 		ColorBrewer.getPalette(ColorBrewer.BrewerNames.Blues));
+	renderer.nColors = ColorBrewerPicker.DEFAULT_NUM_SWATCHES;
 	renderer.setPreferredSize(new Dimension(100, 10));
 	colorList.setRenderer(renderer);
 
@@ -103,7 +105,7 @@ public class ColorBrewerPicker extends JPanel implements ComponentListener,
 	int len = 0;
 	if (colors != null) {
 	    len = colors.length;
-	    removeAll();
+	    this.renderer.nColors = len;
 	}
 
 	// XXX this next box spacer business needs to be broken out properly
@@ -271,6 +273,8 @@ public class ColorBrewerPicker extends JPanel implements ComponentListener,
     class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 	UnivariatePalette pal;
 
+	int nColors;
+
 	public ComboBoxRenderer(UnivariatePalette pal) {
 	    setOpaque(true);
 	    setHorizontalAlignment(CENTER);
@@ -301,7 +305,7 @@ public class ColorBrewerPicker extends JPanel implements ComponentListener,
 	@Override
 	public void paintComponent(Graphics g) {
 
-	    int nColors = 5;
+	    // int nColors = 5;
 	    Color[] colors = pal.getColors(nColors);
 	    // only horizontal painting enabled for now...
 	    int patchWidth = getWidth() / nColors;
