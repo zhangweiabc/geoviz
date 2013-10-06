@@ -4,6 +4,27 @@
 
 package geovista.geoviz.map;
 
+import geovista.common.classification.ClassifierPicker;
+import geovista.common.data.DataSetForApps;
+import geovista.common.event.DataSetEvent;
+import geovista.common.event.DataSetListener;
+import geovista.common.event.IndicationEvent;
+import geovista.common.event.IndicationListener;
+import geovista.common.event.PaletteEvent;
+import geovista.common.event.PaletteListener;
+import geovista.common.event.SelectionEvent;
+import geovista.common.event.SelectionListener;
+import geovista.common.event.SpatialExtentEvent;
+import geovista.common.event.SpatialExtentListener;
+import geovista.geoviz.scatterplot.Histogram;
+import geovista.geoviz.visclass.VisualClassifier;
+import geovista.readers.example.GeoDataGeneralizedStates;
+import geovista.symbolization.BivariateColorClassifier;
+import geovista.symbolization.BivariateColorClassifierSimple;
+import geovista.symbolization.ColorClassifier;
+import geovista.symbolization.event.ColorClassifierEvent;
+import geovista.symbolization.event.ColorClassifierListener;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -25,27 +46,6 @@ import javax.swing.JToolBar;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-
-import geovista.common.classification.ClassifierPicker;
-import geovista.common.data.DataSetForApps;
-import geovista.common.event.DataSetEvent;
-import geovista.common.event.DataSetListener;
-import geovista.common.event.IndicationEvent;
-import geovista.common.event.IndicationListener;
-import geovista.common.event.PaletteEvent;
-import geovista.common.event.PaletteListener;
-import geovista.common.event.SelectionEvent;
-import geovista.common.event.SelectionListener;
-import geovista.common.event.SpatialExtentEvent;
-import geovista.common.event.SpatialExtentListener;
-import geovista.geoviz.scatterplot.Histogram;
-import geovista.geoviz.visclass.VisualClassifier;
-import geovista.readers.example.GeoDataGeneralizedStates;
-import geovista.symbolization.BivariateColorClassifier;
-import geovista.symbolization.BivariateColorClassifierSimple;
-import geovista.symbolization.ColorClassifier;
-import geovista.symbolization.event.ColorClassifierEvent;
-import geovista.symbolization.event.ColorClassifierListener;
 
 /**
  * This class handles the user state, like selection, pan, zoom, plus
@@ -90,7 +90,7 @@ public class GeoMapUni extends JPanel
 		.setVariableChooserMode(ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
 	// visClassTwo.setVariableChooserMode(
 	// ClassifierPicker.VARIABLE_CHOOSER_MODE_ACTIVE);
-	// visClassOne.addActionListener(this);
+	visClassOne.addActionListener(this);
 	// visClassTwo.addActionListener(this);
 	vcPanel.add(visClassOne);
 	// vcPanel.add(visClassTwo);
@@ -296,7 +296,7 @@ public class GeoMapUni extends JPanel
 	    mapCan.setCurrColorColumnX(index);
 	    mapCan.setCurrColorColumnY(index);
 	    if (histo != null) {
-		histo.setData(dataSet.getNumericDataAsDouble(index));
+		// histo.setData(dataSet.getNumericDataAsDouble(index));
 	    }
 	    this.firePropertyChange("SelectedVariable", index, index);
 	}
