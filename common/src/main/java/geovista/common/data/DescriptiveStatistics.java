@@ -1,9 +1,14 @@
 /* Licensed under LGPL v. 2.1 or any later version;
+
  see GNU LGPL for details.
- Original Author: Frank Hardisty */
+ Original Author: Frank Hardisty 
+ 
+ *Edited by to allow the NAN value in each Numeric Column
+ */
 
 package geovista.common.data;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -458,10 +463,13 @@ public abstract class DescriptiveStatistics {
 		double mean = 0;
 		double temp = 0;
 		double n = doubleArray.length;
-
 		for (int i = 0; i < n; i++) {
 			temp = doubleArray[i];
+			if(!Double.isNaN(temp)){
 			mean += temp;
+			}
+			
+			    
 		} // end for
 
 		mean = mean / n;
@@ -674,6 +682,48 @@ public abstract class DescriptiveStatistics {
 
 		return skewness;
 	} // end skewness
+	
+	
+	/*public static double skewnessIgnoreNaN(double[] doubleArray, boolean sample) {
+		// first make sure that array has enough elements
+		if (doubleArray.length < 3) {
+			String s = "Array with less than three elements passed to DescriptiveStatistics.skewness";
+			logger.fine(s);
+			return Double.NaN;
+		} // end if
+
+		double temp = 0;
+		double sum = 0;
+		double n = doubleArray.length;
+		double stdDev = DescriptiveStatistics.stdDev(doubleArray, sample);
+		double mean = DescriptiveStatistics.meanIgnoreNaN(doubleArray);
+
+		// now make sure that standard deviation is not zero
+		if (stdDev == 0) {
+			String s = "Array with standard devation of zero passed to DescriptiveStatistics.skewness";
+			logger.fine(s);
+			return Double.NaN;
+		} // end if
+		
+		int count_NaN=0;
+		
+		for (int i = 0; i < n; i++) {
+		    
+		       
+			temp = doubleArray[i];
+			if(!Double.isNaN(temp)){
+			temp -= mean;
+			sum += (temp * temp * temp);
+			}
+			else
+			    count_NaN++;
+		} // end for
+
+		double skewness = sum / ((n-count_NaN) * stdDev * stdDev * stdDev);
+
+		return skewness;
+	} // end skewness
+*/	
 
 	/**
 	 * Returns the kurtosis for a given array. Kurtosis is the "peakyness" of
@@ -1143,4 +1193,26 @@ public abstract class DescriptiveStatistics {
 		} // next i
 
 	}
+	
+	public static double[] removeNaNfromDoubleArray(double doubleArray[]){
+	    
+	    ArrayList <Double> arrayWithoutNaN = new ArrayList<Double> ();
+	    for(int i=0; i<doubleArray.length; i++){
+		double temp = doubleArray[i];
+		if(!Double.isNaN(temp))
+		    arrayWithoutNaN.add(temp);
+	    }
+	    
+	    
+	    //String [] countries = list.toArray(new String[list.size()]);
+	    double [] doubleArrayWithoutNaN = new double[arrayWithoutNaN.size()];
+	    
+	    for(int i=0; i<arrayWithoutNaN.size();i++){
+		doubleArrayWithoutNaN[i]=arrayWithoutNaN.get(i);
+	    }
+	    return doubleArrayWithoutNaN;
+	} 
+	    
+	    
+	
 }
