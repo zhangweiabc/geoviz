@@ -3,7 +3,7 @@
  see GNU LGPL for details.
  Original Author: Frank Hardisty 
  
- *Edited by to allow the NAN value in each Numeric Column
+ *Edited by Wei to allow the NAN value in each Numeric Column
  */
 
 package geovista.common.data;
