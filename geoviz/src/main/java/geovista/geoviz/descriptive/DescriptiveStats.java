@@ -1,6 +1,7 @@
 /* Licensed under LGPL v. 2.1 or any later version;
  see GNU LGPL for details.
- Original Author: Frank Hardisty */
+ Original Author: Frank Hardisty 
+ */
 
 
 package geovista.geoviz.descriptive;
@@ -30,7 +31,7 @@ import geovista.readers.example.GeoData48States;
  * Displays descriptive statistics about a current variable, including
  * statistics for the currently selected set.
  * 
- * @author Frank Hardisty
+ * @author Frank Hardisty Wei Luo 
  * 
  */
 public class DescriptiveStats extends JPanel
@@ -47,6 +48,10 @@ implements SelectionListener, DataSetListener {
 	JFormattedTextField stdDevSelFTF;
 	JFormattedTextField skewnessSelFTF;
 	JFormattedTextField kurtosisSelFTF;
+	JFormattedTextField numRecordsFTF;
+	JFormattedTextField numRecordsSelFTF;
+	
+	
 	int[] savedSelection;
 	int selectedColumn = 0; //compute statistics for this column in dataSetForApps
 
@@ -64,6 +69,7 @@ implements SelectionListener, DataSetListener {
 		currVarPanel.setLayout(new BoxLayout(currVarPanel, BoxLayout.Y_AXIS));
 		currVarPanel.setBorder(BorderFactory
 				.createTitledBorder("Column Stats:"));
+		currVarPanel.add(makeNumRecordsPanel());
 		currVarPanel.add(makeMeanPanel());
 		currVarPanel.add(makeStdDevPanel());
 		currVarPanel.add(makeSkewnessPanel());
@@ -74,6 +80,7 @@ implements SelectionListener, DataSetListener {
 		selObsPanel.setLayout(new BoxLayout(selObsPanel, BoxLayout.Y_AXIS));
 		selObsPanel.setBorder(BorderFactory
 				.createTitledBorder("Selection Stats:"));
+		selObsPanel.add(makeNumRecordsSelPanel());
 		selObsPanel.add(makeSelMeanPanel());
 		selObsPanel.add(makeSelStdDevPanel());
 		selObsPanel.add(makeSelSkewnessPanel());
@@ -93,6 +100,20 @@ implements SelectionListener, DataSetListener {
 
 	}
 
+	private JPanel makeNumRecordsPanel() {
+		JPanel NumRecordsPan = new JPanel();
+		JLabel label = new JLabel("Count:");
+		numRecordsFTF = new JFormattedTextField(decMatter);
+		numRecordsFTF.setEditable(false);
+		double num = 0;
+		numRecordsFTF.setValue(num);
+		NumRecordsPan.add(label);
+		NumRecordsPan.add(numRecordsFTF);
+		return NumRecordsPan;
+	}
+	
+	
+	
 	private JPanel makeMeanPanel() {
 		JPanel meanPan = new JPanel();
 		JLabel label = new JLabel("Mean:");
@@ -139,6 +160,18 @@ implements SelectionListener, DataSetListener {
 		kurtosisPan.add(label);
 		kurtosisPan.add(kurtosisFTF);
 		return kurtosisPan;
+	}
+	
+	private JPanel makeNumRecordsSelPanel() {
+		JPanel NumRecordsSelPan = new JPanel();
+		JLabel label = new JLabel("Count:");
+		numRecordsSelFTF = new JFormattedTextField(decMatter);
+		numRecordsSelFTF.setEditable(false);
+		double num = 0;
+		numRecordsSelFTF.setValue(num);
+		NumRecordsSelPan.add(label);
+		NumRecordsSelPan.add(numRecordsSelFTF);
+		return NumRecordsSelPan;
 	}
 
 	private JPanel makeSelMeanPanel() {
@@ -206,6 +239,12 @@ implements SelectionListener, DataSetListener {
 
 	}
 	
+	public void recaculatedStats(DataSetForApps newDataSet){
+	    	dataSet = newDataSet;
+	    	calculateStats();
+
+	}
+	
 	/*
 	 * select the selectedColumn variable and recalculate the statistics
 	 */
@@ -217,20 +256,44 @@ implements SelectionListener, DataSetListener {
 	}
 
 	private void calculateStats() {
-		double[] data = dataSet.getNumericDataAsDouble(selectedColumn);
-		double meanValue = DescriptiveStatistics.mean(data);
+	    
+	        //Object[] data1 = dataSet.get
+	        
+	        //ColumnValues.toString();
+	        int Selectedtype = dataSet.getColumnType(selectedColumn);
+	        
+	        if(Selectedtype == 1 || Selectedtype==2){
+	        
+	        //ColumnValues get the the original column numbers from table
+		double[] data = dataSet.getNumericDataAsDoubleFromOriginalData(selectedColumn);
+		double[] datawithoutNaN = DescriptiveStatistics.removeNaNfromDoubleArray(data);
+		//if(datawithoutNaN.length)
+		//int n = datawithoutNaN.length;
+		
+		numRecordsFTF.setValue(datawithoutNaN.length);
+		
+		
+		double meanValue = DescriptiveStatistics.mean(datawithoutNaN);
 		meanFTF.setValue(meanValue);
 		if (meanFTF.getText().equals("-0")) {
 			meanFTF.setText("0");
 		}
-
-		double stdDev = DescriptiveStatistics.stdDev(data, false);
+                
+		double stdDev = DescriptiveStatistics.stdDev(datawithoutNaN, false);
 		stdDevFTF.setValue(stdDev);
-		double skewness = DescriptiveStatistics.skewness(data, false);
+		double skewness = DescriptiveStatistics.skewness(datawithoutNaN, false);
 		skewnessFTF.setValue(skewness);
-		double kurtosis = DescriptiveStatistics.kurtosis(data, false);
+		double kurtosis = DescriptiveStatistics.kurtosis(datawithoutNaN, false);
 		kurtosisFTF.setValue(kurtosis);
 		revalidate();
+		}
+	        else {
+	            meanFTF.setText("0");
+	            stdDevFTF.setText("0");
+	            skewnessFTF.setText("0");
+	            kurtosisFTF.setText("0");
+	            revalidate();
+	        }
 	}
 
 	private void calculateSelStats(int[] selObs) {
@@ -239,14 +302,17 @@ implements SelectionListener, DataSetListener {
 			return;
 		}
 		
-		double[] originalData = dataSet.getNumericDataAsDouble(selectedColumn);
+		int Selectedtype = dataSet.getColumnType(selectedColumn);
+		if(Selectedtype == 1 || Selectedtype==2){
+		
+		double[] originalData = dataSet.getNumericDataAsDoubleFromOriginalData(selectedColumn);
 		double[] data = null;
 		if (selObs.length > 0) {
+			//data = DescriptiveStatistics.removeNaNfromDoubleArray(originalData);
 			data = new double[selObs.length];
-			int counter = 0;
+		    int counter = 0;
 			for (int i : selObs) {
-
-				data[counter++] = originalData[i];
+				data[counter++] = originalData[i];    
 			}
 		} else {
 			// strangely, if we don't do this next, the figures
@@ -257,15 +323,26 @@ implements SelectionListener, DataSetListener {
 			kurtosisSelFTF.setText(kurtosisFTF.getText());
 			return;
 		}
-		double meanValue = DescriptiveStatistics.mean(data);
+		
+		double[] datawithoutNaN = DescriptiveStatistics.removeNaNfromDoubleArray(data);
+		numRecordsSelFTF.setValue(datawithoutNaN.length);
+		double meanValue = DescriptiveStatistics.mean(datawithoutNaN);
 		meanSelFTF.setValue(meanValue);
-		double stdDev = DescriptiveStatistics.stdDev(data, true);
+		double stdDev = DescriptiveStatistics.stdDev(datawithoutNaN, true);
 		stdDevSelFTF.setValue(stdDev);
-		double skewness = DescriptiveStatistics.skewness(data, true);
+		double skewness = DescriptiveStatistics.skewness(datawithoutNaN, true);
 		skewnessSelFTF.setValue(skewness);
-		double kurtosis = DescriptiveStatistics.kurtosis(data, true);
+		double kurtosis = DescriptiveStatistics.kurtosis(datawithoutNaN, true);
 		kurtosisSelFTF.setValue(kurtosis);
 		revalidate();
+		}
+		else{
+		    meanSelFTF.setText("0");
+		    stdDevSelFTF.setText("0");
+		    skewnessSelFTF.setText("0");
+		    kurtosisSelFTF.setText("0");
+	            revalidate();
+		}
 	}
 
 	public static void main(String[] args) {
