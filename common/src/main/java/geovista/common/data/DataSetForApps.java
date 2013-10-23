@@ -535,6 +535,37 @@ public class DataSetForApps {
 	}
 	return doubleData;
     }
+    
+    /**
+     * 
+     * 
+     * This first index is zero, the next one, and so on, the last being
+     * getNumberNumericAttributes() -1
+     * The original data includes boolean, double, int, string...
+     */
+    public double[] getNumericDataAsDoubleFromOriginalData(int numericArrayIndex) {
+	Object dataNumeric = dataObjectOriginal[numericArrayIndex + 1];
+	// because it is a string array of variable names
+	double[] doubleData = null;
+	if (dataNumeric instanceof double[]) {
+	    doubleData = (double[]) dataNumeric;
+	} else if (dataNumeric instanceof int[]) {
+	    int[] intData = (int[]) dataNumeric;
+	    doubleData = new double[intData.length];
+	    for (int i = 0; i < intData.length; i++) {
+		if (intData[i] == Integer.MIN_VALUE) {
+		    doubleData[i] = Double.NaN;
+		} else {
+		    doubleData[i] = intData[i];
+		}
+	    } // next i
+	} else {
+	    throw new IllegalArgumentException(
+		    "Unable to parse values in column " + numericArrayIndex
+			    + " as a number");
+	}
+	return doubleData;
+    }
 
     /**
      * Returns a double where the arrayIndex is the nth array in the data set,
