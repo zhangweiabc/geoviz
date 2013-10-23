@@ -31,6 +31,7 @@ public class Exerciser {
 	CoordinationManager coord;
 	ArrayList beans;
 	Object beanIn;
+	
 
 	// GeoDataGeneralizedStates geoData;
 	GeoDataGeneralizedStates geoData;
