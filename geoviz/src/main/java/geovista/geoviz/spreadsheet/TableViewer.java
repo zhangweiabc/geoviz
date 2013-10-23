@@ -5,6 +5,8 @@ package geovista.geoviz.spreadsheet;
  * Date: Feb 9, 2003
  * Time: 12:09:50 PM
  * @author Jin Chen
+ * 
+ * // add by wei for stats to know the new data come in
  */
 
 import java.awt.BorderLayout;
@@ -100,6 +102,10 @@ public class TableViewer extends JPanel implements SelectionListener,
 	}
 	return false;
     }
+
+    /*
+     * Returns a new JTable object
+     */
 
     protected void init() {
 	logger.fine("adding self as mouse listener");
@@ -262,6 +268,13 @@ public class TableViewer extends JPanel implements SelectionListener,
 	this.dataSet = new DataSetTableModel(dataSet);
 
 	init();
+	
+	
+	// add by wei for stats to know the new data come in
+	setTableHeaderRenderer();
+	stats.recaculatedStats(dataSet);
+
+	//dataSetChanged
 
 	/*
 	 * 
@@ -357,7 +370,7 @@ public class TableViewer extends JPanel implements SelectionListener,
     public static void main(String args[]) {
 
 	JFrame mf = new JFrame();
-	TableViewer tView = new TableViewer(false);
+	TableViewer tView = new TableViewer();
 	mf.getContentPane().add(tView);
 
 	DataSetForApps dataSet = getStateData(tView);
