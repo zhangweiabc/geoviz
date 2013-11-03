@@ -1,6 +1,9 @@
 /* Licensed under LGPL v. 2.1 or any later version;
+
  see GNU LGPL for details.
- Authors: Xiping Dai and Frank Hardisty */
+ Authors: Xiping Dai and Frank Hardisty 
+ Edited by Wei Luo to allow the drawing of the value for each bin.
+ */
 
 package geovista.geoviz.scatterplot;
 
@@ -23,6 +26,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,8 +57,8 @@ public class Histogram extends JPanel implements MouseListener,
 	MouseMotionListener, ComponentListener, DataSetListener,
 	SelectionListener, IndicationListener, ShapeReporter {
     private static double AXISSPACEPORTION = 1.0 / 6.0;
-    private static int DEFAULT_HIST_NUM = 20;
-    transient private double[] data;
+    private static int DEFAULT_HIST_NUM = 5;
+    transient private double[] data;  // record all numeric data for one column
     transient private String variableName;
     transient private DataArray dataArray;
     transient private DataArray histArray;
@@ -71,7 +75,7 @@ public class Histogram extends JPanel implements MouseListener,
     transient private int plotEndY;
     transient private double[] xAxisExtents;
     transient private double[] yAxisExtents;
-    transient private int[] exsInt;
+    transient private int[] exsInt; // bar x position
     transient private int[] whyInt;
     transient private int[] accumulativeInt;
     transient private int[] selectionInt;
@@ -118,7 +122,7 @@ public class Histogram extends JPanel implements MouseListener,
 
     public Histogram() {
 	// initialization goes more smoothly with some data to chew on
-	double[] data = { 1, 2, 3, 4, 3, 2, 1, 2, 3, 4, 66 };
+	double[] data = { 1, 2, 3, 4, 3, 2, 1, 2, 3, 4, 5, 66 };
 	dataX = data;
 	Dimension size = new Dimension(300, 200);
 	setPreferredSize(size);
@@ -635,6 +639,41 @@ public class Histogram extends JPanel implements MouseListener,
 	}
 	g.drawString(scaleStringX, plotEndX - 8, plotOriginY
 		+ (int) (plotHeight * AXISSPACEPORTION / 4));
+	
+	
+	// ticks in the middle
+	
+	 
+	 int len = data.length; 
+	 
+	 
+	 
+	 double sortedData[] = data.clone();
+	 double temp1[]   = new double[data.length]; 
+		for (int i=0; i<len;i++){
+		
+		    for (int j=i+1;j<len;j++){
+			if(sortedData[i]>sortedData[j]){
+				temp1[i] 	=	sortedData[i];
+				sortedData[i] 	= 	sortedData[j];
+				sortedData[j]	= 	temp1[i];
+			}
+	
+		}
+		}
+		
+		
+	double barBinValues[] = new double [exsInt.length];
+	for (int i=0; i<barBinValues.length; i++){
+	    barBinValues[i]   =  sortedData[(int) accumulativeFrequency[i]-1];
+	}
+	
+	for (int i=0; i<exsInt.length-1; i++){    
+	    g.drawString(Double.toString(barBinValues[i]), exsInt[i+1], plotOriginY
+			+ (int) (plotHeight * AXISSPACEPORTION / 4));
+	}
+	
+	
 	font = new Font("", Font.PLAIN, fontSize + 3);
 	g.setFont(font);
 	// draw X axis attribute string
@@ -1324,7 +1363,7 @@ public class Histogram extends JPanel implements MouseListener,
 	app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	Histogram histo = new Histogram();
 	histo.setVariableName("var name");
-	histo.setData(new double[] { 1, 2, 3, 4, 56 });
+	histo.setData(new double[] { 1, 2, 3,3,3, 44, 56 });
 	app.add(histo);
 	app.pack();
 	app.setVisible(true);
