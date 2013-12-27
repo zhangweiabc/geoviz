@@ -1000,6 +1000,16 @@ public class DataSetForApps {
 
     }
 
+    public List<Object> getRowValues(int rowId) {
+	ArrayList vals = new ArrayList();
+	for (int i = 0; i < this.attributeNames.length; i++) {
+	    Object val = this.getValueAt(rowId, i);
+	    vals.add(val);
+	}
+
+	return vals;
+    }
+
     public Object getValueAt(int rowIndex, int columnIndex) {
 
 	Object dataArray = getDataObjectOriginal()[columnIndex + 1];
