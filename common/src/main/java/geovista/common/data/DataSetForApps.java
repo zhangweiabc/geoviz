@@ -10,6 +10,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -79,6 +80,7 @@ public class DataSetForApps {
     private transient SpatialWeights spatialWeights;
 
     public Map<String, String>[] aliases;
+    private Object sTempoMetadata;
 
     public static int NULL_INT_VALUE = Integer.MIN_VALUE;
 
@@ -88,6 +90,23 @@ public class DataSetForApps {
     @Deprecated
     public DataSetForApps() {
 
+    }
+
+    /**
+     * Convenience constructor, with STempo metadata.
+     * 
+     * @param varNames
+     *            String names of variables
+     * @param data
+     *            Array of arrays, of types double[], int[], or String[]
+     * @param geoms
+     *            Shapely shapes
+     */
+
+    public DataSetForApps(String[] varNames, Object[] data, Shape[] geoms,
+	    Object sTempoData) {
+	this(varNames, data, geoms);
+	this.sTempoMetadata = sTempoData;
     }
 
     /**
@@ -110,6 +129,17 @@ public class DataSetForApps {
 	originalData[originalData.length - 1] = geoms;
 	dataObjectOriginal = originalData;
 	init(dataObjectOriginal);
+    }
+
+    public Object getSTempoMetadata() {
+	return this.sTempoMetadata;
+    }
+
+    public boolean hasSTempoMetadata() {
+	if (this.sTempoMetadata == null) {
+	    return false;
+	}
+	return true;
     }
 
     public String findInequality(DataSetForApps otherDSA) {
@@ -535,13 +565,13 @@ public class DataSetForApps {
 	}
 	return doubleData;
     }
-    
+
     /**
      * 
      * 
      * This first index is zero, the next one, and so on, the last being
-     * getNumberNumericAttributes() -1
-     * The original data includes boolean, double, int, string...
+     * getNumberNumericAttributes() -1 The original data includes boolean,
+     * double, int, string...
      */
     public double[] getNumericDataAsDoubleFromOriginalData(int numericArrayIndex) {
 	Object dataNumeric = dataObjectOriginal[numericArrayIndex + 1];
@@ -1010,9 +1040,26 @@ public class DataSetForApps {
 	return vals;
     }
 
+    /**
+     * Gets all values for only specified columns.
+     * 
+     * @param rowId
+     * @param columnIds
+     * @return
+     */
+    public List<Object> getRowValues(int rowId, int[] columnIds) {
+	List<Object> objList = new ArrayList<Object>();
+	for (int id : columnIds) {
+	    Object value = this.getValueAt(rowId, id);
+	    objList.add(value);
+	}
+	return objList;
+    }
+
     public Object getValueAt(int rowIndex, int columnIndex) {
 
 	Object dataArray = getDataObjectOriginal()[columnIndex + 1];
+
 	Object datum = null;
 	if (dataArray instanceof double[]) {
 	    double[] doubleArray = (double[]) dataArray;
@@ -1095,6 +1142,117 @@ public class DataSetForApps {
 	}
 
 	return type;
+    }
+
+    /**
+     * Gets an iterator for specified column numbers.
+     * 
+     * @param columnIds
+     * @return
+     */
+    public ListIterator getListIterator(int[] columnIds) {
+	return new DSAListIterator(columnIds);
+    }
+
+    /**
+     * Gets an iterator for specified column numbers which start at the
+     * startIndex
+     * 
+     * @param columnIds
+     *            Columns to get.
+     * @param startIndex
+     *            Index iterator should start at
+     * @return
+     */
+    public ListIterator getListIterator(int[] columnIds, int startIndex) {
+	return new DSAListIterator(columnIds, startIndex);
+    }
+
+    /**
+     * Inner class that creates a ListIterator for dataset.
+     */
+    class DSAListIterator implements ListIterator {
+
+	private int rowNum;
+	private int[] columnIds;
+
+	DSAListIterator(int[] columnIds) {
+	    init(columnIds, 0);
+	}
+
+	DSAListIterator(int[] columnIds, int startRowNum) {
+	    init(columnIds, startRowNum);
+	}
+
+	private void init(int[] columnIds, int startRowNum) {
+	    try {
+		if (columnIds.length < 1) {
+		    throw new IndexOutOfBoundsException();
+		}
+		if ((startRowNum > getNumObservations()) || (startRowNum < 0)) {
+		    throw new IndexOutOfBoundsException();
+		}
+		this.columnIds = columnIds;
+		this.rowNum = startRowNum;
+	    } catch (IndexOutOfBoundsException err) {
+		err.printStackTrace();
+		System.exit(0);
+	    }
+	}
+
+	@Override
+	public boolean hasNext() {
+	    if (rowNum < getNumObservations()) {
+		return true;
+	    } else {
+		return false;
+	    }
+	}
+
+	@Override
+	public List<Object> next() {
+	    return getRowValues(rowNum++, columnIds);
+	}
+
+	@Override
+	public boolean hasPrevious() {
+	    if (rowNum > 0) {
+		return true;
+	    } else {
+		return false;
+	    }
+	}
+
+	@Override
+	public List<Object> previous() {
+	    return getRowValues(--rowNum, columnIds);
+	}
+
+	@Override
+	public int nextIndex() {
+	    return rowNum + 1;
+	}
+
+	@Override
+	public int previousIndex() {
+	    return rowNum - 1;
+	}
+
+	@Override
+	public void remove() {
+	    throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void set(Object e) {
+	    throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void add(Object e) {
+	    throw new UnsupportedOperationException();
+	}
+
     }
 
 }
