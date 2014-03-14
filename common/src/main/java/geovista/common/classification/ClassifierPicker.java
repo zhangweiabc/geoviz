@@ -4,6 +4,12 @@
 
 package geovista.common.classification;
 
+import geovista.common.data.DataSetForApps;
+import geovista.common.event.ClassificationEvent;
+import geovista.common.event.ClassificationListener;
+import geovista.common.event.ColumnAppendedEvent;
+import geovista.geoviz.visclass.VisualClassifier;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -25,12 +31,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
-
-import geovista.common.data.DataSetForApps;
-import geovista.common.event.ClassificationEvent;
-import geovista.common.event.ClassificationListener;
-import geovista.common.event.ColumnAppendedEvent;
-import geovista.geoviz.visclass.VisualClassifier;
 
 public class ClassifierPicker extends JPanel implements ActionListener,
 	ComponentListener {
@@ -421,6 +421,11 @@ public class ClassifierPicker extends JPanel implements ActionListener,
     }
 
     public void setCurrVariableIndex(int currVariableIndex) {
+
+	if (variableCombo.getItemCount() <= currVariableIndex) {
+	    logger.severe("variableCombo.getItemCount() <= currVariableIndex, why?");
+	    return;
+	}
 	this.currVariableIndex = currVariableIndex;
 	variableCombo.setSelectedIndex(currVariableIndex);
 	fireClassificationChanged(); // inserted fah 7 oct 03
