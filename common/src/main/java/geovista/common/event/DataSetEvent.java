@@ -48,7 +48,13 @@ public class DataSetEvent extends EventObject {
      */
     public DataSetEvent(DataSetForApps dataSetForApps, Object source,
 	    Object sTempoDataAccessor) {
+
 	super(source);
+
+	if (sTempoDataAccessor == null) {
+	    logger.severe(" no metadata");
+	    new Throwable().printStackTrace();
+	}
 	this.dataSetForApps = dataSetForApps;
 	dataSet = dataSetForApps.getDataObjectOriginal();
 	this.sTempoEventAccessor = sTempoDataAccessor;
