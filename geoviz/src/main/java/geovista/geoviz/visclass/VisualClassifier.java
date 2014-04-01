@@ -5,6 +5,28 @@
 package geovista.geoviz.visclass;
 
 // import geovista.common.ui.panel.*;
+import geovista.colorbrewer.ColorBrewer;
+import geovista.colorbrewer.Palette;
+import geovista.colorbrewer.UnivariatePalette;
+import geovista.common.classification.Classifier;
+import geovista.common.classification.ClassifierPicker;
+import geovista.common.data.DataSetForApps;
+import geovista.common.event.ColorArrayEvent;
+import geovista.common.event.ColorArrayListener;
+import geovista.common.event.ColumnAppendedEvent;
+import geovista.common.event.ColumnAppendedListener;
+import geovista.common.event.DataSetEvent;
+import geovista.common.event.DataSetListener;
+import geovista.common.event.PaletteEvent;
+import geovista.common.event.PaletteListener;
+import geovista.readers.example.GeoDataGeneralizedStates;
+import geovista.symbolization.ColorBrewerPicker;
+import geovista.symbolization.ColorRampPicker;
+import geovista.symbolization.ColorSymbolClassificationSimple;
+import geovista.symbolization.ColorSymbolizer;
+import geovista.symbolization.event.ColorClassifierEvent;
+import geovista.symbolization.event.ColorClassifierListener;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -30,28 +52,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-
-import geovista.colorbrewer.ColorBrewer;
-import geovista.colorbrewer.Palette;
-import geovista.colorbrewer.UnivariatePalette;
-import geovista.common.classification.Classifier;
-import geovista.common.classification.ClassifierPicker;
-import geovista.common.data.DataSetForApps;
-import geovista.common.event.ColorArrayEvent;
-import geovista.common.event.ColorArrayListener;
-import geovista.common.event.ColumnAppendedEvent;
-import geovista.common.event.ColumnAppendedListener;
-import geovista.common.event.DataSetEvent;
-import geovista.common.event.DataSetListener;
-import geovista.common.event.PaletteEvent;
-import geovista.common.event.PaletteListener;
-import geovista.readers.example.GeoDataGeneralizedStates;
-import geovista.symbolization.ColorBrewerPicker;
-import geovista.symbolization.ColorRampPicker;
-import geovista.symbolization.ColorSymbolClassificationSimple;
-import geovista.symbolization.ColorSymbolizer;
-import geovista.symbolization.event.ColorClassifierEvent;
-import geovista.symbolization.event.ColorClassifierListener;
 
 // import javax.swing.colorchooser.*;
 
@@ -439,6 +439,7 @@ public class VisualClassifier extends JPanel implements ActionListener,
 	    fireActionPerformed(VisualClassifier.COMMAND_COLORS_CHANGED);
 	    fireColorClassifierPerformed();
 	    VisualClassifier.this.fireColorArrayChanged();
+	    this.revalidate();
 	} else if (command == ClassifierPicker.COMMAND_SELECTED_VARIABLE_CHANGED) {
 	    if (logger.isLoggable(Level.FINEST)) {
 		logger.finest("VisClass, selected variable changed...");
