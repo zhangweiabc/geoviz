@@ -16,6 +16,7 @@ import geovista.common.event.SelectionEvent;
 import geovista.common.event.SelectionListener;
 import geovista.common.event.SpatialExtentEvent;
 import geovista.common.event.SpatialExtentListener;
+import geovista.common.ui.VisualSettingsPopupListener;
 import geovista.geoviz.scatterplot.Histogram;
 import geovista.geoviz.visclass.VisualClassifier;
 import geovista.readers.example.GeoDataGeneralizedStates;
@@ -58,7 +59,7 @@ public class GeoMapUni extends JPanel
 	// MouseListener, MouseMotionListener,
 	ActionListener, SelectionListener, IndicationListener, DataSetListener,
 	ColorClassifierListener, SpatialExtentListener, PaletteListener,
-	TableModelListener {
+	TableModelListener, VisualSettingsPopupListener {
     public static final int VARIABLE_CHOOSER_MODE_ACTIVE = 0;
     public static final int VARIABLE_CHOOSER_MODE_FIXED = 1;
     public static final int VARIABLE_CHOOSER_MODE_HIDDEN = 2;
@@ -97,7 +98,8 @@ public class GeoMapUni extends JPanel
 
 	legendPanel = new JPanel();
 	legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.X_AXIS));
-	legendPanel.add(vcPanel);
+	// legendPanel.add(vcPanel);
+	legendPanel.add(visClassOne);
 	legendPanel.add(Box.createRigidArea(new Dimension(4, 2)));
 
 	histo = new Histogram();
@@ -567,6 +569,16 @@ public class GeoMapUni extends JPanel
 
     }
 
+    public boolean isSelectionOutline() {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    public void useSelectionOutline(boolean selOutline) {
+	mapCan.useSelectionOutline(selOutline);
+
+    }
+
     public static void main(String[] args) {
 
 	JFrame app = new JFrame();
@@ -579,6 +591,79 @@ public class GeoMapUni extends JPanel
 	app.add(geoUni);
 	app.pack();
 	app.setVisible(true);
+	geoUni.mapCan.zoomFullExtent();
+
+    }
+
+    @Override
+    public void setIndicationColor(Color indColor) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Color getIndicationColor() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public void setSelectionColor(Color selColor) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Color getSelectionColor() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public void useSelectionFade(boolean selFade) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean isSelectionFade() {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    @Override
+    public void useSelectionBlur(boolean selBlur) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean isSelectionBlur() {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    @Override
+    public void useMultiIndication(boolean useMultiIndic) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void processCustomCheckBox(boolean value, String text) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public int getSelectionLineWidth() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public void setSelectionLineWidth(int width) {
+	// TODO Auto-generated method stub
 
     }
 
