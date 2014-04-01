@@ -131,6 +131,16 @@ public class DataSetForApps {
 	init(dataObjectOriginal);
     }
 
+    public DataSetForApps appendSTempoMetadata(Object metadata) {
+	Object[] original = this.getDataObjectOriginal();
+	Object[] newData = new Object[original.length + 1];
+	System.arraycopy(original, 0, newData, 0, original.length);
+	newData[original.length] = metadata;
+	DataSetForApps dsaNew = new DataSetForApps(newData);
+	dsaNew.sTempoMetadata = metadata;
+	return dsaNew;
+    }
+
     public Object getSTempoMetadata() {
 	return this.sTempoMetadata;
     }
