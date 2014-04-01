@@ -4,15 +4,15 @@
 
 package geovista.common.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.event.EventListenerList;
-
 import geovista.common.event.AuxiliaryDataSetEvent;
 import geovista.common.event.AuxiliaryDataSetListener;
 import geovista.common.event.DataSetEvent;
 import geovista.common.event.DataSetListener;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.event.EventListenerList;
 
 /**
  * This class is able to accept data for rebroadcast. It builds a DataSetForApps
@@ -22,7 +22,7 @@ import geovista.common.event.DataSetListener;
  * @see DataSetForApps
  * 
  */
-public class DataSetBroadcaster {
+public class DataSetBroadcaster implements DataSetListener {
 
     // private transient DataSetForApps dataSet;
     private transient EventListenerList listenerList;
@@ -33,9 +33,15 @@ public class DataSetBroadcaster {
     final static Logger logger = Logger.getLogger(DataSetBroadcaster.class
 	    .getName());
 
+    DataSetEvent lastEvent;
+
     public DataSetBroadcaster() {
 	super();
 	listenerList = new EventListenerList();
+    }
+
+    public DataSetEvent getLastEvent() {
+	return this.lastEvent;
     }
 
     public String initData(int nColumns) {
@@ -106,6 +112,32 @@ public class DataSetBroadcaster {
 	    logger.finest(message);
 	}
 	return "TRUE";
+    }
+
+    public void setAndFireSpaceTimeDataSet(DataSetForApps dataSetApps,
+	    Object eventDataAccessor) {
+	if (dataSetApps.hasSTempoMetadata() == false) {
+	    logger.severe("no space time event metadata");
+	    new Throwable().printStackTrace();
+	}
+
+	Object[] listeners = listenerList.getListenerList();
+	DataSetEvent e = null;
+
+	// Process the listeners last to first, notifying
+	// those that are interested in this event
+	for (int i = listeners.length - 2; i >= 0; i -= 2) {
+	    if (listeners[i] == DataSetListener.class) {
+		// Lazily create the event:
+		if (e == null) {
+		    e = new DataSetEvent(dataSetApps, this, eventDataAccessor);
+
+		}
+		((DataSetListener) listeners[i + 1]).dataSetChanged(e);
+	    }
+	}
+	this.lastEvent = e;
+
     }
 
     /**
@@ -220,5 +252,11 @@ public class DataSetBroadcaster {
 		((AuxiliaryDataSetListener) listeners[i + 1]).dataSetAdded(e);
 	    }
 	}
+    }
+
+    @Override
+    public void dataSetChanged(DataSetEvent e) {
+	this.lastEvent = e;
+
     }
 }
