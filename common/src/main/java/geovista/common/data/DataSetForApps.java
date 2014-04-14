@@ -338,6 +338,10 @@ public class DataSetForApps {
      */
 
     public String getObservationName(int obs) {
+	if (observationNames == null) {
+	    logger.severe("observation names requested when observation names are null, returning empty string");
+	    return "";
+	}
 	return observationNames[obs];
     }
 
