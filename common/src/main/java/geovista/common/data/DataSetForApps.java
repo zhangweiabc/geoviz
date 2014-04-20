@@ -139,6 +139,73 @@ public class DataSetForApps {
 	DataSetForApps dsaNew = new DataSetForApps(newData);
 	dsaNew.sTempoMetadata = metadata;
 	return dsaNew;
+
+    }
+
+    public DataSetForApps subSet(int[] ids) {
+	Object[] newObjArray = new Object[this.getDataObjectOriginal().length];
+	String[] varNames = (String[]) this.getDataObjectOriginal()[0];
+
+	for (int i = 1; i < varNames.length + 1; i++) {
+	    Object oldArray = this.getDataObjectOriginal()[i];
+	    if (oldArray instanceof double[]) {
+		newObjArray[i] = copySubsetDouble(ids, (double[]) oldArray);
+	    } else if (oldArray instanceof int[]) {
+		newObjArray[i] = new int[ids.length];
+	    } else if (oldArray instanceof String[]) {
+		newObjArray[i] = new String[ids.length];
+	    } else if (oldArray instanceof boolean[]) {
+		newObjArray[i] = new boolean[ids.length];
+	    }
+
+	}
+
+	for (int i = 1 + varNames.length; i < this.getDataObjectOriginal().length; i++) {
+	    newObjArray[i] = this.getDataObjectOriginal()[i];
+	}
+
+	DataSetForApps newDSA = new DataSetForApps(newObjArray);
+	return newDSA;
+    }
+
+    private double[] copySubsetDouble(int[] ids, double[] oldArray) {
+	double[] newData = new double[ids.length];
+
+	for (int i = 0; i < ids.length; i++) {
+	    int index = ids[i];
+	    newData[i] = oldArray[index];
+	}
+	return newData;
+    }
+
+    private int[] copySubsetInt(int[] ids, int[] oldArray) {
+	int[] newData = new int[ids.length];
+
+	for (int i = 0; i < ids.length; i++) {
+	    int index = ids[i];
+	    newData[i] = oldArray[index];
+	}
+	return newData;
+    }
+
+    private String[] copySubsetString(int[] ids, String[] oldArray) {
+	String[] newData = new String[ids.length];
+
+	for (int i = 0; i < ids.length; i++) {
+	    int index = ids[i];
+	    newData[i] = oldArray[index];
+	}
+	return newData;
+    }
+
+    private boolean[] copySubsetBoolean(int[] ids, boolean[] oldArray) {
+	boolean[] newData = new boolean[ids.length];
+
+	for (int i = 0; i < ids.length; i++) {
+	    int index = ids[i];
+	    newData[i] = oldArray[index];
+	}
+	return newData;
     }
 
     public Object getSTempoMetadata() {
