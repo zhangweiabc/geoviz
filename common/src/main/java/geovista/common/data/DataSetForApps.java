@@ -49,7 +49,6 @@ public class DataSetForApps {
     public static final int TYPE_NAME = 0;
     public static final int TYPE_DOUBLE = 1;
     public static final int TYPE_INTEGER = 2;
-    public static final int TYPE_BOOLEAN = 3;
 
     public static final int SPATIAL_TYPE_NONE = -1;
     public static final int SPATIAL_TYPE_POINT = 0;
@@ -151,11 +150,11 @@ public class DataSetForApps {
 	    if (oldArray instanceof double[]) {
 		newObjArray[i] = copySubsetDouble(ids, (double[]) oldArray);
 	    } else if (oldArray instanceof int[]) {
-		newObjArray[i] = new int[ids.length];
+		newObjArray[i] = copySubsetInt(ids, (int[]) oldArray);
 	    } else if (oldArray instanceof String[]) {
-		newObjArray[i] = new String[ids.length];
-	    } else if (oldArray instanceof boolean[]) {
-		newObjArray[i] = new boolean[ids.length];
+		newObjArray[i] = copySubsetString(ids, (String[]) oldArray);
+	    } else {
+		logger.severe("unknown data type");
 	    }
 
 	}
@@ -190,16 +189,6 @@ public class DataSetForApps {
 
     private String[] copySubsetString(int[] ids, String[] oldArray) {
 	String[] newData = new String[ids.length];
-
-	for (int i = 0; i < ids.length; i++) {
-	    int index = ids[i];
-	    newData[i] = oldArray[index];
-	}
-	return newData;
-    }
-
-    private boolean[] copySubsetBoolean(int[] ids, boolean[] oldArray) {
-	boolean[] newData = new boolean[ids.length];
 
 	for (int i = 0; i < ids.length; i++) {
 	    int index = ids[i];
@@ -826,9 +815,6 @@ public class DataSetForApps {
 	    } else if (data[i + 1] instanceof int[]) {
 		dataType[i] = DataSetForApps.TYPE_INTEGER;
 		numNumericAttributes++;
-	    } else if (data[i + 1] instanceof boolean[]) {
-		dataType[i] = DataSetForApps.TYPE_BOOLEAN;
-		numNumericAttributes++;
 	    } else {
 		dataType[i] = DataSetForApps.TYPE_NONE;
 	    }
@@ -912,8 +898,6 @@ public class DataSetForApps {
 	    numObservations = ((double[]) dataSetNumericAndSpatial[1]).length;
 	} else if (dataType[0] == DataSetForApps.TYPE_INTEGER) {
 	    numObservations = ((int[]) dataSetNumericAndSpatial[1]).length;
-	} else if (dataType[0] == DataSetForApps.TYPE_BOOLEAN) {
-	    numObservations = ((boolean[]) dataSetNumericAndSpatial[1]).length;
 	}
 
     }
