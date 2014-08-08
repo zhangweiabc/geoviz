@@ -257,7 +257,8 @@ public class GeogCSVReader {
 		String firstString = fileContent[1][i];
 		String secondString = fileContent[2][i];
 		String thirdString = fileContent[3][i];
-		String lastString = fileContent[fileContent[0].length][i];
+		int lastRowNum = fileContent.length;
+		String lastString = fileContent[lastRowNum][i];
 
 		if (isNumeric(firstString) && isNumeric(secondString)
 			&& isNumeric(thirdString) && isNumeric(lastString)) {
