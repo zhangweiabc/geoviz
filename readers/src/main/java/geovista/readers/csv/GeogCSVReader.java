@@ -358,7 +358,7 @@ public class GeogCSVReader {
 	try {
 	    returnVal = Double.parseDouble(input);
 	} catch (NumberFormatException ex) {
-	    logger.info("forced " + input + " to NaN");
+	    logger.fine("forced " + input + " to NaN");
 	}
 
 	return returnVal;
