@@ -31,6 +31,8 @@ public class GeogCSVReader {
     final static Logger logger = Logger
 	    .getLogger(GeogCSVReader.class.getName());
 
+    private char delimiter = "\t".toCharArray()[0];
+
     /**
    
      */
@@ -41,13 +43,21 @@ public class GeogCSVReader {
 	NULL_STRINGS[2] = NULL_STRING_THREE;
     }
 
+    public GeogCSVReader(char delimiter) {
+	NULL_STRINGS[0] = NULL_STRING;
+	NULL_STRINGS[1] = NULL_STRING_TWO;
+	NULL_STRINGS[2] = NULL_STRING_THREE;
+	this.delimiter = delimiter;
+
+    }
+
     public Object[] readFileStreaming(InputStream is) {
 	// get first line
 
 	BufferedReader in = new BufferedReader(new InputStreamReader(is));
 	Iterable<CSVRecord> parser = null;
 	try {
-	    parser = CSVFormat.DEFAULT.withDelimiter("\t".charAt(0)).parse(in);
+	    parser = CSVFormat.DEFAULT.withDelimiter(this.delimiter).parse(in);
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
@@ -61,7 +71,7 @@ public class GeogCSVReader {
 	BufferedReader in = new BufferedReader(new InputStreamReader(is));
 	Iterable<CSVRecord> parser = null;
 	try {
-	    parser = CSVFormat.DEFAULT.withDelimiter("\t".charAt(0)).parse(in);
+	    parser = CSVFormat.DEFAULT.withDelimiter(this.delimiter).parse(in);
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
