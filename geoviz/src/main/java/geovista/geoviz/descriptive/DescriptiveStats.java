@@ -92,11 +92,11 @@ implements SelectionListener, DataSetListener {
 		bottomPanel.add(selObsPanel);
 
 		setLayout(new BorderLayout());
-		this.add(bottomPanel, BorderLayout.SOUTH);
-		JTable table = new JTable();
-		JScrollPane sPane = new JScrollPane();
-		sPane.add(table);
-		this.add(sPane);
+		this.add(bottomPanel, BorderLayout.CENTER);
+		//JTable table = new JTable();
+		//JScrollPane sPane = new JScrollPane();
+		//sPane.add(table);
+		//this.add(sPane);
 
 	}
 
