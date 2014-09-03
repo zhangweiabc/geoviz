@@ -138,13 +138,17 @@ public class TableViewer extends JPanel implements SelectionListener,
 		ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 	// Add the scroll pane to this panel.
-	add(scrollPane);
+	add(scrollPane, BorderLayout.CENTER);
 	stats = new DescriptiveStats();
 	if (seeStats) {
-	    add(stats, BorderLayout.SOUTH);
+	    add(stats, BorderLayout.EAST);
 	}
 	setPreferredSize(new Dimension(300, 600));
 	setVisible(true);
+    }
+    
+    public JPanel getStatsPanel() {
+	return stats;
     }
 
     DataSetTableModel getDefaultData() {
@@ -450,14 +454,14 @@ public class TableViewer extends JPanel implements SelectionListener,
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-	logger.info("");
+	//logger.info("");
 	mouseIn = true;
 
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-	logger.info("");
+	//logger.info("");
 	mouseIn = false;
 
     }
